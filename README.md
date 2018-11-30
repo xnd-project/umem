@@ -3,7 +3,7 @@ Unifying MEmory Management library for connecting different memory devices and i
 
 ## Introduction
 
-Memory management is an integral parts of any software
+Memory management is an integral part of any software
 library. Libraries such as [XND](https://xnd.io) (efficient array
 representations), [Apache Arrow](https://arrow.apache.org/) (in-memory
 data storage), and others that implement data storage formats for
@@ -16,12 +16,12 @@ libraries have. There exists a number of projects such as
 [OpenCL](https://www.khronos.org/opencl/),
 [HSA](https://en.wikipedia.org/wiki/Heterogeneous_System_Architecture),
 etc.  that aim at providing unifying interfaces to the heterogeneous
-set of devices. but these projects are very large and performance-wise
+set of devices. But these projects are very large and performance-wise
 can be sub-optimal (ref CUDA vs OpenCL).
 
 The UMEM project aims at providing an easy-to-use and simple interface
 to memory management tasks of most popular devices such as CPU, GPU,
-as well as different memory management interfaces (files, mmap, memory
+as well as of different memory management interfaces (files, mmap, memory
 pools, etc).
 
 The core part of UMEM is written in C for efficency but using OOP
@@ -29,22 +29,22 @@ design to be easily extensible. Plans are providing the core part also
 in C++ and interfacing UMEM to high-level scripting languages such as
 Python, etc.
 
-## Memory locality model
+## UMEM memory model
 
 The fundamental idea behind UMEM design is that the data location in
 any storage device or interface can be represented as an integer
 valued address within the context of the device or interface. For
-instance, the data in host RAM can be referred to a C pointer value
+instance, the data in host RAM can be referred to via C pointer value
 which can be cast to an integer; the data in GPU device memory can be
 referred to via C pointer value as well; the data in a file can also
 be addressed using the position returned by `ftell` function. And so
 on.
 
 UMEM uses `uintptr_t` C type (defined in stdint.h) for addressing data
-in any storage device.  UMEM provides device-independent API and
-efficient implementations for moving data between different devices.
-For instance, one can use a single API function for copying data from
-GPU device memory to a file on the disk drive.
+in any supported storage device.  UMEM provides device-independent API and
+efficient implementations for copying data between different devices.
+For instance, one can use a single UMEM API function to copy data from
+GPU device memory, say, to a file on the disk drive.
 
 ## Example in C
 
