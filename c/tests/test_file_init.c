@@ -28,8 +28,8 @@ int main() {
   assert_str_eq((char*)addr2, text);
   assert_is_ok(file);
   umem_free(&host, addr2);
-  umemFile_dtor(&file); // this also closes the file
-  umemHost_dtor(&host);
+  umem_dtor(&file); // this also closes the file
+  umem_dtor(&host);
   assert_is_ok(file);
   assert_is_ok(host);
   RETURN_STATUS;

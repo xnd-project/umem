@@ -13,7 +13,7 @@ int main() {
   assert_str_eq((char*)addr, "aaaaabbbbb");
   umem_free(&host, addr);
   assert_is_ok(host);
-  umemHost_dtor(&host);
+  umem_dtor(&host);
   assert_is_ok(host);
   RETURN_STATUS;
 }

@@ -17,7 +17,7 @@ int main() {
   umem_free(&host, addr2);
   umem_free(&host, addr1);
   assert_is_ok(host);
-  umemHost_dtor(&host);
+  umem_dtor(&host);
   assert_is_ok(host);
   RETURN_STATUS;
 }

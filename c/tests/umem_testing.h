@@ -24,11 +24,21 @@
 
 #define assert_is_ok(dev)						\
   do {									\
-    if (!umem_is_ok(&dev.super)) {					\
+    if (!umem_is_ok(&dev)) {						\
       errno = ECANCELED;						\
-      umemDeviceType status = umem_get_status(&dev.super);		\
+      umemDeviceType status = umem_get_status(&dev);			\
       err(EXIT_FAILURE, "%s: %s (%s#%d)" , umem_get_status_name(status), \
-	  umem_get_message(&dev.super), __FILE__, __LINE__);		\
+	  umem_get_message(&dev), __FILE__, __LINE__);			\
+    }									\
+  } while(0)
+
+#define assert_is_not_ok(dev)						\
+  do {									\
+    if (umem_is_ok(&dev)) {						\
+      errno = ECANCELED;						\
+      umemDeviceType status = umem_get_status(&dev);			\
+      err(EXIT_FAILURE, "%s: %s (%s#%d)" , umem_get_status_name(status), \
+	  umem_get_message(&dev), __FILE__, __LINE__);			\
     }									\
   } while(0)
 

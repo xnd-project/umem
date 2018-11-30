@@ -18,6 +18,10 @@
   Implementations of umemHostMemory methods.
 */
 
+static void umemHost_dtor_(umemVirtual * const me) {
+  umemVirtual_dtor(me);
+}
+
 static uintptr_t umemHost_alloc_(umemVirtual * const me, size_t nbytes) {
   assert(me->type == umemHostDevice);
   uintptr_t adr = 0;
@@ -67,6 +71,7 @@ static void umemHost_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
 
 void umemHost_ctor(umemHost * const me) {
   static struct umemVtbl const vtbl = {
+    &umemHost_dtor_,
     &umemHost_alloc_,
     &umemHost_free_,
     &umemHost_set_,
@@ -96,7 +101,7 @@ void umem_copy_to_via_host(void * const me, uintptr_t src_adr,
       umem_free(&host, host_adr);
     }
   }
-  umemHost_dtor(&host);
+  umem_dtor(&host);
 }
 
 void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
@@ -113,5 +118,5 @@ void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
       umem_free(&host, host_adr);
     }
   }
-  umemHost_dtor(&host);
+  umem_dtor(&host);
 }

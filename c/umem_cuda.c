@@ -20,6 +20,9 @@
 /*
   Implementations of umemCuda methods.
 */
+static void umemCuda_dtor_(umemVirtual * const me) {
+  umemVirtual_dtor(me);
+}
 
 static uintptr_t umemCuda_alloc_(umemVirtual * const me, size_t nbytes) {
   assert(me->type == umemCudaDevice);
@@ -113,6 +116,7 @@ static void umemCuda_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
 
 void umemCuda_ctor(umemCuda * const me, int device) {
   static struct umemVtbl const vtbl = {
+    &umemCuda_dtor_,
     &umemCuda_alloc_,
     &umemCuda_free_,
     &umemCuda_set_,

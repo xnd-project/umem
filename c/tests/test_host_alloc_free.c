@@ -4,9 +4,9 @@ int main() {
   umemHost host;
   umemHost_ctor(&host);
   uintptr_t addr = umem_alloc(&host, 10);
-  assert(umem_is_ok(&host.super));
+  assert_is_ok(host);
   umem_free(&host, addr);
-  assert(umem_is_ok(&host.super));
-  umemHost_dtor(&host);
+  assert_is_ok(host);
+  umem_dtor(&host);
   RETURN_STATUS;
 }

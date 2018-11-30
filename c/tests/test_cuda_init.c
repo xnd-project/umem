@@ -21,9 +21,9 @@ int main() {
   assert_is_ok(cuda);
   umem_free(&host, addr2);
   assert_is_ok(host);
-  umemCuda_dtor(&cuda);
+  umem_dtor(&cuda);
   assert_is_ok(cuda);
-  umemHost_dtor(&host);
+  umem_dtor(&host);
   assert_is_ok(host);
   RETURN_STATUS;
 }

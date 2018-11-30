@@ -8,7 +8,7 @@ int main() {
   assert_is_ok(cuda);
   umem_free(&cuda, addr);
   assert_is_ok(cuda);
-  umemCuda_dtor(&cuda);
+  umem_dtor(&cuda);
   assert_is_ok(cuda);
   RETURN_STATUS;
 }

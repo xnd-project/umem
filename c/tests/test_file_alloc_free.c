@@ -7,7 +7,7 @@ int main() {
   assert_is_ok(file);
   umem_free(&file, addr);
   assert_is_ok(file);
-  umemFile_dtor(&file);
+  umem_dtor(&file);
   assert_is_ok(file);
   RETURN_STATUS;
 }

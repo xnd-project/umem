@@ -52,6 +52,12 @@ static void umemFile_free_(umemVirtual * const me, uintptr_t adr) {
 }
 
 
+static void umemFile_dtor_(umemVirtual * const me) {
+  umemFile_free_(me, 0);    
+  umemVirtual_dtor(me);
+}
+
+
 static void umemFile_set_(umemVirtual * const me,
 			  uintptr_t adr, int c, size_t nbytes) {
   assert(me->type == umemFileDevice);
@@ -145,6 +151,7 @@ static void umemFile_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
 void umemFile_ctor(umemFile * const me,
 		   const char * filename, const char * mode) {
   static struct umemVtbl const vtbl = {
+    &umemFile_dtor_,
     &umemFile_alloc_,
     &umemFile_free_,
     &umemFile_set_,
@@ -161,7 +168,3 @@ void umemFile_ctor(umemFile * const me,
 }
 
 
-void umemFile_dtor(umemFile * const me) {
-  umemFile_free_(&me->super, 0);    
-  umemVirtual_dtor(&me->super);
-}
