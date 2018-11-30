@@ -99,6 +99,10 @@ File - using fopen/fclose/fread,fwrite
 
 API:
 ```
+Context types:
+  umemHost
+  umemCuda
+  umemFile
 Constructors:
   umemHost_ctor(&me)
   umemCuda_ctor(&me, device)
