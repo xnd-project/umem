@@ -162,6 +162,18 @@ umem_set_status(&me, type, message)
 umem_clear_status(&me)
 ```
 
+## Building and testing UMEM
+
+```
+git clone https://github.com/plures/umem.git
+mkdir build
+cd build
+cmake ../mem/c
+make
+make test                                     # runs unittests
+ctest -D ExperimentalMemCheck -E test_cuda    # runs valgrind
+```
+
 ## Extending UMEM
 
 To add support for a new memory device or interface, one must:
