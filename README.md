@@ -31,7 +31,7 @@ interfacing UMEM to high-level scripting languages such as Python, etc.
 The fundamental idea behind UMEM design is that the data location in any storage device 
 or interface can be represented as an integer valued address within the context of the
 device or interface. For instance, the data in host RAM can be referred to a C pointer value 
-which can be cast to an integer; the data in GPU device memory can be referred to via C pointer value;
+which can be cast to an integer; the data in GPU device memory can be referred to via C pointer value as well;
 the data in a file can also be addressed using the position returned by `ftell` function. And so on.
 
 UMEM uses `uintptr_t` C type (defined in stdint.h) for addressing data in any storage device.
