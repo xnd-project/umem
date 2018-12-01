@@ -67,7 +67,6 @@ extern void umemVirtual_ctor(umemVirtual * const me); /* Constructor. Internal A
 
 extern void umemVirtual_dtor(umemVirtual * const me); /* Destructor. Internal API */
 
-
 /*
   Status and error handling functions.
 
@@ -117,6 +116,7 @@ extern void umemHost_ctor(umemHost * const me);  /* Constructor. Public API. */
 struct umemVtbl {
   void (*dtor)(umemVirtual * const me);
   uintptr_t (*alloc)(umemVirtual * const me, size_t nbytes);
+  uintptr_t (*calloc)(umemVirtual * const me, size_t nmemb, size_t size);
   void (*free)(umemVirtual * const me, uintptr_t adr);
   void (*set)(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes);
   void (*copy_to)(umemVirtual * const me, uintptr_t src_adr,
@@ -186,6 +186,10 @@ static inline uintptr_t umem_alloc(void * const me, size_t nbytes) {
   return adr;
 }
 
+static inline uintptr_t umem_calloc(void * const me, size_t nmemb, size_t size) {
+  uintptr_t adr = (*((umemVirtual * const)me)->vptr->calloc)(me, nmemb, size);
+  return adr;
+}
 
 /*
   umem_free frees device memory that was allocated using umem_alloc.
@@ -253,5 +257,10 @@ extern const char* umem_get_device_name(umemDeviceType type);
 
 
 extern const char* umem_get_status_name(umemStatusType type);
+
+
+/* Generic method implementations */
+
+extern uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size);
 
 #endif

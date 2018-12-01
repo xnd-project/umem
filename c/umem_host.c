@@ -33,6 +33,17 @@ static uintptr_t umemHost_alloc_(umemVirtual * const me, size_t nbytes) {
   return adr;
 }
 
+static uintptr_t umemHost_calloc_(umemVirtual * const me, size_t nmemb, size_t size) {
+  assert(me->type == umemHostDevice);
+  uintptr_t adr = 0;
+  if (size != 0)
+    HOST_CALL(me, adr = (uintptr_t)calloc(nmemb, size),
+	      umemMemoryError, return 0,
+	      "umemHost_alloc_: calloc(%ld, %ld)", nmemb, size
+	      );
+  return adr;
+}
+
 static void umemHost_free_(umemVirtual * const me, uintptr_t adr) {
   assert(me->type == umemHostDevice);
   free((void*)adr);
@@ -73,6 +84,7 @@ void umemHost_ctor(umemHost * const me) {
   static struct umemVtbl const vtbl = {
     &umemHost_dtor_,
     &umemHost_alloc_,
+    &umemHost_calloc_,
     &umemHost_free_,
     &umemHost_set_,
     &umemHost_copy_to_,

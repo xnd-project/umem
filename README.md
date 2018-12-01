@@ -138,6 +138,7 @@ RMM             - see cudf
 Public API:
 ```
 umem_alloc(&me, nbytes) -> adr
+umem_calloc(&me, nmemb, size) -> adr
 umem_free(&me, adr)
 umem_set(&me, adr, c, nbytes)
 umem_copy_to(&me, me_adr, &she, she_adr, nbytes)
@@ -173,6 +174,12 @@ umem_get_message(&me) -> <status message>
 umem_is_ok(&me) -> <status is ok>
 umem_set_status(&me, type, message)
 umem_clear_status(&me)
+```
+
+## Prerequisites
+
+```
+conda install cmake make gcc_linux-64 gxx_linux-64 -c conda-forge
 ```
 
 ## Building and testing UMEM

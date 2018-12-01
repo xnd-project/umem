@@ -118,6 +118,7 @@ void umemCuda_ctor(umemCuda * const me, int device) {
   static struct umemVtbl const vtbl = {
     &umemCuda_dtor_,
     &umemCuda_alloc_,
+    &umemVirtual_calloc,
     &umemCuda_free_,
     &umemCuda_set_,
     &umemCuda_copy_to_,

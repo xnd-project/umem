@@ -17,6 +17,12 @@ static uintptr_t umem_alloc_(umemVirtual  * const me, size_t nbytes) {
 }
 
 
+static uintptr_t umem_calloc_(umemVirtual  * const me, size_t nmemb, size_t size) {
+  assert(0); /* purely-virtual function should never be called */
+  return 0;
+}
+
+
 static void umem_free_(umemVirtual  * const me, uintptr_t adr) {
   assert(0); /* purely-virtual function should never be called */
 }
@@ -48,6 +54,7 @@ void umemVirtual_ctor(umemVirtual * const me) {
   static struct umemVtbl const vtbl = {
     &umem_dtor_,
     &umem_alloc_,
+    &umem_calloc_,
     &umem_free_,
     &umem_set_,
     &umem_copy_to_,
@@ -71,6 +78,18 @@ void umemVirtual_dtor(umemVirtual * const me) {
     me->status.message = NULL;
   }
   me->status.type = umemOK;
+}
+
+
+uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size) {
+  uintptr_t adr = 0;
+  if (size != 0) {
+    size_t nbytes = nmemb * size; // TODO: check overflow
+    adr = umem_alloc(me, nbytes);
+    if (umem_is_ok(me))
+      umem_set(me, adr, 0, nbytes);
+  }
+  return adr;
 }
 
 

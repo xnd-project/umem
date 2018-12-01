@@ -153,6 +153,7 @@ void umemFile_ctor(umemFile * const me,
   static struct umemVtbl const vtbl = {
     &umemFile_dtor_,
     &umemFile_alloc_,
+    &umemVirtual_calloc,
     &umemFile_free_,
     &umemFile_set_,
     &umemFile_copy_to_,

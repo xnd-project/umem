@@ -18,7 +18,7 @@ set(UMEM_INCLUDE_DIRS ${CMAKE_SOURCE_DIR})
 #include(CheckLanguage)
 #check_language(CUDA)
 # While FindCUDA is deprecated, we need it for linking with non-.cu files
-find_package(CUDA 9.0 REQUIRED)
+find_package(CUDA 9.0)
 if(CUDA_FOUND)
   message(STATUS "Found CUDA ${CUDA_VERSION_STRING} at ${CUDA_TOOLKIT_ROOT_DIR}")
   message(STATUS "  CUDA_INCLUDE_DIRS=${CUDA_INCLUDE_DIRS}")
