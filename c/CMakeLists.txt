@@ -2,10 +2,6 @@ cmake_minimum_required (VERSION 3.9)
 project (UMEM)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake_modules/")
 
-if (MSVC)
-  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
-endif()
-
 #enable_testing()
 include(CTest)
 
