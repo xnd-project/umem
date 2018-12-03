@@ -37,11 +37,6 @@ before_build:
     cmake --version
     cmake ../c -G %generator%
 
-build:
-  project: c:\projects\umem\build\template.sln
-  verbosity: minimal
-  parallel: true
-
 only_commits:
   files:
     - .appveyor.yml
