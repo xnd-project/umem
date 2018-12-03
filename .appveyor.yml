@@ -37,9 +37,9 @@ before_build:
     cmake --version
     cmake ../c -G %generator%
 
-test_script:
-- cmd: |-
-    ctest -VV -C "%CONFIG%"
+#test_script:
+#- cmd: |-
+#    ctest -VV -C "%CONFIG%"
 
 only_commits:
   files:
