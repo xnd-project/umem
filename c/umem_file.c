@@ -91,23 +91,23 @@ static void umemFile_copy_to_(umemVirtual * const me, uintptr_t src_adr,
   case umemHostDevice:
     FILE_CALL(me, (fseek((FILE*)me_->fp, src_adr, SEEK_SET) == -1),
 	      umemIOError, return,
-	      "umemFile_copy_to_: (fseek(%lx, %lx, SEEK_SET)==-1)",
+	      "umemFile_copy_to_: (fseek(%lx, " PRIxPTR ", SEEK_SET)==-1)",
 	      me_->fp, src_adr);
     size_t rbytes;
     FILE_CALL(me, !((rbytes=fread((void *)dest_adr, 1,
 				  nbytes, (FILE*)me_->fp))==nbytes),
 	      umemIOError, return,
-	      "umemFile_copy_to_: fread(%lx, 1, %ld, %lx)==%d!=%d",
+	      "umemFile_copy_to_: fread(%" PRIxPTR ", 1, %zu, %lx)==%zu!=%zu",
 	      dest_adr, nbytes, me_->fp, rbytes, nbytes);
     FILE_CALL(me, ferror((FILE*)me_->fp), umemIOError, return,
-	      "umemFile_copy_to_: fread(%lx, 1, %zu, %lx)",
+	      "umemFile_copy_to_: fread(%" PRIxPTR ", 1, %zu, %lx)",
 	      dest_adr, nbytes, me_->fp);
     break;
   case umemFileDevice:
     //TODO: write to another file
     {
       char buf[256];
-      snprintf(buf, sizeof(buf), "umemFile_copy_to_(%p, %lx, %p, %lx, %zu)",
+      snprintf(buf, sizeof(buf), "umemFile_copy_to_(%p, %" PRIxPTR ", %p, %" PRIxPTR ", %zu)",
 	       me, src_adr, she, dest_adr, nbytes);
       umem_set_status(me, umemNotImplementedError, buf);
     }
@@ -128,13 +128,13 @@ static void umemFile_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
   case umemHostDevice:
     FILE_CALL(me, (fseek((FILE*)me_->fp, dest_adr, SEEK_SET) == -1),
 	      umemIOError, return,
-	      "umemFile_copy_from_: (fseek(%lx, %lx, SEEK_SET)==-1)",
+	      "umemFile_copy_from_: (fseek(%lx, %" PRIxPTR ", SEEK_SET)==-1)",
 	      me_->fp, dest_adr);
     size_t wbytes;
     FILE_CALL(me, !((wbytes = fwrite((const void *)src_adr, 1,
 				     nbytes, (FILE *)me_->fp))==nbytes),
 	      umemIOError, return,
-	      "umemFile_copy_from_: fwrite(%lx, 1, %ld, %lx)==%zu!=%zu",
+	      "umemFile_copy_from_: fwrite(%" PRIxPTR ", 1, %zu, %lx)==%zu!=%zu",
 	      src_adr, nbytes, me_->fp, wbytes, nbytes);
     break;
   case umemFileDevice:

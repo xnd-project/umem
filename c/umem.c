@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <string.h>
-#include "umem_portability.h"
 #include "umem.h"
 
 /*
