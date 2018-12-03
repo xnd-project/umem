@@ -36,11 +36,11 @@ before_build:
     cd build
     cmake --version
     cmake ../c -G %generator%
-    cmake --build . --target ALL_BUILD --config %configuration% -- /maxcpucount:4
+#    cmake --build . --target ALL_BUILD --config %configuration% -- /maxcpucount:4
 # /verbosity:quiet
 
-test_script:
-    ctest
+#test_script:
+#    ctest
 
 only_commits:
   files:
