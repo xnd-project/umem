@@ -38,7 +38,7 @@ before_build:
     cmake ../c -G %generator%
 
 build:
-  project: c:\projects\umem\build\
+  project: c:\projects\umem\build\template.sln
   verbosity: minimal
   parallel: true
 
