@@ -1,6 +1,8 @@
 # UMEM
 Unifying MEmory Management library for connecting different memory devices and interfaces
 
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/kcedl490a7fbqvoo/branch/master?svg=true)](https://ci.appveyor.com/project/pearu/umem/branch/master)
+
 ## Introduction
 
 Memory management is an integral part of any software

@@ -36,7 +36,8 @@ before_build:
     cd build
     cmake --version
     cmake ../c -G %generator%
-    ctest -C Debug
+    cmake --build . --target ALL_BUILD --config %configuration% -- /maxcpucount:4 /verbosity:quiet
+    ctest
 
 only_commits:
   files:
