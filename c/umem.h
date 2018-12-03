@@ -63,10 +63,10 @@ typedef struct {
 } umemVirtual;
 
 
-extern void umemVirtual_ctor(umemVirtual * const me); /* Constructor. Internal API */
+UMEM_EXTERN void umemVirtual_ctor(umemVirtual * const me); /* Constructor. Internal API */
 
 
-extern void umemVirtual_dtor(umemVirtual * const me); /* Destructor. Internal API */
+UMEM_EXTERN void umemVirtual_dtor(umemVirtual * const me); /* Destructor. Internal API */
 
 /*
   Status and error handling functions.
@@ -90,11 +90,11 @@ static inline int umem_is_ok(void * const me) {
 }
 
 
-extern void umem_set_status(void * const me,
+UMEM_EXTERN void umem_set_status(void * const me,
 			    umemStatusType type, const char * message);
 
 
-extern void umem_clear_status(void * const me);
+UMEM_EXTERN void umem_clear_status(void * const me);
 
 
 /*
@@ -107,7 +107,7 @@ typedef struct {
 } umemHost;
 
 
-extern void umemHost_ctor(umemHost * const me);  /* Constructor. Public API. */
+UMEM_EXTERN void umemHost_ctor(umemHost * const me);  /* Constructor. Public API. */
 
 /*
   umemVtbl defines a table of umemVirtual methods.
@@ -141,7 +141,7 @@ typedef struct {
 } umemCuda;
 
 
-extern void umemCuda_ctor(umemCuda * const me, int device); /* Constructor. Public API. */
+UMEM_EXTERN void umemCuda_ctor(umemCuda * const me, int device); /* Constructor. Public API. */
 
 #endif
 
@@ -163,7 +163,7 @@ typedef struct {
 } umemFile;
 
 
-extern void umemFile_ctor(umemFile * const me,
+UMEM_EXTERN void umemFile_ctor(umemFile * const me,
 			  const char* filename, const char* mode);  /* Constructor. Public API. */
 
 
@@ -239,12 +239,12 @@ static inline void umem_copy_from(void * const me, uintptr_t dest_adr,
 
   Internal/Public API.
 */
-extern void umem_copy_to_via_host(void * const me, uintptr_t src_adr,
+UMEM_EXTERN void umem_copy_to_via_host(void * const me, uintptr_t src_adr,
 				  void * const she, uintptr_t dest_adr,
 				  size_t nbytes);
 
 
-extern void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
+UMEM_EXTERN void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
 				    void * const she, uintptr_t src_adr,
 				    size_t nbytes);
 
@@ -254,14 +254,14 @@ extern void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
 
   Public API.
 */
-extern const char* umem_get_device_name(umemDeviceType type);
+UMEM_EXTERN const char* umem_get_device_name(umemDeviceType type);
 
 
-extern const char* umem_get_status_name(umemStatusType type);
+UMEM_EXTERN const char* umem_get_status_name(umemStatusType type);
 
 
 /* Generic method implementations */
 
-extern uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size);
+UMEM_EXTERN uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size);
 
 #endif
