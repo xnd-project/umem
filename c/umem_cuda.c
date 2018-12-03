@@ -29,7 +29,7 @@ static uintptr_t umemCuda_alloc_(umemVirtual * const me, size_t nbytes) {
   umemCuda * const me_ = (umemCuda * const)me;
   uintptr_t adr;
   CUDA_CALL(me, cudaMalloc((void**)&adr, nbytes), umemMemoryError, return 0,
-	    "umemCuda_alloc_: cudaMalloc(&%lx, %z)",
+	    "umemCuda_alloc_: cudaMalloc(&%lx, %zu)",
 	    adr, nbytes);
   return adr;
 }
@@ -44,7 +44,7 @@ static void umemCuda_free_(umemVirtual * const me, uintptr_t adr) {
 static void umemCuda_set_(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes) {
   assert(me->type == umemCudaDevice);
   CUDA_CALL(me, cudaMemset((void*)adr, c, nbytes), umemMemoryError,return,
-	    "umemCuda_set_: cudaMemset(&%lx, %d, %z)", adr, c, nbytes);
+	    "umemCuda_set_: cudaMemset(&%lx, %d, %zu)", adr, c, nbytes);
 }
 
 
@@ -59,7 +59,7 @@ static void umemCuda_copy_to_(umemVirtual * const me, uintptr_t src_adr,
       umemHost * const she_ = (umemHost * const)she;
       CUDA_CALL(me, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 			       nbytes, cudaMemcpyDeviceToHost), umemMemoryError, return,
-		"umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %z, cudaMemcpyDeviceToHost)",
+		"umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %zu, cudaMemcpyDeviceToHost)",
 		dest_adr, src_adr, nbytes);
     }
     break;
@@ -70,13 +70,13 @@ static void umemCuda_copy_to_(umemVirtual * const me, uintptr_t src_adr,
 	CUDA_CALL(me, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 				 nbytes, cudaMemcpyDeviceToDevice),
 		  umemMemoryError, return,
-		  "umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %z, cudaMemcpyDeviceToDevice)",
+		  "umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %zu, cudaMemcpyDeviceToDevice)",
 		  dest_adr, src_adr, nbytes);
       } else {
 	CUDA_CALL(me, cudaMemcpyPeer((void*)dest_adr, she_->device,
 				     (const void*)src_adr, me_->device,
 				     nbytes), umemMemoryError, return,
-		  "umemCuda_copy_to_: cudaMemcpyPeer(%lx, %d, %lx, %d, %z)",
+		  "umemCuda_copy_to_: cudaMemcpyPeer(%lx, %d, %lx, %d, %zu)",
 		  dest_adr, she_->device, src_adr, me_->device, nbytes);	
       }
     }
@@ -98,7 +98,7 @@ static void umemCuda_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
       CUDA_CALL(me, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 			       nbytes, cudaMemcpyHostToDevice),
 		umemMemoryError, return,
-		"umemCuda_copy_from_: cudaMemcpy(%lx, %lx, %z, cudaMemcpyHostToDevice)",
+		"umemCuda_copy_from_: cudaMemcpy(%lx, %lx, %zu, cudaMemcpyHostToDevice)",
 		dest_adr, src_adr, nbytes);
     }
     break;

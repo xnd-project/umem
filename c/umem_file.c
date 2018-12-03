@@ -73,7 +73,7 @@ static void umemFile_set_(umemVirtual * const me,
     wbytes += fwrite(cbuf, 1, bbytes,  (FILE *)me_->fp);
     FILE_CALL(me, ferror((FILE*)me_->fp), umemIOError,
 	      do { clearerr((FILE*)me_->fp); return;} while(0),
-	      "umemFile_set_: fwrite(%p, 1, %z, %lx)",
+	      "umemFile_set_: fwrite(%p, 1, %zu, %lx)",
 	      cbuf, bbytes, me_->fp);
     bytes -= bbytes;
   }
@@ -100,14 +100,14 @@ static void umemFile_copy_to_(umemVirtual * const me, uintptr_t src_adr,
 	      "umemFile_copy_to_: fread(%lx, 1, %ld, %lx)==%d!=%d",
 	      dest_adr, nbytes, me_->fp, rbytes, nbytes);
     FILE_CALL(me, ferror((FILE*)me_->fp), umemIOError, return,
-	      "umemFile_copy_to_: fread(%lx, 1, %z, %lx)",
+	      "umemFile_copy_to_: fread(%lx, 1, %zu, %lx)",
 	      dest_adr, nbytes, me_->fp);
     break;
   case umemFileDevice:
     //TODO: write to another file
     {
       char buf[256];
-      snprintf(buf, sizeof(buf), "umemFile_copy_to_(%p, %lx, %p, %lx, %z)",
+      snprintf(buf, sizeof(buf), "umemFile_copy_to_(%p, %lx, %p, %lx, %zu)",
 	       me, src_adr, she, dest_adr, nbytes);
       umem_set_status(me, umemNotImplementedError, buf);
     }
@@ -134,7 +134,7 @@ static void umemFile_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
     FILE_CALL(me, !((wbytes = fwrite((const void *)src_adr, 1,
 				     nbytes, (FILE *)me_->fp))==nbytes),
 	      umemIOError, return,
-	      "umemFile_copy_from_: fwrite(%lx, 1, %ld, %lx)==%z!=%z",
+	      "umemFile_copy_from_: fwrite(%lx, 1, %ld, %lx)==%zu!=%zu",
 	      src_adr, nbytes, me_->fp, wbytes, nbytes);
     break;
   case umemFileDevice:
