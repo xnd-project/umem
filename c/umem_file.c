@@ -8,11 +8,11 @@
 #ifdef _MSC_VER
 #define ERRBUF					\
   char errbuf[96];				\
-  strerror_s(errbuf, sizeof(errbuf), errno);
+  strerror_s(errbuf, 96, errno);
 #else
 #define ERRBUF					\
   char errbuf[96];				\
-  strerror_r(errno, errbuf, sizeof(errbuf));
+  strerror_r(errno, errbuf, 96);
 #endif
 
 #define FILE_CALL(ME, CALL, ERROR, ERRRETURN, FMT, ...)			\
@@ -105,7 +105,7 @@ static void umemFile_copy_to_(umemVirtual * const me, uintptr_t src_adr,
   assert(me_->fp != 0);
   switch(she->type) {
   case umemHostDevice:
-    FILE_CALL(me, (fseek((FILE*)me_->fp, src_adr, SEEK_SET) == -1),
+    FILE_CALL(me, (fseek((FILE*)me_->fp, (long)src_adr, SEEK_SET) == -1),
 	      umemIOError, return,
 	      "umemFile_copy_to_: (fseek(%" PRIxPTR ", %" PRIxPTR ", SEEK_SET)==-1)",
 	      me_->fp, src_adr);
@@ -142,7 +142,7 @@ static void umemFile_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
   assert(me_->fp != 0);
   switch(she->type) {
   case umemHostDevice:
-    FILE_CALL(me, (fseek((FILE*)me_->fp, dest_adr, SEEK_SET) == -1),
+    FILE_CALL(me, (fseek((FILE*)me_->fp, (long)dest_adr, SEEK_SET) == -1),
 	      umemIOError, return,
 	      "umemFile_copy_from_: (fseek(%" PRIxPTR ", %" PRIxPTR ", SEEK_SET)==-1)",
 	      me_->fp, dest_adr);
