@@ -179,7 +179,7 @@ umem_clear_status(&me)
 ## Prerequisites
 
 ```
-conda install cmake make gcc_linux-64 gxx_linux-64 -c conda-forge
+conda install cmake make gcc_linux-64 gxx_linux-64 valgrind -c conda-forge
 ```
 
 ## Building and testing UMEM
@@ -188,7 +188,7 @@ conda install cmake make gcc_linux-64 gxx_linux-64 -c conda-forge
 git clone https://github.com/plures/umem.git
 mkdir build
 cd build
-cmake ../mem/c
+cmake ../umem/c
 make
 make test                                     # runs unittests
 ctest -D ExperimentalMemCheck -E test_cuda    # runs valgrind

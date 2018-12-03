@@ -115,11 +115,15 @@ void umem_set_status(void * const me,
 		 umem_get_status_name(me_->status.type),
 		 umem_get_status_name(type));
       }
+      size_t l1 = strlen(me_->status.message);
+      size_t l2 = strlen(buf);
+      size_t l3 = strlen(message);
       me_->status.message = realloc(me_->status.message,
-				    strlen(me_->status.message) + strlen(buf) + strlen(message) + 2);
-      strncat(me_->status.message, buf, strlen(buf));
-      strncat(me_->status.message, "\n", 1);
-      strncat(me_->status.message, message, strlen(message));
+				    l1 + l2 + l3 + 2);
+      strncpy(me_->status.message + l1, buf, l2);
+      strncpy(me_->status.message + l1 + l2, "\n", 1);
+      strncpy(me_->status.message + l1 + l2 + 1, message, l3);
+      me_->status.message[l1+l2+l3+1] = '\0';
     }
   }
   me_->status.type = type;
