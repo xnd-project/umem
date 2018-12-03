@@ -35,12 +35,14 @@ before_build:
     mkdir build
     cd build
     cmake --version
-    cmake ../c -G %generator%
-#    cmake --build . --target ALL_BUILD --config %configuration% -- /maxcpucount:4
-# /verbosity:quiet
 
-#test_script:
-#    ctest
+build_script:
+- cmd: |-
+    cmake ../c -G %generator%
+
+test_script:
+- cmd: |-
+    ctest -VV -C "%CONFIG%"
 
 only_commits:
   files:
