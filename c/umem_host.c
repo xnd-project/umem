@@ -28,7 +28,7 @@ static uintptr_t umemHost_alloc_(umemVirtual * const me, size_t nbytes) {
   if (nbytes != 0)
     HOST_CALL(me, adr = (uintptr_t)malloc(nbytes),
 	      umemMemoryError, return 0,
-	      "umemHost_alloc_: malloc(%d)", nbytes
+	      "umemHost_alloc_: malloc(%z)", nbytes
 	      );
   return adr;
 }
@@ -39,7 +39,7 @@ static uintptr_t umemHost_calloc_(umemVirtual * const me, size_t nmemb, size_t s
   if (size != 0)
     HOST_CALL(me, adr = (uintptr_t)calloc(nmemb, size),
 	      umemMemoryError, return 0,
-	      "umemHost_alloc_: calloc(%ld, %d)", nmemb, size
+	      "umemHost_alloc_: calloc(%z, %z)", nmemb, size
 	      );
   return adr;
 }
@@ -52,7 +52,7 @@ static void umemHost_free_(umemVirtual * const me, uintptr_t adr) {
 static void umemHost_set_(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes) {
   assert(me->type == umemHostDevice);
   HOST_CALL(me, memset((void*)adr, c, nbytes), umemMemoryError, return,
-	    "umemHost_set_: memset(&%lx, %d, %d)", adr, c, nbytes);
+	    "umemHost_set_: memset(&%lx, %d, %z)", adr, c, nbytes);
 }
 
 static void umemHost_copy_to_(umemVirtual * const me, uintptr_t src_adr,
@@ -61,7 +61,7 @@ static void umemHost_copy_to_(umemVirtual * const me, uintptr_t src_adr,
   assert(me->type == umemHostDevice);
   if (she->type == umemHostDevice) {
     HOST_CALL(me, memcpy((void*)dest_adr, (void*)src_adr, nbytes), umemMemoryError, return,
-	      "umemHost_copy_to_: memcpy(%lx, %lx, %d)", dest_adr, src_adr, nbytes);
+	      "umemHost_copy_to_: memcpy(%lx, %lx, %z)", dest_adr, src_adr, nbytes);
   } else
     umem_copy_from(she, dest_adr, me, src_adr, nbytes);
 }
