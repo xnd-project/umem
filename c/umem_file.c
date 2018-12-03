@@ -10,10 +10,8 @@
   int status = (CALL);							\
   if (status != 0) {							\
     char buf[256];							\
-    snprintf(buf, sizeof(buf), FMT " -> %d [errno=%d (", __VA_ARGS__,	\
-	     status, errno);						\
-    strerror_r(errno, buf + strlen(buf), sizeof(buf) - strlen(buf));	\
-    snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), ")]");	\
+    snprintf(buf, sizeof(buf), FMT " -> %d [errno=%d (%s)]", __VA_ARGS__, \
+	     status, errno, strerror(errno));				\
     umem_set_status(ME, ERROR, buf);					\
     ERRRETURN;								\
   } assert(!errno);							\

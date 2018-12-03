@@ -120,9 +120,9 @@ void umem_set_status(void * const me,
       size_t l3 = strlen(message);
       me_->status.message = realloc(me_->status.message,
 				    l1 + l2 + l3 + 2);
-      strncpy(me_->status.message + l1, buf, l2);
-      strncpy(me_->status.message + l1 + l2, "\n", 1);
-      strncpy(me_->status.message + l1 + l2 + 1, message, l3);
+      memcpy(me_->status.message + l1, buf, l2);
+      memcpy(me_->status.message + l1 + l2, "\n", 1);
+      memcpy(me_->status.message + l1 + l2 + 1, message, l3);
       me_->status.message[l1+l2+l3+1] = '\0';
     }
   }
