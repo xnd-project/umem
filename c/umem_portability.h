@@ -6,6 +6,7 @@
 #ifdef _MSC_VER
 #define strdup _strdup
 #define strerror_r strerror_s
+#define strncat strncat_s
 #else
 
 #endif

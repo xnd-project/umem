@@ -37,7 +37,7 @@ static uintptr_t umemFile_alloc_(umemVirtual * const me, size_t nbytes) {
   long pos = -1;
   FILE_CALL(me, !((pos = ftell((FILE*)me_->fp)) == -1),
 	    umemIOError, return -1,
-	    "umemFile_alloc_: !(ftell(%lx)==-1)", me_->fp);
+	    "umemFile_alloc_: !(ftell(%" PRIxPTR ")==-1)", me_->fp);
   return pos;
 }
 
@@ -47,7 +47,7 @@ static void umemFile_free_(umemVirtual * const me, uintptr_t adr) {
   umemFile * const me_ = (umemFile * const)me;
   if (me_->fp) {
     FILE_CALL(me, fclose((FILE*)me_->fp), umemIOError, return,
-	      "umemFile_free_: fclose(%lx)", me_->fp);
+	      "umemFile_free_: fclose(%" PRIxPTR ")", me_->fp);
     me_->fp = 0;
   }
 }
@@ -73,7 +73,7 @@ static void umemFile_set_(umemVirtual * const me,
     wbytes += fwrite(cbuf, 1, bbytes,  (FILE *)me_->fp);
     FILE_CALL(me, ferror((FILE*)me_->fp), umemIOError,
 	      do { clearerr((FILE*)me_->fp); return;} while(0),
-	      "umemFile_set_: fwrite(%p, 1, %zu, %lx)",
+	      "umemFile_set_: fwrite(%p, 1, %zu, %" PRIxPTR ")",
 	      cbuf, bbytes, me_->fp);
     bytes -= bbytes;
   }
@@ -91,16 +91,16 @@ static void umemFile_copy_to_(umemVirtual * const me, uintptr_t src_adr,
   case umemHostDevice:
     FILE_CALL(me, (fseek((FILE*)me_->fp, src_adr, SEEK_SET) == -1),
 	      umemIOError, return,
-	      "umemFile_copy_to_: (fseek(%lx, " PRIxPTR ", SEEK_SET)==-1)",
+	      "umemFile_copy_to_: (fseek(%" PRIxPTR ", " PRIxPTR ", SEEK_SET)==-1)",
 	      me_->fp, src_adr);
     size_t rbytes;
     FILE_CALL(me, !((rbytes=fread((void *)dest_adr, 1,
 				  nbytes, (FILE*)me_->fp))==nbytes),
 	      umemIOError, return,
-	      "umemFile_copy_to_: fread(%" PRIxPTR ", 1, %zu, %lx)==%zu!=%zu",
+	      "umemFile_copy_to_: fread(%" PRIxPTR ", 1, %zu, %" PRIxPTR ")==%zu!=%zu",
 	      dest_adr, nbytes, me_->fp, rbytes, nbytes);
     FILE_CALL(me, ferror((FILE*)me_->fp), umemIOError, return,
-	      "umemFile_copy_to_: fread(%" PRIxPTR ", 1, %zu, %lx)",
+	      "umemFile_copy_to_: fread(%" PRIxPTR ", 1, %zu, %" PRIxPTR ")",
 	      dest_adr, nbytes, me_->fp);
     break;
   case umemFileDevice:
@@ -128,13 +128,13 @@ static void umemFile_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
   case umemHostDevice:
     FILE_CALL(me, (fseek((FILE*)me_->fp, dest_adr, SEEK_SET) == -1),
 	      umemIOError, return,
-	      "umemFile_copy_from_: (fseek(%lx, %" PRIxPTR ", SEEK_SET)==-1)",
+	      "umemFile_copy_from_: (fseek(%" PRIxPTR ", %" PRIxPTR ", SEEK_SET)==-1)",
 	      me_->fp, dest_adr);
     size_t wbytes;
     FILE_CALL(me, !((wbytes = fwrite((const void *)src_adr, 1,
 				     nbytes, (FILE *)me_->fp))==nbytes),
 	      umemIOError, return,
-	      "umemFile_copy_from_: fwrite(%" PRIxPTR ", 1, %zu, %lx)==%zu!=%zu",
+	      "umemFile_copy_from_: fwrite(%" PRIxPTR ", 1, %zu, %" PRIxPTR ")==%zu!=%zu",
 	      src_adr, nbytes, me_->fp, wbytes, nbytes);
     break;
   case umemFileDevice:
