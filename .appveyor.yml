@@ -36,7 +36,7 @@ before_build:
     cd build
     cmake --version
     cmake ../c -G %generator%
-    ctest
+    ctest -C Debug
 
 only_commits:
   files:
