@@ -5,13 +5,24 @@
 #include <errno.h>
 #include "umem.h"
 
+#ifdef _MSC_VER
+#define ERRBUF					\
+  char errbuf[96];				\
+  strerror_s(errbuf, sizeof(errbuf), errno);
+#else
+#define ERRBUF					\
+  char errbuf[96];				\
+  strerror_r(errno, errbuf, sizeof(errbuf));
+#endif
+
 #define FILE_CALL(ME, CALL, ERROR, ERRRETURN, FMT, ...)			\
   do { assert(!errno);							\
   int status = (CALL);							\
   if (status != 0) {							\
     char buf[256];							\
+    ERRBUF								\
     snprintf(buf, sizeof(buf), FMT " -> %d [errno=%d (%s)]", __VA_ARGS__, \
-	     status, errno, strerror(errno));				\
+	     status, errno, errbuf);				\
     umem_set_status(ME, ERROR, buf);					\
     ERRRETURN;								\
   } assert(!errno);							\
@@ -27,7 +38,7 @@ static uintptr_t umemFile_alloc_(umemVirtual * const me, size_t nbytes) {
   umemFile * const  me_ = (umemFile * const)me;
   if (me_->fp == 0) {
 #ifdef _MSC_VER
-    FILE_CALL(me, fopen_s(&me_->fp, me_->filename, me_->mode),
+    FILE_CALL(me, fopen_s(&((FILE*)me_->fp), me_->filename, me_->mode),
 	      umemIOError, return -1,
 	      "umemFile_alloc_: !fopen_s(&fp, \"%s\", \"%s\")",
 	      me_->filename, me_->mode);
