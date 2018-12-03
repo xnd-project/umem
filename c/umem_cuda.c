@@ -44,7 +44,7 @@ static void umemCuda_free_(umemVirtual * const me, uintptr_t adr) {
 static void umemCuda_set_(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes) {
   assert(me->type == umemCudaDevice);
   CUDA_CALL(me, cudaMemset((void*)adr, c, nbytes), umemMemoryError,return,
-	    "umemCuda_set_: cudaMemset(&%lx, %d, %ld)", adr, c, nbytes);
+	    "umemCuda_set_: cudaMemset(&%lx, %d, %d)", adr, c, nbytes);
 }
 
 
@@ -59,7 +59,7 @@ static void umemCuda_copy_to_(umemVirtual * const me, uintptr_t src_adr,
       umemHost * const she_ = (umemHost * const)she;
       CUDA_CALL(me, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 			       nbytes, cudaMemcpyDeviceToHost), umemMemoryError, return,
-		"umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %ld, cudaMemcpyDeviceToHost)",
+		"umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %d, cudaMemcpyDeviceToHost)",
 		dest_adr, src_adr, nbytes);
     }
     break;
@@ -70,13 +70,13 @@ static void umemCuda_copy_to_(umemVirtual * const me, uintptr_t src_adr,
 	CUDA_CALL(me, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 				 nbytes, cudaMemcpyDeviceToDevice),
 		  umemMemoryError, return,
-		  "umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %ld, cudaMemcpyDeviceToDevice)",
+		  "umemCuda_copy_to_: cudaMemcpy(%lx, %lx, %d, cudaMemcpyDeviceToDevice)",
 		  dest_adr, src_adr, nbytes);
       } else {
 	CUDA_CALL(me, cudaMemcpyPeer((void*)dest_adr, she_->device,
 				     (const void*)src_adr, me_->device,
 				     nbytes), umemMemoryError, return,
-		  "umemCuda_copy_to_: cudaMemcpyPeer(%lx, %d, %lx, %d, %ld)",
+		  "umemCuda_copy_to_: cudaMemcpyPeer(%lx, %d, %lx, %d, %d)",
 		  dest_adr, she_->device, src_adr, me_->device, nbytes);	
       }
     }
@@ -98,7 +98,7 @@ static void umemCuda_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
       CUDA_CALL(me, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 			       nbytes, cudaMemcpyHostToDevice),
 		umemMemoryError, return,
-		"umemCuda_copy_from_: cudaMemcpy(%lx, %lx, %ld, cudaMemcpyHostToDevice)",
+		"umemCuda_copy_from_: cudaMemcpy(%lx, %lx, %d, cudaMemcpyHostToDevice)",
 		dest_adr, src_adr, nbytes);
     }
     break;
