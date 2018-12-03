@@ -4,11 +4,11 @@ branches:
   - master
 clone_folder: c:\projects\umem
 image:
-- Visual Studio 2013
+#- Visual Studio 2013
 - Visual Studio 2015
-- Visual Studio 2017
+#- Visual Studio 2017
 configuration:
-- Release
+#- Release
 - Debug
 platform:
 - x64
