@@ -26,10 +26,17 @@ static uintptr_t umemFile_alloc_(umemVirtual * const me, size_t nbytes) {
   assert(me->type == umemFileDevice);
   umemFile * const  me_ = (umemFile * const)me;
   if (me_->fp == 0) {
+#ifdef _MSC_VER
+    FILE_CALL(me, fopen_s(&me_->fp, me_->filename, me_->mode),
+	      umemIOError, return -1,
+	      "umemFile_alloc_: !fopen_s(&fp, \"%s\", \"%s\")",
+	      me_->filename, me_->mode);
+#else
     FILE_CALL(me, !(me_->fp = (uintptr_t)fopen(me_->filename, me_->mode)),
 	      umemIOError, return -1,
 	      "umemFile_alloc_: !fopen(\"%s\", \"%s\")",
 	      me_->filename, me_->mode);
+#endif
     return 0;
   }
   long pos = -1;
@@ -89,7 +96,7 @@ static void umemFile_copy_to_(umemVirtual * const me, uintptr_t src_adr,
   case umemHostDevice:
     FILE_CALL(me, (fseek((FILE*)me_->fp, src_adr, SEEK_SET) == -1),
 	      umemIOError, return,
-	      "umemFile_copy_to_: (fseek(%" PRIxPTR ", " PRIxPTR ", SEEK_SET)==-1)",
+	      "umemFile_copy_to_: (fseek(%" PRIxPTR ", %" PRIxPTR ", SEEK_SET)==-1)",
 	      me_->fp, src_adr);
     size_t rbytes;
     FILE_CALL(me, !((rbytes=fread((void *)dest_adr, 1,
