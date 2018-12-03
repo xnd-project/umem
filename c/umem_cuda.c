@@ -10,8 +10,8 @@
     cudaError_t error = CALL;						\
     if (error != cudaSuccess) {						\
       char buf[256];							\
-      sprintf(buf, FMT " -> %s: %s", __VA_ARGS__,			\
-	      cudaGetErrorName(error), cudaGetErrorString(error));	\
+      snprintf(buf, sizeof(buf), FMT " -> %s: %s", __VA_ARGS__,		\
+	       cudaGetErrorName(error), cudaGetErrorString(error));	\
       umem_set_status(ME, ERROR, buf);					\
       ERRRETURN;							\
     } else errno = old_errno;						\
@@ -137,8 +137,9 @@ void umemCuda_ctor(umemCuda * const me, int device) {
 	    count); 
   if (!(device >=0 && device < count)) {
     char buf[256];
-    sprintf(buf, "umemCuda_ctor: invalid device number: %d. Must be less than %d",
-	    device, count);
+    snprintf(buf, sizeof(buf),
+	     "umemCuda_ctor: invalid device number: %d. Must be less than %d",
+	     device, count);
     umem_set_status(&me->super, umemValueError, buf);
     return;
   }

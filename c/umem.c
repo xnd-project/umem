@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <string.h>
+#include "umem_portability.h"
 #include "umem.h"
 
 /*
@@ -111,9 +112,9 @@ void umem_set_status(void * const me,
       char buf[256];
       buf[0] = 0;
       if (me_->status.type != type) {
-	sprintf(buf, "\nstatus %s changed to %s",
-		umem_get_status_name(me_->status.type),
-		umem_get_status_name(type));
+	snprintf(buf, sizeof(buf), "\nstatus %s changed to %s",
+		 umem_get_status_name(me_->status.type),
+		 umem_get_status_name(type));
       }
       me_->status.message = realloc(me_->status.message,
 				   strlen(me_->status.message) + strlen(buf) + strlen(message) + 2);

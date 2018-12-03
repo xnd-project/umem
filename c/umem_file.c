@@ -3,20 +3,19 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-#include <unistd.h>
 #include "umem.h"
 
-#define FILE_CALL(ME, CALL, ERROR, ERRRETURN, FMT, ...)		\
-  do { assert(!errno);						\
-    int status = (CALL);					\
-  if (status != 0) {						\
-    char buf[256];						\
-    sprintf(buf, FMT " -> %d [errno=%d (%s)]", __VA_ARGS__,	\
-	    status, errno, strerror(errno));			\
-    umem_set_status(ME, ERROR, buf);				\
-    ERRRETURN;							\
-      } assert(!errno);						\
- } while (0)
+#define FILE_CALL(ME, CALL, ERROR, ERRRETURN, FMT, ...)			\
+  do { assert(!errno);							\
+    int status = (CALL);						\
+    if (status != 0) {							\
+      char buf[256];							\
+      snprintf(buf, sizeof(buf), FMT " -> %d [errno=%d (%s)]", __VA_ARGS__, \
+	       status, errno, strerror(errno));				\
+      umem_set_status(ME, ERROR, buf);					\
+      ERRRETURN;							\
+    } assert(!errno);							\
+  } while (0)
 
 
 /*
@@ -106,8 +105,8 @@ static void umemFile_copy_to_(umemVirtual * const me, uintptr_t src_adr,
     //TODO: write to another file
     {
       char buf[256];
-      sprintf(buf, "umemFile_copy_to_(%p, %lx, %p, %lx, %ld)",
-	      me, src_adr, she, dest_adr, nbytes);
+      snprintf(buf, sizeof(buf), "umemFile_copy_to_(%p, %lx, %p, %lx, %ld)",
+	       me, src_adr, she, dest_adr, nbytes);
       umem_set_status(me, umemNotImplementedError, buf);
     }
     break;

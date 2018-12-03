@@ -4,14 +4,14 @@
 
 #include "umem.h"
 
-#define HOST_CALL(ME, CALL, ERROR, ERRRETURN, FMT, ...)	\
-  do {							\
-    if ((void*)(CALL) == NULL) {			\
-      char buf[256];					\
-      sprintf(buf, FMT "-> NULL", __VA_ARGS__);		\
-      umem_set_status(ME, ERROR, buf);			\
-      ERRRETURN;					\
-    }							\
+#define HOST_CALL(ME, CALL, ERROR, ERRRETURN, FMT, ...)		\
+  do {								\
+    if ((void*)(CALL) == NULL) {				\
+      char buf[256];						\
+      snprintf(buf, sizeof(buf), FMT "-> NULL", __VA_ARGS__);	\
+      umem_set_status(ME, ERROR, buf);				\
+      ERRRETURN;						\
+    }								\
   } while (0)
 
 /*
