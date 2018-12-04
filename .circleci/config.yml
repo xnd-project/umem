@@ -8,7 +8,7 @@ jobs:
           name: Update
           command: |
             apt-get update --assume-yes
-            apt-get install --assume-yes wget
+            apt-get install --assume-yes wget git
             which wget
       - checkout
       - run:
@@ -20,7 +20,7 @@ jobs:
             MINICONDA: $HOME/miniconda
             PATH: $MINICONDA/bin:$PATH
           command: |
-            cd /home/circleci
+            cd $HOME
             env
             hash -r
             env
