@@ -24,12 +24,13 @@ jobs:
             cd $HOME
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -f -p $MINICONDA
+            $MINICONDA/bin/conda activate
             conda config --set always_yes yes
             conda update conda
             conda config --add channels conda-forge
             conda info -a
             conda create -n testenv
-            source activate testenv
+            conda activate testenv
       - run:
           name: Current working directory and listing
           command: echo "`pwd`:\n `ls -la`"
