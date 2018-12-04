@@ -30,7 +30,7 @@ jobs:
             conda update conda
             conda config --add channels conda-forge
             conda info -a
-            conda create -n umem-build -f $PROJECT/.conda/environment.yml
+            conda env create -n umem-build --file=$PROJECT/.conda/environment.yml
             conda activate umem-build
       - run:
           name: Current working directory and listing

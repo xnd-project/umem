@@ -4,6 +4,6 @@ channels:
 dependencies:
   - cmake
   - make
-  - valgring
+  - valgrind
   - gcc_linux-64
   - gxx_linux-64
