@@ -24,7 +24,7 @@ jobs:
             bash miniconda.sh -b -f -p $MINICONDA
             source $MINICONDA/etc/profile.d/conda.sh
             conda update --quiet --yes conda
-            conda env create --quiet --yes -n umem-build --file=$PROJECT/.conda/environment.yml
+            conda env create --quiet -n umem-build --file $PROJECT/.conda/environment.yml
             conda info -a
       - run:
           name: Build
