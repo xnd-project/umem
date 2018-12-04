@@ -6,11 +6,25 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Greeting
-          command: echo Hello, world.
+          name: Install miniconda
+          environment:
+            MINICONDA: $HOME/miniconda
+            PATH: $MINICONDA/bin:$PATH
+	  command:
+	    cd $HOME
+	    pwd
+	    hash -r
+	    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+	    bash miniconda.sh -b -f -p $MINICONDA
+	    conda config --set always_yes yes
+	    conda update conda
+	    conda config --add channels conda-forge
+	    conda info -a
+	    conda create -n testenv
+	    conda activate testenv
       - run:
-          name: Print the Current Time
-          command: date
+          name: Environment
+	  command: env
       - run:
           name: Current working directory and listing
           command: echo "`pwd`:\n `ls -la`"
