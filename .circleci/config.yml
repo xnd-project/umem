@@ -10,7 +10,7 @@ jobs:
           environment:
             MINICONDA: $HOME/miniconda
             PATH: $MINICONDA/bin:$PATH
-          command:
+          command: |
             cd $HOME
             pwd
             hash -r
