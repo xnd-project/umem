@@ -4,6 +4,11 @@ jobs:
     docker:
       - image: debian:stretch
     steps:
+      - run:
+          name: Update
+	  command: |
+	    sudo apt-get update
+	    sudo apt-get install wget
       - checkout
       - run:
           name: Install miniconda
