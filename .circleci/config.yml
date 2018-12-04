@@ -10,6 +10,7 @@ jobs:
             echo 'export MINICONDA=$HOME/miniconda' >> $BASH_ENV
             echo 'export PROJECT=$HOME/project' >> $BASH_ENV
             source $BASH_ENV
+            echo 'test -d $MINICONDA && source $MINICONDA/etc/profile.d/conda.sh' >> $HOME/.bashrc
             env
             pwd
       - run:
@@ -25,8 +26,8 @@ jobs:
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -f -p $MINICONDA
             source $MINICONDA/etc/profile.d/conda.sh
-            conda config --set always_yes yes
-            conda config --set quiet yes
+            conda config --system --set always_yes yes
+            conda config --system --set quiet yes
             conda update conda
             conda config --add channels conda-forge
             conda info -a
