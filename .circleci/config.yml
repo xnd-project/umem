@@ -9,16 +9,21 @@ jobs:
           command: |
             apt-get update --assume-yes
             apt-get install --assume-yes wget
+            which wget
       - checkout
+      - run:
+          name: Environment
+          command: env
       - run:
           name: Install miniconda
           environment:
             MINICONDA: $HOME/miniconda
             PATH: $MINICONDA/bin:$PATH
           command: |
-            cd $HOME
-            pwd
+	    cd /home/circleci
+            env
             hash -r
+	    env
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -f -p $MINICONDA
             conda config --set always_yes yes
@@ -27,9 +32,6 @@ jobs:
             conda info -a
             conda create -n testenv
             conda activate testenv
-      - run:
-          name: Environment
-          command: env
       - run:
           name: Current working directory and listing
           command: echo "`pwd`:\n `ls -la`"
