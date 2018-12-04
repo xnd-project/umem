@@ -8,15 +8,15 @@ jobs:
           name: Set up environment variables
           command: |
             echo 'export MINICONDA=$HOME/miniconda' >> $BASH_ENV
-            #echo 'export PATH=$MINICONDA/bin:$PATH' >> $BASH_ENV
+            echo 'export PROJECT=$HOME/project' >> $BASH_ENV
             source $BASH_ENV
             env
+            pwd
       - run:
           name: Update
           command: |
             apt-get update --assume-yes
             apt-get install --assume-yes wget git bzip2
-            which wget
       - checkout
       - run:
           name: Install miniconda
@@ -26,11 +26,21 @@ jobs:
             bash miniconda.sh -b -f -p $MINICONDA
             source $MINICONDA/etc/profile.d/conda.sh
             conda config --set always_yes yes
+            conda config --set quiet yes
             conda update conda
             conda config --add channels conda-forge
             conda info -a
-            conda create -n testenv
-            conda activate testenv
+            conda create -f $PROJECT/.conda/envrionment.yml
+            conda activate umem
       - run:
           name: Current working directory and listing
-          command: echo "`pwd`:\n `ls -la`"
+          command: |
+            pwd
+            echo "CONDA_PREFIX=$CONDA_PREFIX"
+      - run:
+          name: Building
+          command: |
+            mkdir build-umem-c
+            cd build-umem-c
+            cmake $PROJECT/c
+            make -j 4

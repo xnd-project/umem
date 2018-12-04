@@ -1,0 +1,9 @@
+name: umem
+channels:
+  - conda-forge
+dependencies:
+  - cmake
+  - make
+  - valgring
+  - gcc_linux-64
+  - gxx_linux-64
