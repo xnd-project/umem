@@ -2,7 +2,6 @@
 Unifying MEmory Management library for connecting different memory devices and interfaces
 
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/kcedl490a7fbqvoo/branch/master?svg=true)](https://ci.appveyor.com/project/pearu/umem/branch/master)
-
 [![CircleCI Build status](https://circleci.com/gh/plures/umem/tree/master.svg?style=svg)](https://circleci.com/gh/plures/umem/tree/master)
 
 ## Introduction

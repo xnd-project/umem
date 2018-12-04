@@ -43,3 +43,4 @@ jobs:
             cd build-umem-c
             make test
             ctest -D ExperimentalMemCheck -E test_cuda
+            head -n 50 Testing/Temporary/MemoryChecker.*.log
