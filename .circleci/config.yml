@@ -6,10 +6,11 @@ jobs:
     steps:
       - run:
           name: Set up environment variables
-          echo 'export MINICONDA=$HOME/miniconda' >> $BASH_ENV
-          echo 'export PATH=/path/to/foo/bin:$PATH' >> $BASH_ENV
-          source $BASH_ENV
-          env
+          command: |
+            echo 'export MINICONDA=$HOME/miniconda' >> $BASH_ENV
+            echo 'export PATH=/path/to/foo/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+            env
       - run:
           name: Update
           command: |
