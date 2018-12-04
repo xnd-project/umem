@@ -31,15 +31,16 @@ jobs:
             conda config --add channels conda-forge
             conda info -a
             conda env create -n umem-build --file=$PROJECT/.conda/environment.yml
-            conda activate umem-build
       - run:
           name: Current working directory and listing
           command: |
+            conda activate umem-build
             pwd
             echo "CONDA_PREFIX=$CONDA_PREFIX"
       - run:
           name: Building
           command: |
+            conda activate umem-build
             mkdir build-umem-c
             cd build-umem-c
             cmake $PROJECT/c
