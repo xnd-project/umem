@@ -15,7 +15,6 @@ set(UMEM_LIBRARIES umem)
 set(UMEM_INCLUDE_DIRS ${CMAKE_SOURCE_DIR})
 
 
-
 #enable_language(CUDA)
 #include(CheckLanguage)
 #check_language(CUDA)
@@ -36,8 +35,10 @@ if(CUDA_FOUND)
 
   include_directories(${UMEM_INCLUDE_DIRS})
   cuda_add_library(umem SHARED ${UMEM_SOURCES})
+  cuda_add_library(umem_static STATIC ${UMEM_SOURCES})
 else()
   add_library(umem SHARED ${UMEM_SOURCES})
+  add_library(umem_static STATIC ${UMEM_SOURCES})
 endif()
 
 configure_file (
@@ -51,3 +52,6 @@ add_subdirectory(tests)
 #add_executable(Test test.c)
 #target_link_libraries(Test PUBLIC ${UMEM_LIBRARIES})
 #add_dependencies(Test umem)
+
+install(TARGETS umem umem_static DESTINATION lib)
+install(FILES umem.h umem_portability.h "${PROJECT_BINARY_DIR}/umem_config.h" DESTINATION include)
