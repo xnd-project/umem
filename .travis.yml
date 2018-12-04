@@ -15,17 +15,14 @@ install:
   - conda env create --quiet --name umem-dev --file .conda/environment.yml
   - conda activate umem-dev
   - export PREFIX=$CONDA_PREFIX
-  - gcc --version
-  - python --version
-  - pwd
 
 before_script:
-  - pwd
   - mkdir build-umem-c
   - cd build-umem-c
   - cmake ../c
   - make -j4
 
 script:
-  - cd build-umem-c
   - make test
+  - ctest -D ExperimentalMemCheck -E test_cuda
+  - head -n 50 Testing/Temporary/MemoryChecker.*.log
