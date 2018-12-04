@@ -5,9 +5,9 @@
 
 #define HOST_CALL(ME, CALL, ERROR, ERRRETURN, FMT, ...)		\
   do {								\
-    if ((void*)(CALL) == NULL) {				\
+    if (CALL) {				\
       char buf[256];						\
-      snprintf(buf, sizeof(buf), FMT "-> NULL", __VA_ARGS__);	\
+      snprintf(buf, sizeof(buf), FMT, __VA_ARGS__);	\
       umem_set_status(ME, ERROR, buf);				\
       ERRRETURN;						\
     }								\
@@ -18,6 +18,7 @@
 */
 
 static void umemHost_dtor_(umemVirtual * const me) {
+  me->host = NULL;
   umemVirtual_dtor(me);
 }
 
@@ -25,9 +26,9 @@ static uintptr_t umemHost_alloc_(umemVirtual * const me, size_t nbytes) {
   assert(me->type == umemHostDevice);
   uintptr_t adr = 0;
   if (nbytes != 0)
-    HOST_CALL(me, adr = (uintptr_t)malloc(nbytes),
+    HOST_CALL(me, (adr = (uintptr_t)malloc(nbytes))==0,
 	      umemMemoryError, return 0,
-	      "umemHost_alloc_: malloc(%zu)", nbytes
+	      "umemHost_alloc_: malloc(%zu)->NULL", nbytes
 	      );
   return adr;
 }
@@ -36,12 +37,13 @@ static uintptr_t umemHost_calloc_(umemVirtual * const me, size_t nmemb, size_t s
   assert(me->type == umemHostDevice);
   uintptr_t adr = 0;
   if (size != 0)
-    HOST_CALL(me, adr = (uintptr_t)calloc(nmemb, size),
+    HOST_CALL(me, (adr = (uintptr_t)calloc(nmemb, size))==0,
 	      umemMemoryError, return 0,
-	      "umemHost_alloc_: calloc(%zu, %zu)", nmemb, size
+	      "umemHost_alloc_: calloc(%zu, %zu)->NULL", nmemb, size
 	      );
   return adr;
 }
+
 
 static void umemHost_free_(umemVirtual * const me, uintptr_t adr) {
   assert(me->type == umemHostDevice);
@@ -50,8 +52,8 @@ static void umemHost_free_(umemVirtual * const me, uintptr_t adr) {
 
 static void umemHost_set_(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes) {
   assert(me->type == umemHostDevice);
-  HOST_CALL(me, memset((void*)adr, c, nbytes), umemMemoryError, return,
-	    "umemHost_set_: memset(&%" PRIxPTR ", %d, %zu)", adr, c, nbytes);
+  HOST_CALL(me, memset((void*)adr, c, nbytes)==NULL, umemMemoryError, return,
+	    "umemHost_set_: memset(&%" PRIxPTR ", %d, %zu)->NULL", adr, c, nbytes);
 }
 
 static void umemHost_copy_to_(umemVirtual * const me, uintptr_t src_adr,
@@ -59,8 +61,8 @@ static void umemHost_copy_to_(umemVirtual * const me, uintptr_t src_adr,
 			      size_t nbytes) {
   assert(me->type == umemHostDevice);
   if (she->type == umemHostDevice) {
-    HOST_CALL(me, memcpy((void*)dest_adr, (void*)src_adr, nbytes), umemMemoryError, return,
-	      "umemHost_copy_to_: memcpy(%" PRIxPTR ", %" PRIxPTR ", %zu)",
+    HOST_CALL(me, memcpy((void*)dest_adr, (void*)src_adr, nbytes)==NULL, umemMemoryError, return,
+	      "umemHost_copy_to_: memcpy(%" PRIxPTR ", %" PRIxPTR ", %zu)->NULL",
 	      dest_adr, src_adr, nbytes);
   } else
     umem_copy_from(she, dest_adr, me, src_adr, nbytes);
@@ -90,7 +92,7 @@ void umemHost_ctor(umemHost * const me) {
     &umemHost_copy_to_,
     &umemHost_copy_from_,
   };
-  umemVirtual_ctor(&me->super);
+  umemVirtual_ctor(&me->super, me);
   me->super.type = umemHostDevice;
   me->super.vptr = &vtbl;
 }

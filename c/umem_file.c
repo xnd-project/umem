@@ -70,7 +70,7 @@ static void umemFile_free_(umemVirtual * const me, uintptr_t adr) {
 
 
 static void umemFile_dtor_(umemVirtual * const me) {
-  umemFile_free_(me, 0);    
+  umemFile_free_(me, 0);
   umemVirtual_dtor(me);
 }
 
@@ -177,7 +177,8 @@ void umemFile_ctor(umemFile * const me,
     &umemFile_copy_from_,
   };
   assert(me==(umemFile * const)&me->super);
-  umemVirtual_ctor(&me->super);
+  umemHost_ctor(&me->host);
+  umemVirtual_ctor(&me->super, &me->host);
   me->super.type = umemFileDevice;
   me->super.vptr = &vtbl;
   me->fp = 0;

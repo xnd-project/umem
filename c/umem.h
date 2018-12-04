@@ -60,10 +60,20 @@ typedef struct {
   struct umemVtbl const *vptr;
   umemDeviceType type;
   umemStatus status;
+  void* host;
 } umemVirtual;
 
+/*
+  umemHost represents host memory.
 
-UMEM_EXTERN void umemVirtual_ctor(umemVirtual * const me); /* Constructor. Internal API */
+  Public API.
+*/
+typedef struct {
+  umemVirtual super;
+} umemHost;
+
+
+UMEM_EXTERN void umemVirtual_ctor(umemVirtual * const me, umemHost* host); /* Constructor. Internal API */
 
 
 UMEM_EXTERN void umemVirtual_dtor(umemVirtual * const me); /* Destructor. Internal API */
@@ -97,14 +107,7 @@ UMEM_EXTERN void umem_set_status(void * const me,
 UMEM_EXTERN void umem_clear_status(void * const me);
 
 
-/*
-  umemHost represents host memory.
 
-  Public API.
-*/
-typedef struct {
-  umemVirtual super;
-} umemHost;
 
 
 UMEM_EXTERN void umemHost_ctor(umemHost * const me);  /* Constructor. Public API. */
@@ -157,6 +160,7 @@ UMEM_EXTERN void umemCuda_ctor(umemCuda * const me, int device); /* Constructor.
 */
 typedef struct {
   umemVirtual super;
+  umemHost host;
   uintptr_t fp;
   const char * filename;
   const char * mode;
@@ -191,6 +195,10 @@ static inline uintptr_t umem_calloc(void * const me, size_t nmemb, size_t size) 
   uintptr_t adr = (*((umemVirtual * const)me)->vptr->calloc)(me, nmemb, size);
   return adr;
 }
+
+UMEM_EXTERN uintptr_t umem_aligned_calloc(umemVirtual * const me, size_t alignment, size_t size);
+
+UMEM_EXTERN void umem_aligned_free(void * const me, uintptr_t aligned_adr);
 
 /*
   umem_free frees device memory that was allocated using umem_alloc.
@@ -259,6 +267,10 @@ UMEM_EXTERN const char* umem_get_device_name(umemDeviceType type);
 
 UMEM_EXTERN const char* umem_get_status_name(umemStatusType type);
 
+
+static inline int umem_ispowerof2(size_t x) {
+  return x && !(x & (x - 1));
+}
 
 /* Generic method implementations */
 

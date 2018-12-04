@@ -2,7 +2,7 @@
 
 int main() {
   umemVirtual virt;
-  umemVirtual_ctor(&virt);
+  umemVirtual_ctor(&virt, NULL);
   assert(umem_get_status(&virt) == umemOK);
   assert_is_ok(virt);
   assert_str_eq(umem_get_message(&virt), "");

@@ -50,7 +50,7 @@ static void umem_copy_from_(umemVirtual  * const me, uintptr_t src_adr,
 /*
   umemVirtual constructor.
 */
-void umemVirtual_ctor(umemVirtual * const me) {
+void umemVirtual_ctor(umemVirtual * const me, umemHost * host) {
   static struct umemVtbl const vtbl = {
     &umem_dtor_,
     &umem_alloc_,
@@ -66,6 +66,7 @@ void umemVirtual_ctor(umemVirtual * const me) {
   // message is owned by umemVirtual instance. So, use only
   // umem_set_status or umem_clear_status to change it.
   me->status.message = NULL;
+  me->host = (void*)host;
 }
 
 
@@ -78,6 +79,10 @@ void umemVirtual_dtor(umemVirtual * const me) {
     me->status.message = NULL;
   }
   me->status.type = umemOK;
+  if (me->host != NULL) {
+    umem_dtor(me->host);
+    me->host = NULL;
+  }
 }
 
 
@@ -92,6 +97,38 @@ uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size) 
   return adr;
 }
 
+
+uintptr_t umem_aligned_calloc(umemVirtual * const me, size_t alignment, size_t size) {
+  uintptr_t adr = 0;
+  if (size == 0) return adr;
+  /*
+  HOST_CALL(me, !umem_ispowerof2(alignment), umemValueError, return 0,
+            "umemVirtual_aligned_alloc: alignment %zu must be power of 2",
+            alignment);
+  HOST_CALL(me, size % alignment, umemValueError, return 0,
+            "umemVirtual_aligned_alloc: size %zu must be multiple of alignment %zu",
+            size, alignment);
+  */
+  size_t extra = (alignment - 1) + sizeof(uintptr_t);
+  size_t req = extra + size;
+  adr = umem_calloc(me, req, 1);
+  if (adr==0) return adr;  // this must be error
+  uintptr_t aligned = adr + extra;
+  aligned = aligned - (aligned % alignment);
+
+  umem_copy_to(me->host, (uintptr_t)&adr, me, aligned-sizeof(uintptr_t), sizeof(uintptr_t)); // todo: check status
+  //*((uintptr_t *)aligned - 1) = adr;
+  return aligned;
+}
+
+
+void umem_aligned_free(void * const me, uintptr_t aligned_adr) {
+  umemVirtual * const me_ = me;
+  if (aligned_adr == 0) return;
+  uintptr_t adr = 0;
+  umem_copy_from(me_->host, (uintptr_t)&adr, me, aligned_adr-sizeof(uintptr_t), sizeof(uintptr_t)); // todo: check status
+  umem_free(me, adr);
+}
 
 /*
   Status handling utility functions.

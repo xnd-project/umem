@@ -2,7 +2,7 @@
 
 int main() {
   umemVirtual virt;
-  umemVirtual_ctor(&virt);
+  umemVirtual_ctor(&virt, NULL);
   umem_set_status(&virt, umemNotImplementedError, "notimpl");
   umem_set_status(&virt, umemNotImplementedError, "notimpl2");
   assert(umem_get_status(&virt) == umemNotImplementedError);
