@@ -10,9 +10,6 @@ jobs:
             echo 'export MINICONDA=$HOME/miniconda' >> $BASH_ENV
             echo 'export PROJECT=$HOME/project' >> $BASH_ENV
             source $BASH_ENV
-            echo 'test -d "$MINICONDA" && source $MINICONDA/etc/profile.d/conda.sh || echo "$MINICONDA does not exist"' >> $HOME/.bashrc
-            env
-            pwd
       - run:
           name: Update
           command: |
@@ -26,19 +23,11 @@ jobs:
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -f -p $MINICONDA
             source $MINICONDA/etc/profile.d/conda.sh
-            conda config --system --set always_yes yes
-            conda update --quiet conda
+            conda update --quiet --yes conda
+            conda env create --quiet --yes -n umem-build --file=$PROJECT/.conda/environment.yml
             conda info -a
-            conda env create --quiet -n umem-build --file=$PROJECT/.conda/environment.yml
       - run:
-          name: Current working directory and listing
-          command: |
-            source $MINICONDA/etc/profile.d/conda.sh
-            conda activate umem-build
-            pwd
-            echo "CONDA_PREFIX=$CONDA_PREFIX"
-      - run:
-          name: Building
+          name: Build
           command: |
             source $MINICONDA/etc/profile.d/conda.sh
             conda activate umem-build
@@ -46,3 +35,11 @@ jobs:
             cd build-umem-c
             cmake $PROJECT/c
             make -j 4
+      - run:
+          name: Run test
+          command: |
+            source $MINICONDA/etc/profile.d/conda.sh
+            conda activate umem-build
+            cd build-umem-c
+            make test
+            ctest -D ExperimentalMemCheck -E test_cuda
