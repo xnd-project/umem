@@ -8,7 +8,7 @@ jobs:
           name: Update
 	  command: |
 	    sudo apt-get update
-	    sudo apt-get install wget
+            sudo apt-get install wget
       - checkout
       - run:
           name: Install miniconda
