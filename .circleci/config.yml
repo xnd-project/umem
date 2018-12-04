@@ -10,21 +10,21 @@ jobs:
           environment:
             MINICONDA: $HOME/miniconda
             PATH: $MINICONDA/bin:$PATH
-	  command:
-	    cd $HOME
-	    pwd
-	    hash -r
-	    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-	    bash miniconda.sh -b -f -p $MINICONDA
-	    conda config --set always_yes yes
-	    conda update conda
-	    conda config --add channels conda-forge
-	    conda info -a
-	    conda create -n testenv
-	    conda activate testenv
+          command:
+            cd $HOME
+            pwd
+            hash -r
+            wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+            bash miniconda.sh -b -f -p $MINICONDA
+            conda config --set always_yes yes
+            conda update conda
+            conda config --add channels conda-forge
+            conda info -a
+            conda create -n testenv
+            conda activate testenv
       - run:
           name: Environment
-	  command: env
+          command: env
       - run:
           name: Current working directory and listing
           command: echo "`pwd`:\n `ls -la`"
