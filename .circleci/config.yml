@@ -11,10 +11,10 @@ jobs:
             echo 'export PROJECT=$HOME/project' >> $BASH_ENV
             source $BASH_ENV
       - run:
-          name: Update
+          name: Update and install system packages
           command: |
             apt-get update --assume-yes
-            apt-get install --assume-yes wget git bzip2
+            apt-get install --assume-yes wget git bzip2 libc6-dbg
       - checkout
       - run:
           name: Install miniconda
@@ -36,7 +36,7 @@ jobs:
             cmake $PROJECT/c
             make -j 4
       - run:
-          name: Run test
+          name: Run tests
           command: |
             source $MINICONDA/etc/profile.d/conda.sh
             conda activate umem-build
