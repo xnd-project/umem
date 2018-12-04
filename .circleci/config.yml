@@ -5,6 +5,12 @@ jobs:
       - image: debian:stretch
     steps:
       - run:
+          name: Set up environment variables
+          echo 'export MINICONDA=$HOME/miniconda' >> $BASH_ENV
+          echo 'export PATH=/path/to/foo/bin:$PATH' >> $BASH_ENV
+          source $BASH_ENV
+          env
+      - run:
           name: Update
           command: |
             apt-get update --assume-yes
@@ -12,13 +18,7 @@ jobs:
             which wget
       - checkout
       - run:
-          name: Environment
-          command: env
-      - run:
           name: Install miniconda
-          environment:
-            MINICONDA: $HOME/miniconda
-            PATH: $MINICONDA/bin:$PATH
           command: |
             cd $HOME
             pwd            
