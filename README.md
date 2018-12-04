@@ -1,8 +1,9 @@
 # UMEM
 Unifying MEmory Management library for connecting different memory devices and interfaces
 
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/kcedl490a7fbqvoo/branch/master?svg=true)](https://ci.appveyor.com/project/pearu/umem/branch/master)
-[![CircleCI Build status](https://circleci.com/gh/plures/umem/tree/master.svg?style=svg)](https://circleci.com/gh/plures/umem/tree/master)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/kcedl490a7fbqvoo/branch/master?svg=true)](https://ci.appveyor.com/project/pearu/umem/branch/master)
+[![CircleCI Build Status](https://circleci.com/gh/plures/umem/tree/master.svg?style=svg)](https://circleci.com/gh/plures/umem/tree/master)
+[![Travis Build Status](https://travis-ci.org/plures/umem.svg?branch=master)](https://travis-ci.org/plures/umem)
 
 ## Introduction
 
@@ -22,10 +23,10 @@ etc.  that aim at providing unifying interfaces to the heterogeneous
 set of devices. But these projects are very large and performance-wise
 can be sub-optimal (ref CUDA vs OpenCL).
 
-The UMEM project aims at providing an easy-to-use and simple interface
-to memory management tasks of most popular devices such as CPU, GPU,
-as well as of different memory management interfaces (files, mmap, memory
-pools, etc).
+The UMEM project aims at providing a portable and easy-to-use
+interface to memory management tasks of most popular devices such as
+CPU, GPU, as well as of different memory management interfaces (files,
+mmap, memory pools, etc).
 
 The core part of UMEM is written in C for efficency but using OOP
 design to be easily extensible. Plans are providing the core part also
