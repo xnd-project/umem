@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "umem_portability.h"
+#include "umem_utils.h"
 
 /*
   umemDeviceType defines the flags of supported device memory
@@ -122,6 +122,9 @@ struct umemVtbl {
   uintptr_t (*alloc)(umemVirtual * const me, size_t nbytes);
   uintptr_t (*calloc)(umemVirtual * const me, size_t nmemb, size_t size);
   void (*free)(umemVirtual * const me, uintptr_t adr);
+  uintptr_t (*aligned_alloc)(umemVirtual * const me, size_t alignment, size_t size);
+  uintptr_t (*aligned_origin)(umemVirtual * const me, uintptr_t aligned_adr);
+  void (*aligned_free)(umemVirtual * const me, uintptr_t aligned_adr);
   void (*set)(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes);
   void (*copy_to)(umemVirtual * const me, uintptr_t src_adr,
 		  umemVirtual * const she, uintptr_t dest_adr,
@@ -187,26 +190,43 @@ static inline void umem_dtor(void * const me) {
   Public API.
 */
 static inline uintptr_t umem_alloc(void * const me, size_t nbytes) {
-  uintptr_t adr = (*((umemVirtual * const)me)->vptr->alloc)(me, nbytes);
-  return adr;
+  return (*((umemVirtual * const)me)->vptr->alloc)(me, nbytes);
 }
 
 static inline uintptr_t umem_calloc(void * const me, size_t nmemb, size_t size) {
-  uintptr_t adr = (*((umemVirtual * const)me)->vptr->calloc)(me, nmemb, size);
-  return adr;
+  return (*((umemVirtual * const)me)->vptr->calloc)(me, nmemb, size);
 }
 
-UMEM_EXTERN uintptr_t umem_aligned_calloc(umemVirtual * const me, size_t alignment, size_t size);
-
-UMEM_EXTERN void umem_aligned_free(void * const me, uintptr_t aligned_adr);
+static inline uintptr_t umem_aligned_alloc(void * const me, size_t alignement, size_t size) {
+  return (*((umemVirtual * const)me)->vptr->aligned_alloc)(me, alignement, size);
+}
 
 /*
-  umem_free frees device memory that was allocated using umem_alloc.
+  umem_aligned_origin returns starting address of memory containing
+  the aligned memory area. This starting address can be used to free
+  the aligned memory.
+ */
+static inline uintptr_t umem_aligned_origin(void * const me, uintptr_t aligned_adr) {
+  return (*((umemVirtual * const)me)->vptr->aligned_origin)(me, aligned_adr);
+}
+
+/*
+  umem_free frees device memory that was allocated using umem_alloc or umem_calloc.
 
   Public API.
 */
 static inline void umem_free(void * const me, uintptr_t adr) {
   (*((umemVirtual * const)me)->vptr->free)(me, adr);
+}
+
+
+/*
+  umem_aligned_free frees device memory that was allocated using umem_aligned_alloc.
+
+  Public API.
+*/
+static inline void umem_aligned_free(void * const me, uintptr_t aligned_adr) {
+  (*((umemVirtual * const)me)->vptr->aligned_free)(me, aligned_adr);
 }
 
 
@@ -248,13 +268,13 @@ static inline void umem_copy_from(void * const me, uintptr_t dest_adr,
   Internal/Public API.
 */
 UMEM_EXTERN void umem_copy_to_via_host(void * const me, uintptr_t src_adr,
-				  void * const she, uintptr_t dest_adr,
-				  size_t nbytes);
+                                       void * const she, uintptr_t dest_adr,
+                                       size_t nbytes);
 
 
 UMEM_EXTERN void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
-				    void * const she, uintptr_t src_adr,
-				    size_t nbytes);
+                                         void * const she, uintptr_t src_adr,
+                                         size_t nbytes);
 
 
 /*
@@ -268,12 +288,23 @@ UMEM_EXTERN const char* umem_get_device_name(umemDeviceType type);
 UMEM_EXTERN const char* umem_get_status_name(umemStatusType type);
 
 
-static inline int umem_ispowerof2(size_t x) {
-  return x && !(x & (x - 1));
-}
+/*
+  Generic methods and utility functions.
 
-/* Generic method implementations */
+  Internal API.
+*/
 
-UMEM_EXTERN uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size);
+UMEM_EXTERN uintptr_t umemVirtual_calloc(umemVirtual * const me,
+                                         size_t nmemb, size_t size);
+
+UMEM_EXTERN uintptr_t umemVirtual_aligned_alloc(umemVirtual * const me,
+                                                size_t alignment,
+                                                size_t size);
+
+UMEM_EXTERN void umemVirtual_aligned_free(umemVirtual * const me,
+                                          uintptr_t aligned_adr);
+
+UMEM_EXTERN uintptr_t umemVirtual_aligned_origin(umemVirtual * const me, uintptr_t aligned_adr);
+
 
 #endif

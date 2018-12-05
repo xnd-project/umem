@@ -28,6 +28,22 @@ static void umem_free_(umemVirtual  * const me, uintptr_t adr) {
 }
 
 
+static uintptr_t umem_aligned_alloc_(umemVirtual  * const me, size_t alignement, size_t size) {
+  assert(0); /* purely-virtual function should never be called */
+  return 0;
+}
+
+
+static uintptr_t umem_aligned_origin_(umemVirtual  * const me, uintptr_t aligned_adr) {
+  assert(0); /* purely-virtual function should never be called */
+}
+
+
+static void umem_aligned_free_(umemVirtual  * const me, uintptr_t aligned_adr) {
+  assert(0); /* purely-virtual function should never be called */
+}
+
+
 static void umem_set_(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes) {
   assert(0); /* purely-virtual function should never be called */
 }
@@ -56,6 +72,9 @@ void umemVirtual_ctor(umemVirtual * const me, umemHost * host) {
     &umem_alloc_,
     &umem_calloc_,
     &umem_free_,
+    &umem_aligned_alloc_,
+    &umem_aligned_origin_,
+    &umem_aligned_free_,
     &umem_set_,
     &umem_copy_to_,
     &umem_copy_from_,
@@ -98,36 +117,40 @@ uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size) 
 }
 
 
-uintptr_t umem_aligned_calloc(umemVirtual * const me, size_t alignment, size_t size) {
+
+uintptr_t umemVirtual_aligned_alloc(umemVirtual * const me, size_t alignment, size_t size) {
   uintptr_t adr = 0;
-  if (size == 0) return adr;
-  /*
-  HOST_CALL(me, !umem_ispowerof2(alignment), umemValueError, return 0,
+  TRY_RETURN(me, !umem_ispowerof2(alignment), umemValueError, return 0,
             "umemVirtual_aligned_alloc: alignment %zu must be power of 2",
-            alignment);
-  HOST_CALL(me, size % alignment, umemValueError, return 0,
-            "umemVirtual_aligned_alloc: size %zu must be multiple of alignment %zu",
-            size, alignment);
-  */
+             alignment);
+  TRY_RETURN(me, size % alignment, umemValueError, return 0,
+             "umemVirtual_aligned_alloc: size %zu must be multiple of alignment %zu",
+             size, alignment);
   size_t extra = (alignment - 1) + sizeof(uintptr_t);
-  size_t req = extra + size;
+  size_t req = extra + (size ? size: 1);
   adr = umem_calloc(me, req, 1);
   if (adr==0) return adr;  // this must be error
   uintptr_t aligned = adr + extra;
   aligned = aligned - (aligned % alignment);
-
-  umem_copy_to(me->host, (uintptr_t)&adr, me, aligned-sizeof(uintptr_t), sizeof(uintptr_t)); // todo: check status
-  //*((uintptr_t *)aligned - 1) = adr;
-  return aligned;
+  umem_copy_to(me->host, (uintptr_t)&adr, me, aligned-sizeof(uintptr_t), sizeof(uintptr_t));
+  if (umem_is_ok(me))
+    return aligned;
+  umem_free(me, adr);
+  return 0;
 }
 
-
-void umem_aligned_free(void * const me, uintptr_t aligned_adr) {
-  umemVirtual * const me_ = me;
-  if (aligned_adr == 0) return;
+uintptr_t umemVirtual_aligned_origin(umemVirtual * const me, uintptr_t aligned_adr) {
   uintptr_t adr = 0;
-  umem_copy_from(me_->host, (uintptr_t)&adr, me, aligned_adr-sizeof(uintptr_t), sizeof(uintptr_t)); // todo: check status
-  umem_free(me, adr);
+  if (aligned_adr != 0) {
+    umem_copy_from(me->host, (uintptr_t)&adr, me, aligned_adr-sizeof(uintptr_t), sizeof(uintptr_t));
+    if (!umem_is_ok(me))
+      return 0;
+  }
+  return adr;
+}
+
+void umemVirtual_aligned_free(umemVirtual * const me, uintptr_t aligned_adr) {
+  umem_free(me, umemVirtual_aligned_origin(me, aligned_adr));
 }
 
 /*

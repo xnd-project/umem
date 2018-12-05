@@ -10,7 +10,7 @@ set (UMEM_VERSION_MAJOR 0)
 set (UMEM_VERSION_MINOR 0)
 set (UMEM_VERSION_MICRO 1)
 
-set(UMEM_SOURCES umem.c umem_host.c umem_file.c)
+set(UMEM_SOURCES umem.c umem_host.c umem_file.c umem_utils.c)
 set(UMEM_LIBRARIES umem)
 set(UMEM_INCLUDE_DIRS ${CMAKE_SOURCE_DIR})
 
@@ -54,4 +54,4 @@ add_subdirectory(tests)
 #add_dependencies(Test umem)
 
 install(TARGETS umem umem_static DESTINATION lib)
-install(FILES umem.h umem_portability.h "${PROJECT_BINARY_DIR}/umem_config.h" DESTINATION include)
+install(FILES umem.h umem_utils.h "${PROJECT_BINARY_DIR}/umem_config.h" DESTINATION include)

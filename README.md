@@ -144,6 +144,9 @@ Public API:
 umem_alloc(&me, nbytes) -> adr
 umem_calloc(&me, nmemb, size) -> adr
 umem_free(&me, adr)
+umem_aligned_alloc(&me, alignment, nbytes) -> aligned_adr
+umem_aligned_origin(&me, aligned_adr) -> adr
+umem_aligned_free(&me, aligned_adr)
 umem_set(&me, adr, c, nbytes)
 umem_copy_to(&me, me_adr, &she, she_adr, nbytes)
 umem_copy_from(&me, me_adr, &she, she_adr, nbytes)

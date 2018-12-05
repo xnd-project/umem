@@ -62,7 +62,7 @@ static void umemHost_copy_to_(umemVirtual * const me, uintptr_t src_adr,
   assert(me->type == umemHostDevice);
   if (she->type == umemHostDevice) {
     HOST_CALL(me, memcpy((void*)dest_adr, (void*)src_adr, nbytes)==NULL, umemMemoryError, return,
-	      "umemHost_copy_to_: memcpy(%" PRIxPTR ", %" PRIxPTR ", %zu)->NULL",
+	      "umemHost_copy_to_: memcpy(%02" PRIxPTR ", %" PRIxPTR ", %zu)->NULL",
 	      dest_adr, src_adr, nbytes);
   } else
     umem_copy_from(she, dest_adr, me, src_adr, nbytes);
@@ -88,6 +88,9 @@ void umemHost_ctor(umemHost * const me) {
     &umemHost_alloc_,
     &umemHost_calloc_,
     &umemHost_free_,
+    &umemVirtual_aligned_alloc,
+    &umemVirtual_aligned_origin,
+    &umemVirtual_aligned_free,
     &umemHost_set_,
     &umemHost_copy_to_,
     &umemHost_copy_from_,

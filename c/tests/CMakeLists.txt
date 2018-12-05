@@ -12,7 +12,7 @@ add_definitions("-DTMPDIR=\"/tmp\"") # TODO: make it portable and uid independen
 
 message(STATUS "UMEM_LIBRARIES=${UMEM_LIBRARIES}")
 
-file(GLOB test_files "test_*_*.c")
+file(GLOB test_files "test_*.c")
 foreach(filename ${test_files})
   get_filename_component(basename ${filename} NAME_WE)
   if ("${basename}" MATCHES ".*cuda" AND NOT CUDA_FOUND)
