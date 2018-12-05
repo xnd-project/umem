@@ -119,17 +119,18 @@ uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size) 
 
 
 uintptr_t umemVirtual_aligned_alloc(umemVirtual * const me, size_t alignment, size_t size) {
+  /*
+    Requirements:
+    1. alignment must be power of two
+    2. size must be a multiple of alignment or zero
+    3. alignement is at least fundamental alignment
+   */
   uintptr_t adr = 0;
-  TRY_RETURN(me, !umem_ispowerof2(alignment), umemValueError, return 0,
-            "umemVirtual_aligned_alloc: alignment %zu must be power of 2",
-             alignment);
-  TRY_RETURN(me, size % alignment, umemValueError, return 0,
-             "umemVirtual_aligned_alloc: size %zu must be multiple of alignment %zu",
-             size, alignment);
   size_t extra = (alignment - 1) + sizeof(uintptr_t);
   size_t req = extra + (size ? size: 1);
   adr = umem_calloc(me, req, 1);
-  if (adr==0) return adr;  // this must be error
+  if (!umem_is_ok(me))
+    return 0;
   uintptr_t aligned = adr + extra;
   aligned = aligned - (aligned % alignment);
   umem_copy_to(me->host, (uintptr_t)&adr, me, aligned-sizeof(uintptr_t), sizeof(uintptr_t));

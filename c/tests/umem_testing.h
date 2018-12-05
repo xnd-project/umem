@@ -54,7 +54,7 @@
 
 #define assert_str_eq(lhs, rhs)						\
   do {									\
-    if (strcmp(lhs, rhs) != 0) {\
+    if (strlen(lhs)!=strlen(rhs) || strcmp(lhs, rhs) != 0) {            \
       errno = ECANCELED;						\
       ERR(EXIT_FAILURE, "assert(\"%s\" == \"%s\") FAILED (%s#%d)",	\
 	  lhs, rhs,							\

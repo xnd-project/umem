@@ -197,8 +197,25 @@ static inline uintptr_t umem_calloc(void * const me, size_t nmemb, size_t size) 
   return (*((umemVirtual * const)me)->vptr->calloc)(me, nmemb, size);
 }
 
-static inline uintptr_t umem_aligned_alloc(void * const me, size_t alignement, size_t size) {
-  return (*((umemVirtual * const)me)->vptr->aligned_alloc)(me, alignement, size);
+static inline size_t umem_fundamental_align(void * const me) {
+  switch (((umemVirtual * const)me)->type) {
+  case umemFileDevice: return UMEM_FUNDAMENTAL_FILE_ALIGN;
+  case umemCudaDevice: return UMEM_FUNDAMENTAL_CUDA_ALIGN;
+  case umemHostDevice: return UMEM_FUNDAMENTAL_HOST_ALIGN;
+  }
+  return 1;
+}
+
+static inline uintptr_t umem_aligned_alloc(void * const me, size_t alignment, size_t size) {
+  TRY_RETURN(me, !umem_ispowerof2(alignment), umemValueError, return 0,
+             "umemVirtual_aligned_alloc: alignment %zu must be power of 2",
+             alignment);
+  TRY_RETURN(me, size % alignment, umemValueError, return 0,
+             "umemVirtual_aligned_alloc: size %zu must be multiple of alignment %zu",
+             size, alignment);
+  size_t fundamental_align = umem_fundamental_align(me);
+  alignment = (alignment < fundamental_align ? fundamental_align : alignment);
+  return (*((umemVirtual * const)me)->vptr->aligned_alloc)(me, alignment, size);
 }
 
 /*

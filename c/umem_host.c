@@ -50,6 +50,27 @@ static void umemHost_free_(umemVirtual * const me, uintptr_t adr) {
   free((void*)adr);
 }
 
+static uintptr_t umemHost_aligned_alloc_(umemVirtual * const me, size_t alignment, size_t size) {
+  uintptr_t adr = 0;
+  size_t extra = (alignment - 1) + sizeof(uintptr_t);
+  size_t req = extra + (size ? size: 1);
+  adr = umemHost_calloc_(me, req, 1);
+  if (!umem_is_ok(me))
+    return 0;
+  uintptr_t aligned = adr + extra;
+  aligned = aligned - (aligned % alignment);
+  *((uintptr_t *)aligned - 1) = adr;
+  return aligned;
+}
+
+static uintptr_t umemHost_aligned_origin_(umemVirtual * const me, uintptr_t aligned_adr) {
+  return (aligned_adr ? *((uintptr_t *)aligned_adr - 1) : 0);
+}
+
+static void umemHost_aligned_free_(umemVirtual * const me, uintptr_t aligned_adr) {
+  umemHost_free_(me, umemHost_aligned_origin_(me, aligned_adr));
+}
+
 static void umemHost_set_(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes) {
   assert(me->type == umemHostDevice);
   HOST_CALL(me, memset((void*)adr, c, nbytes)==NULL, umemMemoryError, return,
@@ -88,9 +109,9 @@ void umemHost_ctor(umemHost * const me) {
     &umemHost_alloc_,
     &umemHost_calloc_,
     &umemHost_free_,
-    &umemVirtual_aligned_alloc,
-    &umemVirtual_aligned_origin,
-    &umemVirtual_aligned_free,
+    &umemHost_aligned_alloc_,
+    &umemHost_aligned_origin_,
+    &umemHost_aligned_free_,
     &umemHost_set_,
     &umemHost_copy_to_,
     &umemHost_copy_from_,
