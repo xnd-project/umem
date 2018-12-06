@@ -40,6 +40,7 @@ static uintptr_t umem_aligned_alloc_(umemVirtual  * const this, size_t alignemen
 
 static uintptr_t umem_aligned_origin_(umemVirtual  * const this, uintptr_t aligned_adr) {
   assert(0); /* purely-virtual function should never be called */
+  return 0;
 }
 
 

@@ -8,8 +8,6 @@
     int rem =  adr % ALIGNMENT;                            \
     assert_int_eq(rem, 0);                                 \
     umem_set(&file, adr, 255, SIZE);                       \
-    /*uintptr_t oadr = umem_aligned_origin(&file, adr);*/  \
-    /*binDump("adr", (void*)oadr, (SIZE+adr-oadr));*/      \
     umem_aligned_free(&file, adr);                         \
   } while(0)
 
