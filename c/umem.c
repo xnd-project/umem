@@ -6,62 +6,62 @@
   umemVirtual virtual methods.
 */
 
-static void umem_dtor_(umemVirtual  * const me) {
+static void umem_dtor_(umemVirtual  * const this) {
   assert(0); /* purely-virtual function should never be called */
 }
 
 
-static uintptr_t umem_alloc_(umemVirtual  * const me, size_t nbytes) {
+static uintptr_t umem_alloc_(umemVirtual  * const this, size_t nbytes) {
   assert(0); /* purely-virtual function should never be called */
   return 0;
 }
 
-static bool umem_is_same_device_(umemVirtual  * const me, umemVirtual  * const she) {
+static bool umem_is_same_device_(umemVirtual  * const this, umemVirtual  * const she) {
   assert(0); /* purely-virtual function should never be called */
   return false;
 }
 
-static uintptr_t umem_calloc_(umemVirtual  * const me, size_t nmemb, size_t size) {
+static uintptr_t umem_calloc_(umemVirtual  * const this, size_t nmemb, size_t size) {
   assert(0); /* purely-virtual function should never be called */
   return 0;
 }
 
 
-static void umem_free_(umemVirtual  * const me, uintptr_t adr) {
+static void umem_free_(umemVirtual  * const this, uintptr_t adr) {
   assert(0); /* purely-virtual function should never be called */
 }
 
 
-static uintptr_t umem_aligned_alloc_(umemVirtual  * const me, size_t alignement, size_t size) {
+static uintptr_t umem_aligned_alloc_(umemVirtual  * const this, size_t alignement, size_t size) {
   assert(0); /* purely-virtual function should never be called */
   return 0;
 }
 
 
-static uintptr_t umem_aligned_origin_(umemVirtual  * const me, uintptr_t aligned_adr) {
+static uintptr_t umem_aligned_origin_(umemVirtual  * const this, uintptr_t aligned_adr) {
   assert(0); /* purely-virtual function should never be called */
 }
 
 
-static void umem_aligned_free_(umemVirtual  * const me, uintptr_t aligned_adr) {
+static void umem_aligned_free_(umemVirtual  * const this, uintptr_t aligned_adr) {
   assert(0); /* purely-virtual function should never be called */
 }
 
 
-static void umem_set_(umemVirtual * const me, uintptr_t adr, int c, size_t nbytes) {
+static void umem_set_(umemVirtual * const this, uintptr_t adr, int c, size_t nbytes) {
   assert(0); /* purely-virtual function should never be called */
 }
 
 
-static void umem_copy_to_(umemVirtual * const me, uintptr_t src_adr,
-			  umemVirtual * const she, uintptr_t dest_adr,
+static void umem_copy_to_(umemVirtual * const this, uintptr_t src_adr,
+			  umemVirtual * const that, uintptr_t dest_adr,
 			  size_t nbytes) {
   assert(0); /* purely-virtual function should never be called */
 }
 
 
-static void umem_copy_from_(umemVirtual  * const me, uintptr_t src_adr,
-			    umemVirtual  * const she, uintptr_t dest_adr,
+static void umem_copy_from_(umemVirtual  * const this, uintptr_t src_adr,
+			    umemVirtual  * const that, uintptr_t dest_adr,
 			    size_t nbytes) {
   assert(0); /* purely-virtual function should never be called */
 }
@@ -70,7 +70,7 @@ static void umem_copy_from_(umemVirtual  * const me, uintptr_t src_adr,
 /*
   umemVirtual constructor.
 */
-void umemVirtual_ctor(umemVirtual * const me, umemHost * host) {
+void umemVirtual_ctor(umemVirtual * const this, umemHost * host) {
   static struct umemVtbl const vtbl = {
     &umem_dtor_,
     &umem_is_same_device_,
@@ -84,49 +84,49 @@ void umemVirtual_ctor(umemVirtual * const me, umemHost * host) {
     &umem_copy_to_,
     &umem_copy_from_,
   };
-  me->vptr = &vtbl;
-  me->type = umemVirtualDevice;
-  me->status.type = umemOK;
+  this->vptr = &vtbl;
+  this->type = umemVirtualDevice;
+  this->status.type = umemOK;
   // message is owned by umemVirtual instance. So, use only
   // umem_set_status or umem_clear_status to change it.
-  me->status.message = NULL;
-  me->host = (void*)host;
+  this->status.message = NULL;
+  this->host = (void*)host;
 }
 
 /*
   umemVirtual destructor.
 */
-void umemVirtual_dtor(umemVirtual * const me) {
-  if (me->status.message != NULL) {
-    free(me->status.message);
-    me->status.message = NULL;
+void umemVirtual_dtor(umemVirtual * const this) {
+  if (this->status.message != NULL) {
+    free(this->status.message);
+    this->status.message = NULL;
   }
-  me->status.type = umemOK;
-  if (me->host != NULL) {
-    umem_dtor(me->host);
-    me->host = NULL;
+  this->status.type = umemOK;
+  if (this->host != NULL) {
+    umem_dtor(this->host);
+    this->host = NULL;
   }
 }
 
-bool umemVirtual_is_same_device(umemVirtual * const me, umemVirtual * const she) {
+bool umemVirtual_is_same_device(umemVirtual * const this, umemVirtual * const that) {
   return false;
 }
 
 
-uintptr_t umemVirtual_calloc(umemVirtual * const me, size_t nmemb, size_t size) {
+uintptr_t umemVirtual_calloc(umemVirtual * const this, size_t nmemb, size_t size) {
   uintptr_t adr = 0;
   if (size != 0) {
     size_t nbytes = nmemb * size; // TODO: check overflow
-    adr = umem_alloc(me, nbytes);
-    if (umem_is_ok(me))
-      umem_set(me, adr, 0, nbytes);
+    adr = umem_alloc(this, nbytes);
+    if (umem_is_ok(this))
+      umem_set(this, adr, 0, nbytes);
   }
   return adr;
 }
 
 
 
-uintptr_t umemVirtual_aligned_alloc(umemVirtual * const me, size_t alignment, size_t size) {
+uintptr_t umemVirtual_aligned_alloc(umemVirtual * const this, size_t alignment, size_t size) {
   /*
     Requirements:
     1. alignment must be power of two
@@ -136,76 +136,76 @@ uintptr_t umemVirtual_aligned_alloc(umemVirtual * const me, size_t alignment, si
   uintptr_t adr = 0;
   size_t extra = (alignment - 1) + sizeof(uintptr_t);
   size_t req = extra + (size ? size: 1);
-  adr = umem_calloc(me, req, 1);
-  if (!umem_is_ok(me))
+  adr = umem_calloc(this, req, 1);
+  if (!umem_is_ok(this))
     return 0;
   uintptr_t aligned = adr + extra;
   aligned = aligned - (aligned % alignment);
-  umem_copy_to(me->host, (uintptr_t)&adr, me, aligned-sizeof(uintptr_t), sizeof(uintptr_t));
-  if (umem_is_ok(me))
+  umem_copy_to(this->host, (uintptr_t)&adr, this, aligned-sizeof(uintptr_t), sizeof(uintptr_t));
+  if (umem_is_ok(this))
     return aligned;
-  umem_free(me, adr);
+  umem_free(this, adr);
   return 0;
 }
 
-uintptr_t umemVirtual_aligned_origin(umemVirtual * const me, uintptr_t aligned_adr) {
+uintptr_t umemVirtual_aligned_origin(umemVirtual * const this, uintptr_t aligned_adr) {
   uintptr_t adr = 0;
   if (aligned_adr != 0) {
-    umem_copy_from(me->host, (uintptr_t)&adr, me, aligned_adr-sizeof(uintptr_t), sizeof(uintptr_t));
-    if (!umem_is_ok(me))
+    umem_copy_from(this->host, (uintptr_t)&adr, this, aligned_adr-sizeof(uintptr_t), sizeof(uintptr_t));
+    if (!umem_is_ok(this))
       return 0;
   }
   return adr;
 }
 
-void umemVirtual_aligned_free(umemVirtual * const me, uintptr_t aligned_adr) {
-  umem_free(me, umemVirtual_aligned_origin(me, aligned_adr));
+void umemVirtual_aligned_free(umemVirtual * const this, uintptr_t aligned_adr) {
+  umem_free(this, umemVirtual_aligned_origin(this, aligned_adr));
 }
 
 /*
   Status handling utility functions.
 */
-void umem_set_status(void * const me,
+void umem_set_status(void * const this,
 		     umemStatusType type, const char * message) {
-  umemVirtual * const me_ = me;
+  umemVirtual * const this_ = this;
   if (message == NULL) {
-    if (me_->status.message != NULL)
-      free(me_->status.message);
-    me_->status.message = NULL;
+    if (this_->status.message != NULL)
+      free(this_->status.message);
+    this_->status.message = NULL;
   } else {
-    if (me_->status.message == NULL) {
-      me_->status.message = strdup(message);
+    if (this_->status.message == NULL) {
+      this_->status.message = strdup(message);
     } else {
-      // append message
+      // append thisssage
       char buf[256];
       buf[0] = 0;
-      if (me_->status.type != type) {
+      if (this_->status.type != type) {
 	snprintf(buf, sizeof(buf), "\nstatus %s changed to %s",
-		 umem_get_status_name(me_->status.type),
+		 umem_get_status_name(this_->status.type),
 		 umem_get_status_name(type));
       }
-      size_t l1 = strlen(me_->status.message);
+      size_t l1 = strlen(this_->status.message);
       size_t l2 = strlen(buf);
       size_t l3 = strlen(message);
-      me_->status.message = realloc(me_->status.message,
+      this_->status.message = realloc(this_->status.message,
 				    l1 + l2 + l3 + 2);
-      memcpy(me_->status.message + l1, buf, l2);
-      memcpy(me_->status.message + l1 + l2, "\n", 1);
-      memcpy(me_->status.message + l1 + l2 + 1, message, l3);
-      me_->status.message[l1+l2+l3+1] = '\0';
+      memcpy(this_->status.message + l1, buf, l2);
+      memcpy(this_->status.message + l1 + l2, "\n", 1);
+      memcpy(this_->status.message + l1 + l2 + 1, message, l3);
+      this_->status.message[l1+l2+l3+1] = '\0';
     }
   }
-  me_->status.type = type;
+  this_->status.type = type;
 }
 
 
-void umem_clear_status(void * const me) {
-  umemVirtual * const me_ = me;
-  if (me_->status.message != NULL) {
-    free(me_->status.message);
-    me_->status.message = NULL;
+void umem_clear_status(void * const this) {
+  umemVirtual * const this_ = this;
+  if (this_->status.message != NULL) {
+    free(this_->status.message);
+    this_->status.message = NULL;
   }
-  me_->status.type = umemOK;
+  this_->status.type = umemOK;
 }
 
 /*

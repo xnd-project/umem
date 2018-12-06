@@ -117,11 +117,11 @@ Context types:
   umemCuda
   umemFile
 Constructors:
-  umemHost_ctor(&me)
-  umemCuda_ctor(&me, device)
-  umemFile_ctor(&me, filename, mode)
+  umemHost_ctor(&this)
+  umemCuda_ctor(&this, device)
+  umemFile_ctor(&this, filename, mode)
 Destructors:
-  umem_dtor(&me)
+  umem_dtor(&this)
 ```
 Here and in the following, `me` is object of type `umemHost` or
 `umemCuda` or `umemFile`.
@@ -141,29 +141,29 @@ RMM             - see cudf
 
 Public API:
 ```
-umem_alloc(&me, nbytes) -> adr
-umem_calloc(&me, nmemb, size) -> adr
-umem_free(&me, adr)
-umem_aligned_alloc(&me, alignment, nbytes) -> aligned_adr
-umem_aligned_origin(&me, aligned_adr) -> adr
-umem_aligned_free(&me, aligned_adr)
-umem_set(&me, adr, c, nbytes)
+umem_alloc(&this, nbytes) -> adr
+umem_calloc(&this, nmemb, size) -> adr
+umem_free(&this, adr)
+umem_aligned_alloc(&this, alignment, nbytes) -> aligned_adr
+umem_aligned_origin(&this, aligned_adr) -> adr
+umem_aligned_free(&this, aligned_adr)
+umem_set(&this, adr, c, nbytes)
 ```
 
 ### Connecting devices
 
 Public API:
 ```
-umem_is_same_device(&me, &she) -> bool
+umem_is_same_device(&this, &that) -> bool
 umem_connect(&src, src_adr, n, &dest, dest_alignment) -> dest_adr
 umem_sync_to(&src, src_adr, &dest, dest_adr, n)
 umem_sync_from(&src, src_adr, &dest, dest_adr, n)
 umem_disconnect(&src, src_adr, &dest, dest_adr, dest_alignment)
 
-umem_copy_to(&me, me_adr, &she, she_adr, nbytes)
-umem_copy_from(&me, me_adr, &she, she_adr, nbytes)
+umem_copy_to(&this, this_adr, &that, that_adr, nbytes)
+umem_copy_from(&this, this_adr, &that, that_adr, nbytes)
 ```
-Notes: When `src` and `dest` are the same device, `umem_connect`
+When `src` and `dest` are the same device, `umem_connect`
 returns `src_adr`, otherwise, the address of newly allocated `dest`
 memory is returned. Use `umem_sync_to/from` to keep device memories in
 sync.  `umem_disconnect` frees memory allocated by `umem_connect`. Use
@@ -193,11 +193,11 @@ umem context instances have `status` attribute that is used for passing around m
 
 Public API:
 ```
-umem_get_status(&me) -> <status type>
-umem_get_message(&me) -> <status message>
-umem_is_ok(&me) -> <status is ok>
-umem_set_status(&me, type, message)
-umem_clear_status(&me)
+umem_get_status(&this) -> <status type>
+umem_get_message(&this) -> <status message>
+umem_is_ok(&this) -> <status is ok>
+umem_set_status(&this, type, message)
+umem_clear_status(&this)
 ```
 
 ## Prerequisites
