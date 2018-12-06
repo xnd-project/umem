@@ -151,13 +151,12 @@ umem_set(&me, adr, c, nbytes)
 umem_copy_to(&me, me_adr, &she, she_adr, nbytes)
 umem_copy_from(&me, me_adr, &she, she_adr, nbytes)
 
-umem_is_same_device(&me, &she) -> boolean
+umem_is_same_device(&me, &she) -> bool
+umem_connect(&src, src_adr, n, &dest) -> dest_adr
+umem_sync_to(&src, src_adr, &dest, dest_adr, n)
+umem_sync_from(&src, src_adr, &dest, dest_adr, n)
+umem_disconnect(&src, &dest, dest_adr)
 
-TODO:
-umem_open(&me, &she, her_adr) -> mine_adr
-umem_update_from(&me, mine_adr, &she, her_adr, nbytes)
-umem_update_to(&me, mine_adr, &she, her_adr, nbytes)  # umem_flush?
-umem_close(&me, &she, mine_adr)
 ```
 
 Explicit copy implementations:

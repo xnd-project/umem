@@ -1,7 +1,6 @@
 #include "umem_testing.h"
 
 int main() {
-  umemConnection con;
   umemHost host1, host2;
   umemHost_ctor(&host1);
   umemHost_ctor(&host2);
