@@ -8,7 +8,12 @@ endif()
 
 include_directories(${UMEM_INCLUDE_DIRS})
 set(LIBS ${UMEM_LIBRARIES})
-add_definitions("-DTMPDIR=\"/tmp\"") # TODO: make it portable and uid independent
+
+if(MSVC)
+  add_definitions("-DTMPDIR=\"${PROJECT_BINARY_DIR}\\Testing\\Temporary\\\"")
+else()
+  add_definitions("-DTMPDIR=\"${PROJECT_BINARY_DIR}/Testing/Temporary/\"")
+endif()
 
 message(STATUS "UMEM_LIBRARIES=${UMEM_LIBRARIES}")
 

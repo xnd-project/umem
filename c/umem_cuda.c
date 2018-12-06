@@ -26,7 +26,7 @@ static void umemCuda_dtor_(umemVirtual * const this) {
 
 static uintptr_t umemCuda_alloc_(umemVirtual * const this, size_t nbytes) {
   assert(this->type == umemCudaDevice);
-  umemCuda * const this_ = (umemCuda * const)this;
+  //umemCuda * const this_ = (umemCuda * const)this;
   uintptr_t adr;
   CUDA_CALL(this, cudaMalloc((void**)&adr, nbytes), umemMemoryError, return 0,
 	    "umemCuda_alloc_: cudaMalloc(&%" PRIxPTR ", %zu)",
@@ -36,7 +36,7 @@ static uintptr_t umemCuda_alloc_(umemVirtual * const this, size_t nbytes) {
 
 static void umemCuda_free_(umemVirtual * const this, uintptr_t adr) {
   assert(this->type == umemCudaDevice);
-  umemCuda * const this_ = (umemCuda * const)this;
+  //umemCuda * const this_ = (umemCuda * const)this;
   CUDA_CALL(this, cudaFree((void*)adr), umemMemoryError, return,
 	    "umemCuda_free_: cudaFree(%" PRIxPTR ")", adr); 
 }
@@ -56,7 +56,7 @@ static void umemCuda_copy_to_(umemVirtual * const this, uintptr_t src_adr,
   switch(that->type) {
   case umemHostDevice:
     {
-      umemHost * const that_ = (umemHost * const)that;
+      //umemHost * const that_ = (umemHost * const)that;
       CUDA_CALL(this, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 			       nbytes, cudaMemcpyDeviceToHost), umemMemoryError, return,
 		"umemCuda_copy_to_: cudaMemcpy(%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost)",
@@ -90,11 +90,11 @@ static void umemCuda_copy_from_(umemVirtual * const this, uintptr_t dest_adr,
 				umemVirtual * const that, uintptr_t src_adr,
 				size_t nbytes) {
   assert(this->type == umemCudaDevice);
-  umemCuda * const this_ = (umemCuda * const)this;
+  //umemCuda * const this_ = (umemCuda * const)this;
   switch(that->type) {
   case umemHostDevice:
     {
-      umemHost * const that_ = (umemHost * const)that;
+      //umemHost * const that_ = (umemHost * const)that;
       CUDA_CALL(this, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 			       nbytes, cudaMemcpyHostToDevice),
 		umemMemoryError, return,

@@ -6,7 +6,7 @@ int main() {
   assert_is_ok(host);
   uintptr_t addr = umem_alloc(&host, 11);
   assert_is_ok(host);
-  for (char i=0; i<10; ++i) ((char*)addr)[i] = i+97;
+  for (char i=0; i<10; ++i) ((char*)addr)[(int)i] = i+97;
   ((char*)addr)[10] = 0;
   assert_is_ok(host);
   assert_str_eq((char*)addr, "abcdefghij");

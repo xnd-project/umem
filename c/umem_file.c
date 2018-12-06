@@ -124,7 +124,7 @@ static void umemFile_copy_to_(umemVirtual * const this, uintptr_t src_adr,
     {
       char buf[256];
       snprintf(buf, sizeof(buf), "umemFile_copy_to_(%p, %" PRIxPTR ", %p, %" PRIxPTR ", %zu)",
-	       this, src_adr, that, dest_adr, nbytes);
+	       (void*)this, src_adr, (void*)that, dest_adr, nbytes);
       umem_set_status(this, umemNotImplementedError, buf);
     }
     break;

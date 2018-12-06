@@ -8,7 +8,7 @@
     int rem =  adr % ALIGNMENT;                            \
     assert_int_eq(rem, 0);                                 \
     umem_set(&file, adr, 255, SIZE);                       \
-    uintptr_t oadr = umem_aligned_origin(&file, adr);      \
+    /*uintptr_t oadr = umem_aligned_origin(&file, adr);*/  \
     /*binDump("adr", (void*)oadr, (SIZE+adr-oadr));*/      \
     umem_aligned_free(&file, adr);                         \
   } while(0)
@@ -23,7 +23,7 @@
 
 int main() {
   umemFile file;
-  umemFile_ctor(&file, TMPDIR "/test_file_aligned_alloc.txt", "w+b");
+  umemFile_ctor(&file, TMPDIR "test_file_aligned_alloc.txt", "w+b");
   uintptr_t adr = 0;
   CHECK_ALIGNED_FAIL(0, 10, "umemVirtual_aligned_alloc: alignment 0 must be power of 2");
   CHECK_ALIGNED(1, 10);

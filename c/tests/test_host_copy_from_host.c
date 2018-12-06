@@ -7,7 +7,7 @@ int main() {
   uintptr_t addr1 = umem_alloc(&host, 11);
   uintptr_t addr2 = umem_alloc(&host, 11);
   assert_is_ok(host);
-  for (char i=0; i<10; ++i) ((char*)addr1)[i] = i+97;
+  for (char i=0; i<10; ++i) ((char*)addr1)[(int)i] = i+97;
   ((char*)addr1)[10] = 0;
   assert_is_ok(host);
   assert_str_eq((char*)addr1, "abcdefghij");

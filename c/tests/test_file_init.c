@@ -1,7 +1,7 @@
 #include "umem_testing.h"
 
 int main() {
-  static char fn[] = TMPDIR "/test_file_init.txt";
+  static char fn[] = TMPDIR "test_file_init.txt";
   umemFile file;
   umemHost host;
   umemHost_ctor(&host);

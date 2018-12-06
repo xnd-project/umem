@@ -218,11 +218,14 @@ const char* umem_get_device_name(umemDeviceType type) {
   static const char file_device_name[] = "FILE";
   static const char cuda_device_name[] = "CUDA";
   static const char mmap_device_name[] = "MMAP"; // NOT IMPLEMENTED
+  static const char rmm_device_name[] = "RRM"; // NOT IMPLEMENTED
   switch(type) {
   case umemVirtualDevice: return virtual_device_name;
   case umemHostDevice: return host_device_name;
   case umemFileDevice: return file_device_name;
   case umemCudaDevice: return cuda_device_name;
+  case umemMMapDevice: return mmap_device_name;
+  case umemRMMDevice: return rmm_device_name;
   }
   return NULL;
 }

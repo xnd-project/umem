@@ -24,7 +24,7 @@ typedef enum {
   umemFileDevice,
   umemCudaDevice,
   umemMMapDevice, // not impl
-  umemUMMDevice,  // not impl
+  umemRMMDevice,  // not impl
 } umemDeviceType;
 
 
@@ -217,6 +217,7 @@ static inline size_t umem_fundamental_align(void * const this) {
   case umemFileDevice: return UMEM_FUNDAMENTAL_FILE_ALIGN;
   case umemCudaDevice: return UMEM_FUNDAMENTAL_CUDA_ALIGN;
   case umemHostDevice: return UMEM_FUNDAMENTAL_HOST_ALIGN;
+  default: ;
   }
   return 1;
 }

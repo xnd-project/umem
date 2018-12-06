@@ -4,7 +4,6 @@
 void binDump(char *desc, void *addr, int len)
 {
   int i, k=8, n=8;
-  unsigned char buff[17];
   unsigned char *pc = (unsigned char*)addr;
   uint64_t i64;
   // Output description if given.
