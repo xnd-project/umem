@@ -79,6 +79,7 @@ UMEM_EXTERN void umemVirtual_ctor(umemVirtual * const me, umemHost* host); /* Co
 
 UMEM_EXTERN void umemVirtual_dtor(umemVirtual * const me); /* Destructor. Internal API */
 
+
 /*
   Status and error handling functions.
 
@@ -91,9 +92,8 @@ static inline umemStatusType umem_get_status(void * const me) {
 
 
 static inline const char * umem_get_message(void * const me) {
-  static const char empty[] = "";
   return (((umemVirtual * const)me)->status.message == NULL ?
-	  empty : ((umemVirtual * const)me)->status.message); }
+	  "" : ((umemVirtual * const)me)->status.message); }
 
 
 static inline int umem_is_ok(void * const me) {
@@ -192,11 +192,10 @@ static inline void umem_dtor(void * const me) {
   Public/Internal API.
  */
 static inline bool umem_is_same_device(void * const me, void * const she) {
-  if (me == she)
-    return true;
-  if (((umemVirtual * const)me)->type == ((umemVirtual * const)she)->type )
-    return (*((umemVirtual * const)me)->vptr->is_same_device)(me, she);
-  return false;
+  return (me == she ? true :
+          ((((umemVirtual * const)me)->type == ((umemVirtual * const)she)->type
+            ? (*((umemVirtual * const)me)->vptr->is_same_device)(me, she)
+            : false)));
 }
 
 /*
@@ -303,10 +302,26 @@ UMEM_EXTERN void umem_copy_to_via_host(void * const me, uintptr_t src_adr,
                                        void * const she, uintptr_t dest_adr,
                                        size_t nbytes);
 
-
 UMEM_EXTERN void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
                                          void * const she, uintptr_t src_adr,
                                          size_t nbytes);
+
+/*
+  Methods for syncing data between devices.
+
+  Public API.
+ */
+
+UMEM_EXTERN uintptr_t umem_connect(void * const src, uintptr_t src_adr,
+                                   size_t nbytes, void * const dest);
+UMEM_EXTERN void umem_sync_from(void * const src, uintptr_t src_adr,
+                                void * const dest, uintptr_t dest_adr,
+                                size_t nbytes);
+UMEM_EXTERN void umem_sync_to(void * const src, uintptr_t src_adr,
+                              void * const dest, uintptr_t dest_adr,
+                              size_t nbytes);
+UMEM_EXTERN void umem_disconnect(void * const src, void * const dest,
+                                 uintptr_t dest_adr);
 
 
 /*

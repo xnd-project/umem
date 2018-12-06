@@ -5,6 +5,7 @@ int main() {
   umemHost_ctor(&host);
   umemHost_ctor(&host2);
   assert_is_ok(host);
+  assert_is_ok(host2);
   assert_eq(umem_is_same_device(&host, &host), true);
   assert_eq(umem_is_same_device(&host, &host2), true);
 
@@ -21,6 +22,12 @@ int main() {
   assert_eq(umem_is_same_device(&file1, &file1), true);
   assert_eq(umem_is_same_device(&file1, &file2), false);
   assert_eq(umem_is_same_device(&file2, &file21), true);
+
+  assert_is_ok(host);
+  assert_is_ok(host2);
+  assert_is_ok(file1);
+  assert_is_ok(file2);
+  assert_is_ok(file21);
   
   umem_dtor(&file1);
   umem_dtor(&file2);

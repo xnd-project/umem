@@ -10,7 +10,7 @@ set (UMEM_VERSION_MAJOR 0)
 set (UMEM_VERSION_MINOR 0)
 set (UMEM_VERSION_MICRO 1)
 
-set(UMEM_SOURCES umem.c umem_host.c umem_file.c umem_utils.c)
+set(UMEM_SOURCES umem.c umem_host.c umem_file.c umem_utils.c umem_connect.c)
 set(UMEM_LIBRARIES umem)
 set(UMEM_INCLUDE_DIRS ${CMAKE_SOURCE_DIR})
 
