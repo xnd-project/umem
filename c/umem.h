@@ -145,6 +145,7 @@ struct umemVtbl {
 */
 typedef struct {
   umemVirtual super;
+  umemHost host;
   int device;
 } umemCuda;
 
