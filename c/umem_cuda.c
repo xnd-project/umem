@@ -135,6 +135,7 @@ void umemCuda_ctor(umemCuda * const this, int device) {
     &umemCuda_copy_from_,
   };
   assert(sizeof(CUdeviceptr) == sizeof(uintptr_t));
+  umemHost_ctor(&this->host);
   umemVirtual_ctor(&this->super, &this->host);
   this->super.vptr = &vtbl;
   this->super.type = umemCudaDevice;

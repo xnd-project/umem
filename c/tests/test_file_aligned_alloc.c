@@ -3,9 +3,10 @@
 #define CHECK_ALIGNED(ALIGNMENT, SIZE)                     \
   do {                                                     \
     adr = umem_aligned_alloc(&file, ALIGNMENT, SIZE);      \
-    assert_int_ne(adr, 0);                                 \
+    assert_int_eq(adr == 0, 0);                            \
     assert_is_ok(file);                                    \
-    assert_int_eq(adr % ALIGNMENT, 0);                     \
+    int rem =  adr % ALIGNMENT;                            \
+    assert_int_eq(rem, 0);                                 \
     umem_set(&file, adr, 255, SIZE);                       \
     uintptr_t oadr = umem_aligned_origin(&file, adr);      \
     /*binDump("adr", (void*)oadr, (SIZE+adr-oadr));*/      \

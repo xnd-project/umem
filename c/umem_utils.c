@@ -17,7 +17,7 @@ void binDump(char *desc, void *addr, int len)
 
     if (i && ((i % n) == 0)) {
       i64 = ((uint64_t*)(pc + i - 8))[0];
-      printf("  %08lld", i64);
+      printf("  %08" PRIxPTR "", i64);
     }
     
     if ((i % k) == 0) {
@@ -40,7 +40,7 @@ void binDump(char *desc, void *addr, int len)
 
   if (len % n == 0) {
     i64 = ((uint64_t*)(pc + len - 8))[0];
-    printf("  %08lld", i64);
+    printf("  %08" PRIxPTR "", i64);
   }
   
   // Pad out last line if not exactly 16 characters.

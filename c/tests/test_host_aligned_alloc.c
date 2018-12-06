@@ -3,12 +3,15 @@
 #define CHECK_ALIGNED(ALIGNMENT, SIZE)                     \
   do {                                                     \
     adr = umem_aligned_alloc(&host, ALIGNMENT, SIZE);      \
-    assert_int_ne(adr, 0);                                 \
+    assert_int_eq(adr==0, 0);                              \
     assert_is_ok(host);                                    \
-    assert_int_eq(adr % ALIGNMENT, 0);                     \
+    int rem =  adr % ALIGNMENT;                            \
+    assert_int_eq(rem, 0);                                 \
     umem_set(&host, adr, 255, SIZE);                       \
+    assert_is_ok(host);                                    \
     uintptr_t oadr = umem_aligned_origin(&host, adr);      \
-    assert_int_ne(oadr, 0);                                \
+    assert_is_ok(host);                                    \
+    assert_int_eq(oadr==0, 0);                             \
     /*binDump("adr", (void*)oadr, (SIZE+adr-oadr));*/      \
     umem_aligned_free(&host, adr);                         \
   } while(0)
@@ -16,7 +19,7 @@
 #define CHECK_ALIGNED_FAIL(ALIGNMENT, SIZE, MESSAGE)          \
   do {                                                        \
     adr = umem_aligned_alloc(&host, ALIGNMENT, SIZE);         \
-    assert_int_eq(adr, 0);                                    \
+    assert_int_eq(adr==0, 1);                                    \
     assert_is_not_ok(host);                                   \
     assert_str_eq(umem_get_message(&host), MESSAGE);          \
     umem_clear_status(&host);                                 \

@@ -16,7 +16,7 @@
 #define RETURN_STATUS							\
   do {									\
     ERR((errno ? EXIT_FAILURE : EXIT_SUCCESS),                          \
-        "%s (%s#%d)",                                                   \
+        "%s ( %s#%d )",                                                 \
         (errno ? "FAILURE" : "SUCCESS"),                                \
         __FILE__, __LINE__);                                            \
   } while (0)
@@ -27,7 +27,7 @@
   do {									\
     if ((LHS) != (RHS)) {                                               \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert( " STR(LHS) " == " STR(RHS) ") FAILED (%s#%d)", \
+      ERR(EXIT_FAILURE, "assert( " STR(LHS) " == " STR(RHS) ") FAILED ( %s#%d )", \
 	  __FILE__, __LINE__);						\
     }									\
   } while(0)
@@ -36,7 +36,7 @@
   do {									\
     if ((LHS) != (RHS)) {                                               \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert( (" STR(LHS) ")->%d == (" STR(RHS) ")->%d) FAILED (%s#%d)", \
+      ERR(EXIT_FAILURE, "assert( (" STR(LHS) ")->%d == (" STR(RHS) ")->%d ) FAILED ( %s#%d )", \
           LHS, RHS,                                                     \
 	  __FILE__, __LINE__);						\
     }									\
@@ -46,7 +46,7 @@
   do {									\
     if ((LHS) == (RHS)) {                                               \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert( (" STR(LHS) ")->%d != (" STR(RHS) ")->%d) FAILED (%s#%d)", \
+      ERR(EXIT_FAILURE, "assert( (" STR(LHS) ")->%d != (" STR(RHS) ")->%d ) FAILED ( %s#%d )", \
           LHS, RHS,                                                     \
 	  __FILE__, __LINE__);						\
     }									\
@@ -56,7 +56,7 @@
   do {									\
     if (strlen(LHS)!=strlen(RHS) || strcmp(LHS, RHS) != 0) {            \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert(\"%s\" == \"%s\") FAILED (%s#%d)",	\
+      ERR(EXIT_FAILURE, "assert(\"%s\" == \"%s\") FAILED ( %s#%d )",	\
 	  LHS, RHS,							\
 	  __FILE__, __LINE__);						\
     }									\
@@ -66,7 +66,7 @@
   do {									\
     if (strncmp(LHS, RHS, N) != 0) {                                    \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert(\"%s\" == \"%s\") FAILED (%s#%d)",	\
+      ERR(EXIT_FAILURE, "assert(\"%s\" == \"%s\") FAILED ( %s#%d )",	\
 	  LHS, RHS,							\
 	  __FILE__, __LINE__);						\
     }									\
@@ -77,7 +77,7 @@
     if (!umem_is_ok(&DEV)) {						\
       errno = ECANCELED;						\
       umemDeviceType status = umem_get_status(&DEV);			\
-      ERR(EXIT_FAILURE, "%s: %s (%s#%d)" , umem_get_status_name(status), \
+      ERR(EXIT_FAILURE, "%s: %s ( %s#%d )" , umem_get_status_name(status), \
 	  umem_get_message(&DEV), __FILE__, __LINE__);			\
     }									\
   } while(0)
@@ -87,7 +87,7 @@
     if (umem_is_ok(&DEV)) {						\
       errno = ECANCELED;						\
       umemDeviceType status = umem_get_status(&DEV);			\
-      ERR(EXIT_FAILURE, "%s: %s (%s#%d)" , umem_get_status_name(status), \
+      ERR(EXIT_FAILURE, "%s: %s ( %s#%d )" , umem_get_status_name(status), \
 	  umem_get_message(&DEV), __FILE__, __LINE__);			\
     }									\
   } while(0)
