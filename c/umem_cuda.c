@@ -66,7 +66,7 @@ static void umemCuda_copy_to_(umemVirtual * const this, uintptr_t src_adr,
   case umemCudaDevice:
     {
       umemCuda * const that_ = (umemCuda * const)that;
-      if (me_->device == that_->device) {
+      if (this_->device == that_->device) {
 	CUDA_CALL(this, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
 				 nbytes, cudaMemcpyDeviceToDevice),
 		  umemMemoryError, return,
@@ -74,10 +74,10 @@ static void umemCuda_copy_to_(umemVirtual * const this, uintptr_t src_adr,
 		  dest_adr, src_adr, nbytes);
       } else {
 	CUDA_CALL(this, cudaMemcpyPeer((void*)dest_adr, that_->device,
-				     (const void*)src_adr, me_->device,
+				     (const void*)src_adr, this_->device,
 				     nbytes), umemMemoryError, return,
 		  "umemCuda_copy_to_: cudaMemcpyPeer(%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu)",
-		  dest_adr, that_->device, src_adr, me_->device, nbytes);	
+		  dest_adr, that_->device, src_adr, this_->device, nbytes);	
       }
     }
     break;
@@ -113,7 +113,7 @@ static void umemCuda_copy_from_(umemVirtual * const this, uintptr_t dest_adr,
 static bool umemCuda_is_same_device_(umemVirtual * const this, umemVirtual * const that) {
   umemCuda * const this_ = (umemCuda * const)this;
   umemCuda * const that_ = (umemCuda * const)that;
-  return (me_->device == that_->device ? true : false);
+  return (this_->device == that_->device ? true : false);
 }
 
 /*
