@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "umem_utils.h"
 
@@ -119,6 +120,7 @@ UMEM_EXTERN void umemHost_ctor(umemHost * const me);  /* Constructor. Public API
 */
 struct umemVtbl {
   void (*dtor)(umemVirtual * const me);
+  bool (*is_same_device)(umemVirtual * const me, umemVirtual * const she);
   uintptr_t (*alloc)(umemVirtual * const me, size_t nbytes);
   uintptr_t (*calloc)(umemVirtual * const me, size_t nmemb, size_t size);
   void (*free)(umemVirtual * const me, uintptr_t adr);
@@ -183,6 +185,19 @@ static inline void umem_dtor(void * const me) {
   (*((umemVirtual * const)me)->vptr->dtor)(me);
 }
 
+/*
+  umem_is_same_device returns true if the devices are the same in the
+  sense of memory address spaces.
+
+  Public/Internal API.
+ */
+static inline bool umem_is_same_device(void * const me, void * const she) {
+  if (me == she)
+    return true;
+  if (((umemVirtual * const)me)->type == ((umemVirtual * const)she)->type )
+    return (*((umemVirtual * const)me)->vptr->is_same_device)(me, she);
+  return false;
+}
 
 /*
   umem_alloc allocates device memory and returns the memory addresss.
@@ -310,6 +325,8 @@ UMEM_EXTERN const char* umem_get_status_name(umemStatusType type);
 
   Internal API.
 */
+
+UMEM_EXTERN bool umemVirtual_is_same_device(umemVirtual * const me, umemVirtual * const she);
 
 UMEM_EXTERN uintptr_t umemVirtual_calloc(umemVirtual * const me,
                                          size_t nmemb, size_t size);

@@ -110,6 +110,12 @@ static void umemCuda_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
   }
 }
 
+static bool umemCuda_is_same_device_(umemVirtual * const me, umemVirtual * const she) {
+  umemCuda * const me_ = (umemCuda * const)me;
+  umemCuda * const she_ = (umemCuda * const)she;
+  return (me_->device == she_->device ? true : false);
+}
+
 /*
   umemCuda constructor.
 */
@@ -117,6 +123,7 @@ static void umemCuda_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
 void umemCuda_ctor(umemCuda * const me, int device) {
   static struct umemVtbl const vtbl = {
     &umemCuda_dtor_,
+    &umemCuda_is_same_device_,
     &umemCuda_alloc_,
     &umemVirtual_calloc,
     &umemCuda_free_,

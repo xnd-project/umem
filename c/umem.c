@@ -16,6 +16,10 @@ static uintptr_t umem_alloc_(umemVirtual  * const me, size_t nbytes) {
   return 0;
 }
 
+static bool umem_is_same_device_(umemVirtual  * const me, umemVirtual  * const she) {
+  assert(0); /* purely-virtual function should never be called */
+  return false;
+}
 
 static uintptr_t umem_calloc_(umemVirtual  * const me, size_t nmemb, size_t size) {
   assert(0); /* purely-virtual function should never be called */
@@ -69,6 +73,7 @@ static void umem_copy_from_(umemVirtual  * const me, uintptr_t src_adr,
 void umemVirtual_ctor(umemVirtual * const me, umemHost * host) {
   static struct umemVtbl const vtbl = {
     &umem_dtor_,
+    &umem_is_same_device_,
     &umem_alloc_,
     &umem_calloc_,
     &umem_free_,
@@ -88,7 +93,6 @@ void umemVirtual_ctor(umemVirtual * const me, umemHost * host) {
   me->host = (void*)host;
 }
 
-
 /*
   umemVirtual destructor.
 */
@@ -102,6 +106,10 @@ void umemVirtual_dtor(umemVirtual * const me) {
     umem_dtor(me->host);
     me->host = NULL;
   }
+}
+
+bool umemVirtual_is_same_device(umemVirtual * const me, umemVirtual * const she) {
+  return false;
 }
 
 

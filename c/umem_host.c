@@ -99,6 +99,10 @@ static void umemHost_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
     umem_copy_to(she, src_adr, me, dest_adr, nbytes);
 }
 
+bool umemHost_is_same_device_(umemVirtual * const me, umemVirtual * const she) {
+  return true;
+}
+
 /*
   umemHost constructor.
 */
@@ -106,6 +110,7 @@ static void umemHost_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
 void umemHost_ctor(umemHost * const me) {
   static struct umemVtbl const vtbl = {
     &umemHost_dtor_,
+    &umemHost_is_same_device_,
     &umemHost_alloc_,
     &umemHost_calloc_,
     &umemHost_free_,

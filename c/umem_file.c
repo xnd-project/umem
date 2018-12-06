@@ -162,6 +162,12 @@ static void umemFile_copy_from_(umemVirtual * const me, uintptr_t dest_adr,
 }
 
 
+bool umemFile_is_same_device_(umemVirtual * const me, umemVirtual * const she) {
+  umemFile * const me_ = (umemFile * const)me;
+  umemFile * const she_ = (umemFile * const)she;
+  return (strcmp(me_->filename, she_->filename) == 0 ? true : false);
+}
+
 /*
   umemFile constructor.
 */
@@ -169,6 +175,7 @@ void umemFile_ctor(umemFile * const me,
 		   const char * filename, const char * mode) {
   static struct umemVtbl const vtbl = {
     &umemFile_dtor_,
+    &umemFile_is_same_device_,
     &umemFile_alloc_,
     &umemVirtual_calloc,
     &umemFile_free_,

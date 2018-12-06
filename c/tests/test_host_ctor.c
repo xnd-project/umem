@@ -2,7 +2,7 @@
 
 int main() {
   umemHost host;
-  assert(((void*)&host) == ((void*)&host.super));
+  assert_eq((void*)&host, (void*)&host.super);
   umemHost_ctor(&host);
   assert_is_ok(host);
   umem_clear_status(&host.super);

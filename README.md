@@ -150,6 +150,14 @@ umem_aligned_free(&me, aligned_adr)
 umem_set(&me, adr, c, nbytes)
 umem_copy_to(&me, me_adr, &she, she_adr, nbytes)
 umem_copy_from(&me, me_adr, &she, she_adr, nbytes)
+
+umem_is_same_device(&me, &she) -> boolean
+
+TODO:
+umem_open(&me, &she, her_adr) -> mine_adr
+umem_update_from(&me, mine_adr, &she, her_adr, nbytes)
+umem_update_to(&me, mine_adr, &she, her_adr, nbytes)  # umem_flush?
+umem_close(&me, &she, mine_adr)
 ```
 
 Explicit copy implementations:
