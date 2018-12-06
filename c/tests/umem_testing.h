@@ -23,62 +23,72 @@
 
 #define STR(X) #X
 
-#define assert_eq(lhs, rhs)						\
+#define assert_eq(LHS, RHS)						\
   do {									\
-    if ((lhs) != (rhs)) {                                               \
+    if ((LHS) != (RHS)) {                                               \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert( " STR(lhs) " == " STR(rhs) ") FAILED (%s#%d)", \
+      ERR(EXIT_FAILURE, "assert( " STR(LHS) " == " STR(RHS) ") FAILED (%s#%d)", \
 	  __FILE__, __LINE__);						\
     }									\
   } while(0)
 
-#define assert_int_eq(lhs, rhs)						\
+#define assert_int_eq(LHS, RHS)						\
   do {									\
-    if ((lhs) != (rhs)) {                                               \
+    if ((LHS) != (RHS)) {                                               \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert( (" STR(lhs) ")->%d == (" STR(rhs) ")->%d) FAILED (%s#%d)", \
-          lhs, rhs,                                                     \
+      ERR(EXIT_FAILURE, "assert( (" STR(LHS) ")->%d == (" STR(RHS) ")->%d) FAILED (%s#%d)", \
+          LHS, RHS,                                                     \
 	  __FILE__, __LINE__);						\
     }									\
   } while(0)
 
-#define assert_int_ne(lhs, rhs)						\
+#define assert_int_ne(LHS, RHS)						\
   do {									\
-    if ((lhs) == (rhs)) {                                               \
+    if ((LHS) == (RHS)) {                                               \
       errno = ECANCELED;						\
-      ERR(EXIT_FAILURE, "assert( (" STR(lhs) ")->%d != (" STR(rhs) ")->%d) FAILED (%s#%d)", \
-          lhs, rhs,                                                     \
+      ERR(EXIT_FAILURE, "assert( (" STR(LHS) ")->%d != (" STR(RHS) ")->%d) FAILED (%s#%d)", \
+          LHS, RHS,                                                     \
 	  __FILE__, __LINE__);						\
     }									\
   } while(0)
 
-#define assert_str_eq(lhs, rhs)						\
+#define assert_str_eq(LHS, RHS)						\
   do {									\
-    if (strlen(lhs)!=strlen(rhs) || strcmp(lhs, rhs) != 0) {            \
+    if (strlen(LHS)!=strlen(RHS) || strcmp(LHS, RHS) != 0) {            \
       errno = ECANCELED;						\
       ERR(EXIT_FAILURE, "assert(\"%s\" == \"%s\") FAILED (%s#%d)",	\
-	  lhs, rhs,							\
+	  LHS, RHS,							\
 	  __FILE__, __LINE__);						\
     }									\
   } while(0)
 
-#define assert_is_ok(dev)						\
+#define assert_nstr_eq(N, LHS, RHS)                                     \
   do {									\
-    if (!umem_is_ok(&dev)) {						\
+    if (strncmp(LHS, RHS, N) != 0) {                                    \
       errno = ECANCELED;						\
-      umemDeviceType status = umem_get_status(&dev);			\
-      ERR(EXIT_FAILURE, "%s: %s (%s#%d)" , umem_get_status_name(status), \
-	  umem_get_message(&dev), __FILE__, __LINE__);			\
+      ERR(EXIT_FAILURE, "assert(\"%s\" == \"%s\") FAILED (%s#%d)",	\
+	  LHS, RHS,							\
+	  __FILE__, __LINE__);						\
     }									\
   } while(0)
 
-#define assert_is_not_ok(dev)						\
+#define assert_is_ok(DEV)						\
   do {									\
-    if (umem_is_ok(&dev)) {						\
+    if (!umem_is_ok(&DEV)) {						\
       errno = ECANCELED;						\
-      umemDeviceType status = umem_get_status(&dev);			\
+      umemDeviceType status = umem_get_status(&DEV);			\
       ERR(EXIT_FAILURE, "%s: %s (%s#%d)" , umem_get_status_name(status), \
-	  umem_get_message(&dev), __FILE__, __LINE__);			\
+	  umem_get_message(&DEV), __FILE__, __LINE__);			\
+    }									\
+  } while(0)
+
+#define assert_is_not_ok(DEV)						\
+  do {									\
+    if (umem_is_ok(&DEV)) {						\
+      errno = ECANCELED;						\
+      umemDeviceType status = umem_get_status(&DEV);			\
+      ERR(EXIT_FAILURE, "%s: %s (%s#%d)" , umem_get_status_name(status), \
+	  umem_get_message(&DEV), __FILE__, __LINE__);			\
     }									\
   } while(0)
 

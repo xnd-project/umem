@@ -148,16 +148,26 @@ umem_aligned_alloc(&me, alignment, nbytes) -> aligned_adr
 umem_aligned_origin(&me, aligned_adr) -> adr
 umem_aligned_free(&me, aligned_adr)
 umem_set(&me, adr, c, nbytes)
-umem_copy_to(&me, me_adr, &she, she_adr, nbytes)
-umem_copy_from(&me, me_adr, &she, she_adr, nbytes)
+```
 
+### Connecting devices
+
+Public API:
+```
 umem_is_same_device(&me, &she) -> bool
-umem_connect(&src, src_adr, n, &dest) -> dest_adr
+umem_connect(&src, src_adr, n, &dest, dest_alignment) -> dest_adr
 umem_sync_to(&src, src_adr, &dest, dest_adr, n)
 umem_sync_from(&src, src_adr, &dest, dest_adr, n)
-umem_disconnect(&src, &dest, dest_adr)
+umem_disconnect(&src, src_adr, &dest, dest_adr, dest_alignment)
 
+umem_copy_to(&me, me_adr, &she, she_adr, nbytes)
+umem_copy_from(&me, me_adr, &she, she_adr, nbytes)
 ```
+Notes: When `src` and `dest` are the same device, `umem_connect`
+returns `src_adr`, otherwise, the address of newly allocated `dest`
+memory is returned. Use `umem_sync_to/from` to keep device memories in
+sync.  `umem_disconnect` frees memory allocated by `umem_connect`. Use
+`dest_alignment=0` for default alignment.
 
 Explicit copy implementations:
 ```
@@ -202,7 +212,7 @@ conda install cmake make gcc_linux-64 gxx_linux-64 valgrind -c conda-forge
 git clone https://github.com/plures/umem.git
 mkdir build
 cd build
-cmake ../umem/c
+cmake -DCMAKE_BUILD_TYPE=Debug ../umem/c
 make
 make test                                     # runs unittests
 ctest -D ExperimentalMemCheck -E test_cuda    # runs valgrind

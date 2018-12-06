@@ -313,15 +313,17 @@ UMEM_EXTERN void umem_copy_from_via_host(void * const me, uintptr_t dest_adr,
  */
 
 UMEM_EXTERN uintptr_t umem_connect(void * const src, uintptr_t src_adr,
-                                   size_t nbytes, void * const dest);
+                                   size_t nbytes, void * const dest,
+                                   size_t dest_alignment);
 UMEM_EXTERN void umem_sync_from(void * const src, uintptr_t src_adr,
                                 void * const dest, uintptr_t dest_adr,
                                 size_t nbytes);
 UMEM_EXTERN void umem_sync_to(void * const src, uintptr_t src_adr,
                               void * const dest, uintptr_t dest_adr,
                               size_t nbytes);
-UMEM_EXTERN void umem_disconnect(void * const src, void * const dest,
-                                 uintptr_t dest_adr);
+UMEM_EXTERN void umem_disconnect(void * const src, uintptr_t src_adr,
+                                 void * const dest, uintptr_t dest_adr,
+                                 size_t dest_alignment);
 
 
 /*
