@@ -10,7 +10,7 @@ include_directories(${UMEM_INCLUDE_DIRS})
 set(LIBS ${UMEM_LIBRARIES})
 
 if(MSVC)
-  add_definitions("-DTMPDIR=\"${PROJECT_BINARY_DIR}\\Testing\\Temporary\\\"")
+  add_definitions("-DTMPDIR=\"${PROJECT_BINARY_DIR}\\\\Testing\\\\Temporary\\\\\"")
 else()
   add_definitions("-DTMPDIR=\"${PROJECT_BINARY_DIR}/Testing/Temporary/\"")
 endif()
