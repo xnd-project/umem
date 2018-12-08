@@ -17,7 +17,7 @@ endif()
 
 message(STATUS "UMEM_LIBRARIES=${UMEM_LIBRARIES}")
 
-file(GLOB test_files "test_*.c")
+file(GLOB test_files "test_*.c" "test_*.cc")
 foreach(filename ${test_files})
   get_filename_component(basename ${filename} NAME_WE)
   if ("${basename}" MATCHES ".*cuda" AND NOT CUDA_FOUND)

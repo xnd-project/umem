@@ -5,6 +5,12 @@
   Created: November 2018
 */
 
+#ifdef __cplusplus
+extern "C"
+{
+#define this this_
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -183,7 +189,7 @@ UMEM_EXTERN void umemFile_ctor(umemFile * const this,
   Public API.
 */
 static inline void umem_dtor(void * const this) {
-  (*((umemVirtual * const)this)->vptr->dtor)(this);
+  (*((umemVirtual * const)this)->vptr->dtor)((umemVirtual * const)this);
 }
 
 /*
@@ -195,7 +201,7 @@ static inline void umem_dtor(void * const this) {
 static inline bool umem_is_same_device(void * const this, void * const that) {
   return (this == that ? true :
           ((((umemVirtual * const)this)->type == ((umemVirtual * const)that)->type
-            ? (*((umemVirtual * const)this)->vptr->is_same_device)(this, that)
+            ? (*((umemVirtual * const)this)->vptr->is_same_device)((umemVirtual * const)this, (umemVirtual * const)that)
             : false)));
 }
 
@@ -205,11 +211,11 @@ static inline bool umem_is_same_device(void * const this, void * const that) {
   Public API.
 */
 static inline uintptr_t umem_alloc(void * const this, size_t nbytes) {
-  return (*((umemVirtual * const)this)->vptr->alloc)(this, nbytes);
+  return (*((umemVirtual * const)this)->vptr->alloc)((umemVirtual * const)this, nbytes);
 }
 
 static inline uintptr_t umem_calloc(void * const this, size_t nmemb, size_t size) {
-  return (*((umemVirtual * const)this)->vptr->calloc)(this, nmemb, size);
+  return (*((umemVirtual * const)this)->vptr->calloc)((umemVirtual * const)this, nmemb, size);
 }
 
 static inline size_t umem_fundamental_align(void * const this) {
@@ -231,7 +237,7 @@ static inline uintptr_t umem_aligned_alloc(void * const this, size_t alignment, 
              size, alignment);
   size_t fundamental_align = umem_fundamental_align(this);
   alignment = (alignment < fundamental_align ? fundamental_align : alignment);
-  return (*((umemVirtual * const)this)->vptr->aligned_alloc)(this, alignment, size);
+  return (*((umemVirtual * const)this)->vptr->aligned_alloc)((umemVirtual * const)this, alignment, size);
 }
 
 /*
@@ -240,7 +246,7 @@ static inline uintptr_t umem_aligned_alloc(void * const this, size_t alignment, 
   the aligned memory.
  */
 static inline uintptr_t umem_aligned_origin(void * const this, uintptr_t aligned_adr) {
-  return (*((umemVirtual * const)this)->vptr->aligned_origin)(this, aligned_adr);
+  return (*((umemVirtual * const)this)->vptr->aligned_origin)((umemVirtual * const)this, aligned_adr);
 }
 
 /*
@@ -249,7 +255,7 @@ static inline uintptr_t umem_aligned_origin(void * const this, uintptr_t aligned
   Public API.
 */
 static inline void umem_free(void * const this, uintptr_t adr) {
-  (*((umemVirtual * const)this)->vptr->free)(this, adr);
+  (*((umemVirtual * const)this)->vptr->free)((umemVirtual * const)this, adr);
 }
 
 
@@ -259,7 +265,7 @@ static inline void umem_free(void * const this, uintptr_t adr) {
   Public API.
 */
 static inline void umem_aligned_free(void * const this, uintptr_t aligned_adr) {
-  (*((umemVirtual * const)this)->vptr->aligned_free)(this, aligned_adr);
+  (*((umemVirtual * const)this)->vptr->aligned_free)((umemVirtual * const)this, aligned_adr);
 }
 
 
@@ -269,7 +275,7 @@ static inline void umem_aligned_free(void * const this, uintptr_t aligned_adr) {
   Public API.
 */
 static inline void umem_set(void * const this, uintptr_t adr, int c, size_t nbytes) {
-  (*((umemVirtual * const)this)->vptr->set)(this, adr, c, nbytes);
+  (*((umemVirtual * const)this)->vptr->set)((umemVirtual * const)this, adr, c, nbytes);
 }
 
 
@@ -281,16 +287,16 @@ static inline void umem_set(void * const this, uintptr_t adr, int c, size_t nbyt
 static inline void umem_copy_to(void * const this, uintptr_t src_adr,
 				void * const that, uintptr_t dest_adr,
 				size_t nbytes) {
-  (*((umemVirtual * const)this)->vptr->copy_to)(this, src_adr,
-					      that, dest_adr, nbytes);
+  (*((umemVirtual * const)this)->vptr->copy_to)((umemVirtual * const)this, src_adr,
+                                                (umemVirtual * const)that, dest_adr, nbytes);
 }
 
 
 static inline void umem_copy_from(void * const this, uintptr_t dest_adr,
 				  void * const that, uintptr_t src_adr,
 				  size_t nbytes) {
-  (*((umemVirtual * const)this)->vptr->copy_from)(this, dest_adr,
-                                                  that, src_adr, nbytes);
+  (*((umemVirtual * const)this)->vptr->copy_from)((umemVirtual * const)this, dest_adr,
+                                                  (umemVirtual * const)that, src_adr, nbytes);
 }
 
 
@@ -359,5 +365,11 @@ UMEM_EXTERN void umemVirtual_aligned_free(umemVirtual * const this,
 
 UMEM_EXTERN uintptr_t umemVirtual_aligned_origin(umemVirtual * const this, uintptr_t aligned_adr);
 
+#ifdef __cplusplus
+#undef this
+}
 
+#include "umem.hpp"
+
+#endif
 #endif
