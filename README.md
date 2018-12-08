@@ -50,6 +50,38 @@ efficient implementations for copying data between different devices.
 For instance, one can use a single UMEM API function to copy data from
 GPU device memory, say, to a file on the disk drive.
 
+## Example in C++
+
+```c++
+int main() {
+  // Define and construct the context objects
+  umem::Host host;
+  umem::Cuda cuda(0);
+  umem::File file("/path/to/my/file.dat", "w+b")
+  
+  // Allocate memory for an array of doubles in host
+  size_t nbytes = 64 * sizeof(double);
+  umem::Address host_adr = host.alloc(size);
+
+  // Zero the data
+  host_adr.set(0, nbytes);
+  // or initialize it as a `range(64)`:
+  for (int i=0; i<64; ++i) ((double*)host_adr)[i] = i;
+
+  // Allocate memory in GPU device
+  umem::Address cuda_adr = cuda.alloc(nbytes/2);
+
+  // Copy a slice of host data (`range(64)[10:42]`) to GPU device:
+  (host_adr+10*sizeof(double)).copy_to(cuda_adr, nbytes/2);
+
+  // Open file for writing
+  umem::Address file_adr = file.alloc(nbytes/2);
+
+  // Copy data from GPU device to file:
+  file_adr.copy_from(cuda_adr, nbytes/2);
+}
+```
+
 ## Example in C
 
 ```c
@@ -65,7 +97,7 @@ int main() {
   // Construct the context objects
   umemHost_ctor(&host);
   umemCuda_ctor(&cuda, 0); // 0 is GPU device number
-  umemFile_ctor(&file, "/path/to/my/file.txt", "w+b");
+  umemFile_ctor(&file, "/path/to/my/file.dat", "w+b");
 
   // Allocate memory for an array of doubles in host
   size_t nbytes = 64 * sizeof(double);
