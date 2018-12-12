@@ -29,8 +29,10 @@ CPU, GPU, as well as of different memory management interfaces (files,
 mmap, memory pools, etc).
 
 The core part of UMEM is written in C for efficency but using OOP
-design to be easily extensible. Plans are providing the core part also
-in C++ and interfacing UMEM to high-level scripting languages such as
+design to be easily extensible. UMEM provides also C++ API that usage
+is highly recommended for C++ programs.
+
+Plans are interfacing UMEM to high-level scripting languages such as
 Python, etc.
 
 ## UMEM memory model
@@ -44,19 +46,28 @@ referred to via C pointer value as well; the data in a file can also
 be addressed using the position returned by `ftell` function. And so
 on.
 
-UMEM uses `uintptr_t` C type (defined in stdint.h) for addressing data
-in any supported storage device.  UMEM provides device-independent API and
-efficient implementations for copying data between different devices.
-For instance, one can use a single UMEM API function to copy data from
-GPU device memory, say, to a file on the disk drive.
+In C core part, UMEM uses `uintptr_t` type (defined in stdint.h) for
+addressing data in any supported storage device.  UMEM provides
+device-independent API and efficient implementations for copying data
+between different devices.  For instance, one can use a single UMEM
+API function to copy data from GPU device memory, say, to a file on
+the disk drive.
+
+In C++ API, UMEM provides `Address` class that represents a memory
+address with a device context. `Address` defines convinient casting
+and pointer arithmetics operators as well as methods for copying and
+syncronizing data between different devices.
 
 ## Example in C++
 
 ```c++
+
+#include "umem.h"
+
 int main() {
   // Define and construct the context objects
   umem::Host host;
-  umem::Cuda cuda(0);
+  umem::Cuda cuda(0); // 0 is GPU device number
   umem::File file("/path/to/my/file.dat", "w+b")
   
   // Allocate memory for an array of doubles in host

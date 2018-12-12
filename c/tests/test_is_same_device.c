@@ -9,9 +9,9 @@ int main() {
   assert_eq(umem_is_same_device(&host, &host), true);
   assert_eq(umem_is_same_device(&host, &host2), true);
 
-  static char fn1[] = TMPDIR "/test_is_same_device_1.txt";
-  static char fn2[] = TMPDIR "/test_is_same_device_2.txt";
-  static char fn21[] = TMPDIR "/test_is_same_device_2.txt";
+  static char fn1[] = TMPDIR "test_is_same_device_1.txt";
+  static char fn2[] = TMPDIR "test_is_same_device_2.txt";
+  static char fn21[] = TMPDIR "test_is_same_device_2.txt";
   umemFile file1, file2, file21;
   umemFile_ctor(&file1, fn1, "wb");
   umemFile_ctor(&file2, fn2, "wb");

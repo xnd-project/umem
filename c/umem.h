@@ -228,16 +228,19 @@ static inline size_t umem_fundamental_align(void * const this) {
   return 1;
 }
 
-static inline uintptr_t umem_aligned_alloc(void * const this, size_t alignment, size_t size) {
+static inline uintptr_t umem_aligned_alloc(void * const this,
+                                           size_t alignment, size_t size)
+{
   TRY_RETURN(this, !umem_ispowerof2(alignment), umemValueError, return 0,
-             "umemVirtual_aligned_alloc: alignment %zu must be power of 2",
+             "umem_aligned_alloc: alignment %zu must be power of 2",
              alignment);
   TRY_RETURN(this, size % alignment, umemValueError, return 0,
-             "umemVirtual_aligned_alloc: size %zu must be multiple of alignment %zu",
+             "umem_aligned_alloc: size %zu must be multiple of alignment %zu",
              size, alignment);
   size_t fundamental_align = umem_fundamental_align(this);
   alignment = (alignment < fundamental_align ? fundamental_align : alignment);
-  return (*((umemVirtual * const)this)->vptr->aligned_alloc)((umemVirtual * const)this, alignment, size);
+  return (*((umemVirtual * const)this)->vptr->aligned_alloc)
+    ((umemVirtual * const)this, alignment, size);
 }
 
 /*
@@ -245,8 +248,10 @@ static inline uintptr_t umem_aligned_alloc(void * const this, size_t alignment, 
   the aligned memory area. This starting address can be used to free
   the aligned memory.
  */
-static inline uintptr_t umem_aligned_origin(void * const this, uintptr_t aligned_adr) {
-  return (*((umemVirtual * const)this)->vptr->aligned_origin)((umemVirtual * const)this, aligned_adr);
+static inline uintptr_t umem_aligned_origin(void * const this,
+                                            uintptr_t aligned_adr) {
+  return (*((umemVirtual * const)this)->vptr->aligned_origin)
+    ((umemVirtual * const)this, aligned_adr);
 }
 
 /*

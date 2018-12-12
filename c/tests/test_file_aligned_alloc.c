@@ -3,8 +3,8 @@
 #define CHECK_ALIGNED(ALIGNMENT, SIZE)                     \
   do {                                                     \
     adr = umem_aligned_alloc(&file, ALIGNMENT, SIZE);      \
-    assert_int_eq(adr == 0, 0);                            \
     assert_is_ok(file);                                    \
+    assert_int_eq(adr>0, 1);                              \
     int rem =  adr % ALIGNMENT;                            \
     assert_int_eq(rem, 0);                                 \
     umem_set(&file, adr, 255, SIZE);                       \
@@ -23,17 +23,17 @@ int main() {
   umemFile file;
   umemFile_ctor(&file, TMPDIR "test_file_aligned_alloc.txt", "w+b");
   uintptr_t adr = 0;
-  CHECK_ALIGNED_FAIL(0, 10, "umemVirtual_aligned_alloc: alignment 0 must be power of 2");
+  CHECK_ALIGNED_FAIL(0, 10, "umem_aligned_alloc: alignment 0 must be power of 2");
   CHECK_ALIGNED(1, 10);
   CHECK_ALIGNED(2, 10);
   CHECK_ALIGNED(2, 0);
-  CHECK_ALIGNED_FAIL(2, 1, "umemVirtual_aligned_alloc: size 1 must be multiple of alignment 2");
+  CHECK_ALIGNED_FAIL(2, 1, "umem_aligned_alloc: size 1 must be multiple of alignment 2");
   CHECK_ALIGNED(2, 2);
-  CHECK_ALIGNED_FAIL(3, 10, "umemVirtual_aligned_alloc: alignment 3 must be power of 2");
-  CHECK_ALIGNED_FAIL(4, 10, "umemVirtual_aligned_alloc: size 10 must be multiple of alignment 4");
+  CHECK_ALIGNED_FAIL(3, 10, "umem_aligned_alloc: alignment 3 must be power of 2");
+  CHECK_ALIGNED_FAIL(4, 10, "umem_aligned_alloc: size 10 must be multiple of alignment 4");
   CHECK_ALIGNED(4, 12);
   CHECK_ALIGNED(64, 512);
-  CHECK_ALIGNED_FAIL(64, 1000, "umemVirtual_aligned_alloc: size 1000 must be multiple of alignment 64");
+  CHECK_ALIGNED_FAIL(64, 1000, "umem_aligned_alloc: size 1000 must be multiple of alignment 64");
   assert_is_ok(file);
   umem_dtor(&file);
   RETURN_STATUS;

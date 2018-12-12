@@ -16,9 +16,9 @@
 #endif
 
 #define FILE_CALL(THIS, CALL, ERROR, ERRRETURN, FMT, ...)			\
-  do { assert(!errno);							\
+  do { assert(!errno);                                              \
   int status = (CALL);							\
-  if (status != 0) {							\
+  if (status != 0 || errno) {							\
     char buf[256];							\
     ERRBUF								\
     snprintf(buf, sizeof(buf), FMT " -> %d [errno=%d (%s)]", __VA_ARGS__, \
@@ -70,7 +70,10 @@ static void umemFile_free_(umemVirtual * const this, uintptr_t adr) {
 
 
 static void umemFile_dtor_(umemVirtual * const this) {
+  umemFile * const this_ = (umemFile * const)this;
   umemFile_free_(this, 0);
+  umem_free(this->host, (uintptr_t)this_->mode);
+  umem_free(this->host, (uintptr_t)this_->filename);
   umemVirtual_dtor(this);
 }
 
@@ -192,8 +195,26 @@ void umemFile_ctor(umemFile * const this,
   this->super.type = umemFileDevice;
   this->super.vptr = &vtbl;
   this->fp = 0;
-  this->filename = filename;
-  this->mode = mode;
+  if (strlen(filename) == 0)
+    umem_set_status(this, umemValueError, "invalid 0-length filename");
+  if (strlen(mode) == 0)
+    umem_set_status(this, umemValueError, "invalid 0-length mode");
+
+  if (umem_is_ok(this)) {
+    size_t l = strlen(filename);
+    this->filename = (const char*)umem_calloc(&this->host, l+1, 1);
+    umem_copy_from(&this->host, (uintptr_t)this->filename, &this->host, (uintptr_t)filename, l);
+    assert(umem_is_ok(&this->host));
+
+    l = strlen(mode);
+    this->mode = (const char*)umem_calloc(&this->host, l+1, 1);
+    umem_copy_from(&this->host, (uintptr_t)this->mode, &this->host, (uintptr_t)mode, l);
+    assert(umem_is_ok(&this->host));
+
+  } else {
+    this->filename = NULL;
+    this->mode = NULL;
+  }
 }
 
 
