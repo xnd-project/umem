@@ -153,8 +153,9 @@ namespace umem {
   protected:
     inline void * const get_raw_context() { return raw_ctx; };
   private:
-    Address(const Address&);            // Disallow copy constructor.
     Address& operator=(const Address&); // Disallow assignment operator.
+    //Address(const Address&);            // Disallow copy constructor. MSVC requires copy constructor.
+    
   };
 
   // Implementations:
@@ -164,15 +165,6 @@ namespace umem {
   inline Address Context::aligned_alloc(alignment_t alignment, size_t size) {
     return Address(umem_aligned_alloc(get_raw_context(), alignment, size), alignment, size, get_raw_context(), true); }
   
-  class Connection {
-  public:
-    Connection(std::shared_ptr<Context*const> &src, 
-               std::shared_ptr<Context*const> &dest): src_(src), dest_(dest) {}
-    
-  private:
-    std::shared_ptr<Context*const> &src_;
-    std::shared_ptr<Context*const> &dest_;
-  };
 }
 
 #endif
