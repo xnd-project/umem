@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <iostream>
+#include <string>
 
 namespace umem {
 
@@ -92,8 +93,8 @@ namespace umem {
     inline void copy_to(Address& dest, size_t nbytes) { umem_copy_to(raw_ctx, adr, dest.get_raw_context(), dest.adr, nbytes); }
     inline void copy_from(Address& src, size_t nbytes) { umem_copy_from(raw_ctx, adr, src.get_raw_context(), src.adr, nbytes); }
     inline void copy_from(std::string src, size_t nbytes) { umem_copy_from(raw_ctx, adr, ((umemVirtual*)raw_ctx)->host, (uintptr_t)src.c_str(), nbytes); }
-    inline Address connect(size_t nbytes, Context& dest, size_t alignment) {
-      return Address(umem_connect(raw_ctx, adr, nbytes, dest.get_raw_context(), alignment), alignment, dest.get_raw_context());
+    inline Address connect(size_t nbytes, Context& dest, size_t dest_alignment) {
+      return Address(umem_connect(raw_ctx, adr, nbytes, dest.get_raw_context(), dest_alignment), dest_alignment, dest.get_raw_context());
     }
     inline void disconnect(Address& dest) { umem_disconnect(raw_ctx, adr, dest.get_raw_context(), dest.adr, dest.alignment); }
     inline void sync_to(Address& dest, size_t nbytes) { umem_sync_to(raw_ctx, adr, dest.get_raw_context(), dest.adr, nbytes); }

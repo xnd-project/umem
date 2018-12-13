@@ -102,7 +102,7 @@ static inline const char * umem_get_message(void * const this) {
 	  "" : ((umemVirtual * const)this)->status.message); }
 
 
-static inline int umem_is_ok(void * const this) {
+static inline bool umem_is_ok(void * const this) {
   return ((umemVirtual * const)this)->status.type == umemOK;
 }
 
