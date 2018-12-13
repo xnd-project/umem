@@ -28,7 +28,7 @@ int main() {
       addr.copy_to(addr2, strlen(text));
       assert_eq(host.is_ok(), true);
       assert_eq(file.is_ok(), true);
-      assert_nstr_eq(strlen(text), (char*)addr2.adr, text);
+      assert_nstr_eq(strlen(text), (char*)addr2, text);
     }
 
     {

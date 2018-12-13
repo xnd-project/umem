@@ -1,27 +1,27 @@
 #include "umem_testing.h"
 
-#define CHECK_ALIGNED(ALIGNMENT, SIZE)                     \
-  do {                                                     \
-    umem::Address adr = host.aligned_alloc(ALIGNMENT, SIZE);     \
-    assert_int_eq(adr==0, false);                              \
-    assert_eq(host.is_ok(), true);                              \
-    int rem =  adr.adr % ALIGNMENT;                                \
-    assert_int_eq(rem, 0);                                 \
-    adr.set(255, SIZE);                                   \
-    assert_eq(host.is_ok(), true);                              \
-    uintptr_t oadr = adr.origin().adr;                      \
-    assert_eq(host.is_ok(), true);                              \
-    assert_int_eq(oadr==0, false);                              \
-    /*binDump("adr", (void*)oadr, (SIZE+adr-oadr));*/      \
+#define CHECK_ALIGNED(ALIGNMENT, SIZE)                               \
+  do {                                                               \
+    umem::Address adr = host.aligned_alloc(ALIGNMENT, SIZE);         \
+    assert_int_eq(adr==0, false);                                    \
+    assert_eq(host.is_ok(), true);                                   \
+    int rem =  (uintptr_t)adr % ALIGNMENT;                           \
+    assert_int_eq(rem, 0);                                           \
+    adr.set(255, SIZE);                                              \
+    assert_eq(host.is_ok(), true);                                   \
+    uintptr_t oadr = adr.origin();                                   \
+    assert_eq(host.is_ok(), true);                                   \
+    assert_int_eq(oadr==0, false);                                   \
+    /*binDump("adr", (void*)oadr, (SIZE+adr-oadr));*/                \
   } while(0)
 
-#define CHECK_ALIGNED_FAIL(ALIGNMENT, SIZE, MESSAGE)          \
-  do {                                                        \
-    umem::Address adr = host.aligned_alloc(ALIGNMENT, SIZE);      \
-    assert_int_eq(adr==0, true);                                    \
+#define CHECK_ALIGNED_FAIL(ALIGNMENT, SIZE, MESSAGE)               \
+  do {                                                             \
+    umem::Address adr = host.aligned_alloc(ALIGNMENT, SIZE);       \
+    assert_int_eq(adr==0, true);                                   \
     assert_eq(host.is_ok(), false);                                \
     assert_str_eq(host.get_message().c_str(), MESSAGE);            \
-    host.clear_status();                                 \
+    host.clear_status();                                           \
   } while(0)
 
 int main() {
