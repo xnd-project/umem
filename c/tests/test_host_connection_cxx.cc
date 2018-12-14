@@ -61,7 +61,7 @@ int main() {
       assert_nstr_eq(10, (char*)adr1, "AAAAAAAAAA");
       size_t alignment = 1;
       while ((adr1 % alignment) == 0) alignment <<= 1;
-      umem::Address adr2 = adr1.connect(host2, n, (umem::alignment_t)alignment);
+      umem::Address adr2 = adr1.connect(host2, n, alignment);
       assert_eq(host1.is_ok(), true);
       assert_eq(host2.is_ok(), true);
       assert_eq(adr1 == adr2, false);
@@ -85,7 +85,7 @@ int main() {
     /* Aligned memory - same or smaller alignment leads to same memory */
     {
       size_t n = 1024;
-      umem::alignment_t alignment = 128;
+      size_t alignment = 128;
       umem::Address adr1 = host1.aligned_alloc(alignment, n);
       assert_eq(host1.is_ok(), true);
       assert_eq(host2.is_ok(), true);
