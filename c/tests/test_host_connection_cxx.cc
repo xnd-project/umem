@@ -56,9 +56,9 @@ int main() {
       umem::Address adr1 = host1.alloc(n);
       adr1.set('A', n);
       assert_nstr_eq(10, (char*)adr1, "AAAAAAAAAA");
-      umem::alignment_t alignment = 1;
+      size_t alignment = 1;
       while ((adr1 % alignment) == 0) alignment <<= 1;
-      umem::Address adr2 = adr1.connect(host2, n, alignment);
+      umem::Address adr2 = adr1.connect(host2, n, (umem::alignment_t)alignment);
       assert_eq(host1.is_ok(), true);
       assert_eq(host2.is_ok(), true);
       assert_eq(adr1 == adr2, false);
