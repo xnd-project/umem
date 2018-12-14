@@ -46,6 +46,7 @@ typedef enum {
   umemIOError,
   umemValueError,
   umemTypeError,
+  umemIndexError,
   umemNotImplementedError,
   umemAssertError,
 } umemStatusType;
@@ -108,7 +109,7 @@ static inline bool umem_is_ok(void * const this) {
 
 
 UMEM_EXTERN void umem_set_status(void * const this,
-			    umemStatusType type, const char * message);
+                                 umemStatusType type, const char * message);
 
 
 UMEM_EXTERN void umem_clear_status(void * const this);
@@ -283,6 +284,12 @@ static inline void umem_set(void * const this, uintptr_t adr, int c, size_t nbyt
   (*((umemVirtual * const)this)->vptr->set)((umemVirtual * const)this, adr, c, nbytes);
 }
 
+static inline void umem_set_safe(void * const this, uintptr_t adr, size_t size, int c, size_t nbytes) {
+  if (size < nbytes)
+    umem_set_status(this, umemIndexError, "umem_set_safe: nbytes out of range");
+  else
+    umem_set(this, adr, c, nbytes);
+}
 
 /*
   umem_copy_from and umem_copy_to copy data from one device to another.
@@ -296,12 +303,29 @@ static inline void umem_copy_to(void * const this, uintptr_t src_adr,
                                                 (umemVirtual * const)that, dest_adr, nbytes);
 }
 
+static inline void umem_copy_to_safe(void * const this, uintptr_t src_adr, size_t src_size,
+                                     void * const that, uintptr_t dest_adr, size_t dest_size,
+                                     size_t nbytes) {
+  if (!(nbytes<=src_size && nbytes<=dest_size))
+    umem_set_status(this, umemIndexError, "umem_copy_to_safe: nbytes out of range");
+  else
+    umem_copy_to(this, src_adr, that, dest_adr, nbytes);
+}
 
 static inline void umem_copy_from(void * const this, uintptr_t dest_adr,
 				  void * const that, uintptr_t src_adr,
 				  size_t nbytes) {
   (*((umemVirtual * const)this)->vptr->copy_from)((umemVirtual * const)this, dest_adr,
                                                   (umemVirtual * const)that, src_adr, nbytes);
+}
+
+static inline void umem_copy_from_safe(void * const this, uintptr_t dest_adr, size_t dest_size,
+                                       void * const that, uintptr_t src_adr, size_t src_size,
+                                       size_t nbytes) {
+  if (!(nbytes<=src_size && nbytes<=dest_size))
+    umem_set_status(this, umemIndexError, "umem_copy_from_safe: nbytes out of range");
+  else
+    umem_copy_from(this, dest_adr, that, src_adr, nbytes);
 }
 
 
@@ -338,7 +362,25 @@ UMEM_EXTERN void umem_disconnect(void * const src, uintptr_t src_adr,
                                  void * const dest, uintptr_t dest_adr,
                                  size_t dest_alignment);
 
+static inline void umem_sync_from_safe(void * const dest, uintptr_t dest_adr, size_t dest_size,
+                                       void * const src, uintptr_t src_adr, size_t src_size,
+                                       size_t nbytes) {
+  if (!(nbytes<=src_size && nbytes<=dest_size))
+    umem_set_status(dest, umemIndexError, "umem_sync_from_safe: nbytes out of range");
+  else
+    umem_sync_from(dest, dest_adr, src, src_adr, nbytes);
+}
 
+static inline void umem_sync_to_safe(void * const src, uintptr_t src_adr, size_t src_size,
+                                     void * const dest, uintptr_t dest_adr, size_t dest_size,
+                                     size_t nbytes) {
+  if (!(nbytes<=src_size && nbytes<=dest_size))
+    umem_set_status(src, umemIndexError, "umem_sync_to_safe: nbytes out of range");
+  else
+    umem_sync_to(src, src_adr, dest, dest_adr, nbytes);
+}
+
+  
 /*
   Various utility functions.
 

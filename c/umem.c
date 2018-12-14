@@ -241,6 +241,7 @@ const char* umem_get_status_name(umemStatusType type) {
   static const char assert_error_name[] = "AssertError";
   static const char value_error_name[] = "ValueError";
   static const char type_error_name[] = "TypeError";
+  static const char index_error_name[] = "IndexError";
   switch (type) {
   case umemOK: return ok_name;
   case umemMemoryError: return memory_error_name;
@@ -250,6 +251,7 @@ const char* umem_get_status_name(umemStatusType type) {
   case umemAssertError: return assert_error_name;
   case umemValueError: return value_error_name;
   case umemTypeError: return type_error_name;
+  case umemIndexError: return index_error_name;
   }
   return NULL;
 }

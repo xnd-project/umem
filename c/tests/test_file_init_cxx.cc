@@ -12,7 +12,7 @@ int main() {
     {
       umem::File file(fn, "wb");
       assert_eq(file.is_ok(), true);
-      umem::Address addr = file.alloc(0); // open the file for writing, 0 size is arbitrary
+      umem::Address addr = file.alloc(10); // open the file for writing, 10 size is arbitrary
       assert_eq(file.is_ok(), true);
       addr.copy_from(text, strlen(text));
       assert_eq(file.is_ok(), true);
@@ -21,7 +21,7 @@ int main() {
     {
       umem::File file(fn, "rb");
       assert_eq(file.is_ok(), true);
-      umem::Address addr = file.alloc(0); // open the file for reading
+      umem::Address addr = file.alloc(10); // open the file for reading
       assert_eq(file.is_ok(), true);
       umem::Address addr2 = host.alloc(strlen(text)+1);
       addr2[strlen(text)] = '\0';

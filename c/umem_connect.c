@@ -16,10 +16,10 @@ uintptr_t umem_connect(void * const src, uintptr_t src_adr, size_t nbytes, void 
   return dest_adr;
 }
 
-void umem_sync_from(void * const src, uintptr_t src_adr, void * const dest, uintptr_t dest_adr, size_t nbytes) {
-  if (umem_is_same_device(src, dest) && src_adr == dest_adr)
+void umem_sync_from(void * const dest, uintptr_t dest_adr, void * const src, uintptr_t src_adr, size_t nbytes) {
+  if (umem_is_same_device(dest, src) && src_adr == dest_adr)
     return;
-  umem_copy_from(src, src_adr, dest, dest_adr, nbytes);
+  umem_copy_from(dest, dest_adr, src, src_adr, nbytes);
 }
 
 void umem_sync_to(void * const src, uintptr_t src_adr, void * const dest, uintptr_t dest_adr, size_t nbytes) {

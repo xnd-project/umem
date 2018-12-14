@@ -26,20 +26,23 @@ int main() {
         (adr2+n/4).set('C', n/2);
         assert_str_eq((char*)adr2, "AACCCCCBBB");
         assert_str_eq((char*)adr1, "AACCCCCBBB"); // so, sync not necessary
-        adr1.sync_from(adr2, n);                  // but doing it anyway for testing 
+        //adr1.sync_from(adr2, n);                  // but doing it anyway for testing
+        adr2.sync(n);
         assert_eq(host1.is_ok(), true);
         assert_eq(host2.is_ok(), true);
-        adr1.disconnect(adr2); // Why ?
+        //adr1.disconnect(adr2); // Why ? This frees adr2.
         assert_str_eq((char*)adr1, "AACCCCCBBB");
       }
       
       /* Distinct memory */
       {
-        umem::Address adr2 = host2.alloc(n+1);
+        umem::Address adr12 = host1.alloc(n+1);
+        umem::Address adr2 = adr12.connect(host2, n+1);
         ((char*)adr2)[n] = '\0';
         adr2.set('D', n);
         assert_str_eq((char*)adr2, "DDDDDDDDDD");
         adr1.sync_to(adr2, n);
+        //adr2.sync_to(n);
         assert_str_eq((char*)adr2, "AACCCCCBBB");
         adr2.set('E', n/2);
         assert_str_eq((char*)adr2, "EEEEECCBBB");
@@ -67,16 +70,16 @@ int main() {
       (adr2+2).set('C', 4);
       assert_nstr_eq(10, (char*)adr2, "AACCCCAAAA");
       assert_nstr_eq(10, (char*)adr1, "AAAAAAAAAA");
-      adr1.sync_from(adr2, n);
+      adr2.sync(n);
       assert_nstr_eq(10, (char*)adr1, "AACCCCAAAA");
       (adr1+3).set('D', 2);
       assert_nstr_eq(10, (char*)adr1, "AACDDCAAAA");
       assert_nstr_eq(10, (char*)adr2, "AACCCCAAAA");
-      adr1.sync_to(adr2, n);
+      adr2.update(n);
       assert_nstr_eq(10, (char*)adr2, "AACDDCAAAA");
       assert_eq(host1.is_ok(), true);
       assert_eq(host2.is_ok(), true);
-      adr1.disconnect(adr2); // Why ?
+      //adr1.disconnect(adr2); // Why ?
     }
     
     /* Aligned memory - same or smaller alignment leads to same memory */
@@ -101,14 +104,16 @@ int main() {
       (adr2+2).set('C', 4);
       assert_nstr_eq(10, (char*)adr2, "AACCCCAAAA");
       assert_nstr_eq(10, (char*)adr1, (char*)adr2);
-      adr1.sync_from(adr2, n);
+      //adr1.sync_from(adr2, n);
+      adr2.sync(n);
       assert_nstr_eq(10, (char*)adr1, (char*)adr2);
       (adr1+3).set('D', 2);
       assert_nstr_eq(10, (char*)adr1, "AACDDCAAAA");
       assert_nstr_eq(10, (char*)adr1, (char*)adr2);
-      adr1.sync_to(adr2, n);
+      //adr1.sync_to(adr2, n);
+      adr2.update(n);
       assert_nstr_eq(10, (char*)adr2, "AACDDCAAAA");
-      adr1.disconnect(adr2); // Why ?
+      //adr1.disconnect(adr2); // Why ?
     }
   }
   RETURN_STATUS;
