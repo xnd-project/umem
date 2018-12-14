@@ -247,6 +247,7 @@ umem_clear_status(&this)
 
 ```
 conda install cmake make gcc_linux-64 gxx_linux-64 valgrind -c conda-forge
+conda install doxygen -c conda-forge
 ```
 
 ## Building and testing UMEM

@@ -1,3 +1,10 @@
+/*! \mainpage
+ *
+ * See [UMEM homepage](https://github.com/plures/umem/) for more
+ * information about this project.
+ *
+ */
+
 #ifndef UMEM_H
 #define UMEM_H
 /*
@@ -6,23 +13,29 @@
 */
 
 #ifdef __cplusplus
-extern "C"
-{
+#define START_EXTERN_C extern "C" {
+#define CLOSE_EXTERN_C }
 #define this this_
+#else
+#define START_EXTERN_C
+#define CLOSE_EXTERN_C
 #endif
+
+START_EXTERN_C
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "umem_config.h"
 #include "umem_utils.h"
 
-/*
-  umemDeviceType defines the flags of supported device memory
-  classes.
-
-  Public API.
+/**
+   umemDeviceType defines the flags of supported device memory
+   classes.
+   
+   Public API.
 */
 typedef enum {
   umemVirtualDevice = 0,
@@ -34,11 +47,12 @@ typedef enum {
 } umemDeviceType;
 
 
-/*
-  umemStatusType defines the type flags for umemStatus.
-
-  Public API.
+/**
+   umemStatusType defines the type flags for umemStatus.
+   
+   Public API.
 */
+
 typedef enum {
   umemOK = 0,
   umemMemoryError,
@@ -58,7 +72,7 @@ typedef struct {
 } umemStatus;
 
 
-/*
+/**
   umem is the "base" class for all device memory classes.
 
   Internal API.
@@ -71,7 +85,7 @@ typedef struct {
   void* host;
 } umemVirtual;
 
-/*
+/**
   umemHost represents host memory.
 
   Public API.
@@ -87,7 +101,7 @@ UMEM_EXTERN void umemVirtual_ctor(umemVirtual * const this, umemHost* host); /* 
 UMEM_EXTERN void umemVirtual_dtor(umemVirtual * const this); /* Destructor. Internal API */
 
 
-/*
+/**
   Status and error handling functions.
 
   Public API.
@@ -120,7 +134,7 @@ UMEM_EXTERN void umem_clear_status(void * const this);
 
 UMEM_EXTERN void umemHost_ctor(umemHost * const this);  /* Constructor. Public API. */
 
-/*
+/**
   umemVtbl defines a table of umemVirtual methods.
 
   Internal API.
@@ -145,7 +159,7 @@ struct umemVtbl {
 
 
 #ifdef HAVE_CUDA
-/*
+/**
   umemCuda represents GPU device memory using CUDA library.
 
   Public API.
@@ -162,7 +176,7 @@ UMEM_EXTERN void umemCuda_ctor(umemCuda * const this, int device); /* Constructo
 #endif
 
 
-/*
+/**
   umemFile represents FILE in binary format.
 
   alloc - opens the file with given mode, nbytes argument is ignored
@@ -184,7 +198,7 @@ UMEM_EXTERN void umemFile_ctor(umemFile * const this,
 			  const char* filename, const char* mode);  /* Constructor. Public API. */
 
 
-/*
+/**
   umem_dtor is device context destructor
 
   Public API.
@@ -193,7 +207,7 @@ static inline void umem_dtor(void * const this) {
   (*((umemVirtual * const)this)->vptr->dtor)((umemVirtual * const)this);
 }
 
-/*
+/**
   umem_is_same_device returns true if the devices are the same in the
   sense of memory address spaces.
 
@@ -206,7 +220,7 @@ static inline bool umem_is_same_device(void * const this, void * const that) {
             : false)));
 }
 
-/*
+/**
   umem_alloc allocates device memory and returns the memory addresss.
 
   Public API.
@@ -244,7 +258,7 @@ static inline uintptr_t umem_aligned_alloc(void * const this,
     ((umemVirtual * const)this, alignment, size);
 }
 
-/*
+/**
   umem_aligned_origin returns starting address of memory containing
   the aligned memory area. This starting address can be used to free
   the aligned memory.
@@ -255,7 +269,7 @@ static inline uintptr_t umem_aligned_origin(void * const this,
     ((umemVirtual * const)this, aligned_adr);
 }
 
-/*
+/**
   umem_free frees device memory that was allocated using umem_alloc or umem_calloc.
 
   Public API.
@@ -265,7 +279,7 @@ static inline void umem_free(void * const this, uintptr_t adr) {
 }
 
 
-/*
+/**
   umem_aligned_free frees device memory that was allocated using umem_aligned_alloc.
 
   Public API.
@@ -275,7 +289,7 @@ static inline void umem_aligned_free(void * const this, uintptr_t aligned_adr) {
 }
 
 
-/*
+/**
   umem_set fills memory with constant byte
 
   Public API.
@@ -291,7 +305,7 @@ static inline void umem_set_safe(void * const this, uintptr_t adr, size_t size, 
     umem_set(this, adr, c, nbytes);
 }
 
-/*
+/**
   umem_copy_from and umem_copy_to copy data from one device to another.
 
   Public API.
@@ -329,7 +343,7 @@ static inline void umem_copy_from_safe(void * const this, uintptr_t dest_adr, si
 }
 
 
-/*
+/**
   Methods for copying data from one device to another using host
   memory as a buffer.
 
@@ -343,7 +357,7 @@ UMEM_EXTERN void umem_copy_from_via_host(void * const this, uintptr_t dest_adr,
                                          void * const that, uintptr_t src_adr,
                                          size_t nbytes);
 
-/*
+/**
   Methods for syncing data between devices.
 
   Public API.
@@ -381,7 +395,7 @@ static inline void umem_sync_to_safe(void * const src, uintptr_t src_adr, size_t
 }
 
   
-/*
+/**
   Various utility functions.
 
   Public API.
@@ -392,7 +406,7 @@ UMEM_EXTERN const char* umem_get_device_name(umemDeviceType type);
 UMEM_EXTERN const char* umem_get_status_name(umemStatusType type);
 
 
-/*
+/**
   Generic methods and utility functions.
 
   Internal API.
@@ -412,11 +426,11 @@ UMEM_EXTERN void umemVirtual_aligned_free(umemVirtual * const this,
 
 UMEM_EXTERN uintptr_t umemVirtual_aligned_origin(umemVirtual * const this, uintptr_t aligned_adr);
 
+CLOSE_EXTERN_C
+
 #ifdef __cplusplus
 #undef this
-}
-
 #include "umem.hpp"
-
 #endif
+
 #endif

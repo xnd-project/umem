@@ -152,8 +152,10 @@ namespace umem {
     /**
        Constructor of Address object. Used internally.
 
+       Use Context methods alloc, calloc, aligned_alloc to create Address objects.
+
        @param[in]     adr - device memory address value
-       @param[in]     alignment - memory alignment value
+       @param[in]     alignment - required memory alignment on allocation
        @param[in]     size - size of memory extent in bytes
        @param[in]     raw_ctx - raw pointer to internal context object
        @param[in]     own - true if Address destructor must handle freeing the memory
@@ -238,19 +240,19 @@ namespace umem {
     void update(size_t nbytes);
 
     /**
-       Access host address data as char buffer. A convenience method.
-
-       @param[in]     n - byte index of data
-     */
-    char& operator[] (size_t n);
-
-    /**
        Fill memory with a given byte value.
 
        @param[in]     c - byte value
        @param[in]     nbytes - number of bytes to be filled
      */
     void set(int c, size_t nbytes);
+
+    /**
+       Access host address data as char buffer. A convenience method.
+
+       @param[in]     n - byte index of data
+     */
+    char& operator[] (size_t n);
 
     /**
        Obtain address value of device memory.
@@ -268,7 +270,6 @@ namespace umem {
 
        where adr is Address object.
      */
-    ///TODO: check for host context
     inline operator void*() { return (void*)adr_; }
     inline operator bool*() { return (bool*)adr_; }
     inline operator char*() { return (char*)adr_; }
@@ -393,7 +394,9 @@ namespace umem {
   inline void Address::sync(size_t nbytes) { assert(mate_ != NULL); umem_sync_to_safe(raw_ctx, adr_, size_, mate_->get_raw_context(), (uintptr_t)(*mate_), mate_->size(), nbytes); }
   inline void Address::update(size_t nbytes) { assert(mate_ != NULL);umem_sync_from_safe(raw_ctx, adr_, size_, mate_->get_raw_context(), (uintptr_t)(*mate_), mate_->size(), nbytes); }
   inline void Address::set(int c, size_t nbytes) { umem_set_safe(raw_ctx, adr_, size_, c, nbytes); }
+  
   inline char& Address::operator[] (size_t n) { assert(n<size_); return ((char*)adr_)[n]; } // TODO: ensure that ctx is a host context
+
   inline Address::operator uintptr_t() { return adr_; }
 
   inline bool Address::operator == (Address& other) const { return adr_ == (uintptr_t)other; }
