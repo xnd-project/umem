@@ -5,6 +5,8 @@ Unifying MEmory Management library for connecting different memory devices and i
 [![CircleCI Build Status](https://circleci.com/gh/plures/umem/tree/master.svg?style=svg)](https://circleci.com/gh/plures/umem/tree/master)
 [![Travis Build Status](https://travis-ci.org/plures/umem.svg?branch=master)](https://travis-ci.org/plures/umem)
 
+[![Doxygen Documentation](https://codedocs.xyz/plures/umem.svg)](https://codedocs.xyz/plures/umem/)
+
 ## Introduction
 
 Memory management is an integral part of any software
