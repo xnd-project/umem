@@ -338,7 +338,7 @@ namespace umem {
     return Address(umem_calloc(get_raw_context(), nmemb, size), 0, nmemb * size, get_raw_context(), true); } // TODO: check overflow
   inline Address Context::aligned_alloc(size_t alignment, size_t size) {
     return Address(umem_aligned_alloc(get_raw_context(), alignment, size), alignment, size, get_raw_context(), true); }
-  inline bool Context::operator == (Context &other) { return umem_is_same_device(get_raw_context(), other.get_raw_context()); }
+  inline bool Context::operator == (Context &other) { return umem_is_same_context(get_raw_context(), other.get_raw_context()); }
   inline bool Context::operator != (Context &other) { return !(*this == other); }
   inline bool Context::is_ok() { return umem_is_ok(get_raw_context()); }
   inline std::string Context::get_message() { return umem_get_message(get_raw_context()); }
@@ -385,7 +385,7 @@ namespace umem {
   inline size_t Address::alignment() const { return alignment_; }
   inline void Address::copy_to(Address& dest, size_t nbytes) { umem_copy_to_safe(raw_ctx, adr_, size_, dest.get_raw_context(), (uintptr_t)dest, dest.size(), nbytes); }
   inline void Address::copy_from(Address& src, size_t nbytes) { umem_copy_from_safe(raw_ctx, adr_, size_, src.get_raw_context(), (uintptr_t)src, src.size(), nbytes); }
-  inline void Address::copy_from(std::string src, size_t nbytes) { umem_copy_from_safe(raw_ctx, adr_, size_, ((umemVirtual*)raw_ctx)->host, (uintptr_t)src.c_str(), src.size(), nbytes); }
+  inline void Address::copy_from(std::string src, size_t nbytes) { umem_copy_from_safe(raw_ctx, adr_, size_, ((umemVirtual*)raw_ctx)->host_ctx, (uintptr_t)src.c_str(), src.size(), nbytes); }
   inline Address Address::connect(Context& dest_ctx, size_t dest_nbytes, size_t dest_alignment) {
     return Address(umem_connect(raw_ctx, adr_, dest_nbytes, dest_ctx.get_raw_context(), dest_alignment), dest_alignment, dest_nbytes, dest_ctx.get_raw_context(), true, this);
   }

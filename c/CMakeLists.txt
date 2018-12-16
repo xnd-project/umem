@@ -2,9 +2,9 @@ cmake_minimum_required (VERSION 3.9)
 project (UMEM)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake_modules/")
 
-option(ENABLE_FILE "Enable File device context" ON)
-option(ENABLE_MMAP "Enable MMap device context [NOT IMPLEMENTED]" OFF)
-option(ENABLE_CUDA "Enable Cuda device context using CUDA RT" ON)
+option(ENABLE_FILE "Enable File memory context" ON)
+option(ENABLE_MMAP "Enable MMap memory context [NOT IMPLEMENTED]" OFF)
+option(ENABLE_CUDA "Enable Cuda memory context using CUDA RT" ON)
 
 option(BUILD_DOXYGEN_DOC "Build Doxygen Documentation" ON)
 
@@ -29,8 +29,8 @@ include(CTest)
 
 # The version number.
 set (UMEM_VERSION_MAJOR 0)
-set (UMEM_VERSION_MINOR 0)
-set (UMEM_VERSION_MICRO 1)
+set (UMEM_VERSION_MINOR 1)
+set (UMEM_VERSION_MICRO 0)
 
 set(UMEM_SOURCES umem.c umem_host.c umem_utils.c umem_connect.c)
 set(UMEM_LIBRARIES umem)
@@ -44,7 +44,7 @@ endif(ENABLE_FILE)
 if (ENABLE_MMAP)
   add_definitions("-DHAVE_MMAP_CONTEXT")
   set(UMEM_SOURCES ${UMEM_SOURCES} umem_mmap.c)
-endif(ENABLE_FILE)
+endif(ENABLE_MMAP)
 
 
 if (ENABLE_CUDA)
