@@ -26,7 +26,7 @@ Examples
 The following program illustrates the usage of libumem as a
 replacement of :file:`stdlib.h` malloc/free functionality.
 
-.. code-block::
+.. code-block:: c
 
    #include "umem.h"
 
@@ -51,7 +51,7 @@ replacement of :file:`stdlib.h` malloc/free functionality.
 The following program illustrates the synchronization of data between
 host RAM and GPU device memory:
 
-.. code-block::
+.. code-block:: c
 
    #include "umem.h"
 

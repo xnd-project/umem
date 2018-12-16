@@ -5,8 +5,6 @@ Unifying MEmory Management library for connecting different memory devices and i
 [![CircleCI Build Status](https://circleci.com/gh/plures/umem/tree/master.svg?style=svg)](https://circleci.com/gh/plures/umem/tree/master)
 [![Travis Build Status](https://travis-ci.org/plures/umem.svg?branch=master)](https://travis-ci.org/plures/umem)
 
-[![Doxygen Documentation](https://codedocs.xyz/plures/umem.svg)](https://codedocs.xyz/plures/umem/)
-
 ## Introduction
 
 Memory management is an integral part of any software
@@ -59,6 +57,12 @@ In C++ API, UMEM provides `Address` class that represents a memory
 address with a device context. `Address` defines convinient casting
 and pointer arithmetics operators as well as methods for copying and
 syncronizing data between different devices.
+
+## libumem C and C++ API documentation
+
+[![libumem C API Documentation](https://readthedocs.org/projects/umem/badge/?version=latest)](https://umem.readthedocs.io/en/latest/?badge=latest)
+
+[![libumem C++ API Documentation](https://codedocs.xyz/plures/umem.svg)](https://codedocs.xyz/plures/umem/)
 
 ## Example in C++
 
@@ -145,111 +149,12 @@ int main() {
 }
 ```
 
-## Features
-
-### Currently supported devices
-
-```
-Host - using malloc/free/memcpy/memset
-Cuda - using cudaMalloc/cudaFree/cudaMemcpy/cudaMemset
-File - using fopen/fclose/fread,fwrite
-```
-
-Public API:
-```
-Context types:
-  umemHost
-  umemCuda
-  umemFile
-Constructors:
-  umemHost_ctor(&this)
-  umemCuda_ctor(&this, device)
-  umemFile_ctor(&this, filename, mode)
-Destructors:
-  umem_dtor(&this)
-```
-Here and in the following, `me` is object of type `umemHost` or
-`umemCuda` or `umemFile`.
-
-### Planned device/interface support
-
-```
-MMap
-Cu              - using cuMemAlloc/cuMemFree
-CudaManaged
-CudaHost
-ArrowBuffer
-RMM             - see cudf
-```
-
-### Memory management
-
-Public API:
-```
-umem_alloc(&this, nbytes) -> adr
-umem_calloc(&this, nmemb, size) -> adr
-umem_free(&this, adr)
-umem_aligned_alloc(&this, alignment, nbytes) -> aligned_adr
-umem_aligned_origin(&this, aligned_adr) -> adr
-umem_aligned_free(&this, aligned_adr)
-umem_set(&this, adr, c, nbytes)
-```
-
-### Connecting devices
-
-Public API:
-```
-umem_is_same_device(&this, &that) -> bool
-umem_connect(&src, src_adr, n, &dest, dest_alignment) -> dest_adr
-umem_sync_to(&src, src_adr, &dest, dest_adr, n)
-umem_sync_from(&src, src_adr, &dest, dest_adr, n)
-umem_disconnect(&src, src_adr, &dest, dest_adr, dest_alignment)
-
-umem_copy_to(&this, this_adr, &that, that_adr, nbytes)
-umem_copy_from(&this, this_adr, &that, that_adr, nbytes)
-```
-When `src` and `dest` are the same device, `umem_connect`
-returns `src_adr`, otherwise, the address of newly allocated `dest`
-memory is returned. Use `umem_sync_to/from` to keep device memories in
-sync.  `umem_disconnect` frees memory allocated by `umem_connect`. Use
-`dest_alignment=0` for default alignment.
-
-Explicit copy implementations:
-```
-host -> host
-host <- host
-cuda N -> host
-cuda N -> cuda M
-cuda N <- host
-file -> host
-file <- host
-```
-
-Derived copy implementations:
-```
-file -> host -> cuda
-file <- host <- cuda
-```
-
-
-### Error handling
-
-umem context instances have `status` attribute that is used for passing around messages.
-
-Public API:
-```
-umem_get_status(&this) -> <status type>
-umem_get_message(&this) -> <status message>
-umem_is_ok(&this) -> <status is ok>
-umem_set_status(&this, type, message)
-umem_clear_status(&this)
-```
-
 ## Prerequisites
 
 ```
-conda install cmake make gcc_linux-64 gxx_linux-64 valgrind -c conda-forge
-conda install doxygen sphinx sphinx_rtd_theme -c conda-forge
+conda install cmake make gcc_linux-64 gxx_linux-64 -c conda-forge   # for building
+conda insrall valgrind -c conda-forge                               # for testing
+conda install doxygen sphinx sphinx_rtd_theme -c conda-forge        # for generating documentation
 ```
 
 ## Building and testing UMEM
@@ -264,13 +169,13 @@ make test                                     # runs unittests
 ctest -D ExperimentalMemCheck -E test_cuda    # runs valgrind
 ```
 
-## Extending UMEM
+## Generating documentation
 
-To add support for a new memory device or interface, one must:
 ```
-update enums in umem.h
-implement constructor/desrtructor functions
-implement alloc, free, set methods
-implement copy_to and copy_from methods, supporting the host source and host destination is mandatory.
-update docs
+cd doc
+make        # generate sphinx documentation
+
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ../umem/c
+make        # generate Doxygen documentation
 ```
