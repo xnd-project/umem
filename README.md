@@ -249,7 +249,7 @@ umem_clear_status(&this)
 
 ```
 conda install cmake make gcc_linux-64 gxx_linux-64 valgrind -c conda-forge
-conda install doxygen -c conda-forge
+conda install doxygen sphinx sphinx_rtd_theme -c conda-forge
 ```
 
 ## Building and testing UMEM

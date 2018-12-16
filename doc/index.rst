@@ -9,8 +9,8 @@
 umem
 ====
 
-ndtypes is a package for typing raw memory blocks using a close variant
-of the datashape type language.
+umem provides an abstraction for managing memory of a variety of
+storage devices in an unified manner.
 
 
 libumem
