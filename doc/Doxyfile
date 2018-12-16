@@ -1,4 +1,4 @@
-INPUT = ../c c
+INPUT = c
 PROJECT_BRIEF = "Unifying MEmory Management library for connecting different memory devices and interfaces"
 PROJECT_NAME = UMEM
 
