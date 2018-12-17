@@ -9,9 +9,9 @@ int main() {
   assert_is_ok(host);
   assert_is_ok(cuda1);
   assert_is_ok(cuda12);
-  assert_eq(umem_is_same_device(&cuda1, &host), false);
-  assert_eq(umem_is_same_device(&cuda1, &cuda1), true);
-  assert_eq(umem_is_same_device(&cuda1, &cuda12), true);
+  assert_eq(umem_is_same_context(&cuda1, &host), false);
+  assert_eq(umem_is_same_context(&cuda1, &cuda1), true);
+  assert_eq(umem_is_same_context(&cuda1, &cuda12), true);
   assert_is_ok(host);
   assert_is_ok(cuda1);
   assert_is_ok(cuda12);

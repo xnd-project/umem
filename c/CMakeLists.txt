@@ -61,17 +61,23 @@ endif(ENABLE_CUDA)
 if(CUDA_FOUND)
   message(STATUS "Found CUDA ${CUDA_VERSION_STRING} at ${CUDA_TOOLKIT_ROOT_DIR}")
   message(STATUS "  CUDA_INCLUDE_DIRS=${CUDA_INCLUDE_DIRS}")
-  message(STATUS "  CUDA_LIBRARIES=${CUDA_LIBRARIES} CUDA_CUDA_LIBRARY=${CUDA_CUDA_LIBRARY}")
+  message(STATUS "  CUDA_LIBRARIES=${CUDA_LIBRARIES}")
+
   set(CUDA_LINK_LIBRARIES_KEYWORD PUBLIC)
   cuda_select_nvcc_arch_flags(ARCH_FLAGS)
 
   add_definitions("-DHAVE_CUDA_CONTEXT")
-  add_definitions("-DHAVE_CUDA")
   
   set(UMEM_INCLUDE_DIRS ${UMEM_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS})
   set(UMEM_SOURCES ${UMEM_SOURCES} umem_cuda.c)
-  set(UMEM_LIBRARIES ${UMEM_LIBRARIES} ${CUDA_CUDA_LIBRARY})
-  
+  if ("${CUDA_CUDA_LIBRARY}" STREQUAL "CUDA_CUDA_LIBRARY-NOTFOUND")
+    message(STATUS "  CUDA_CUDA_LIBRARY is set to NOTFOUND. Adding rt to UMEM_LIBRARIES")
+    # This fixes `undefined reference to `clock_gettime'` issue
+    set(UMEM_LIBRARIES ${UMEM_LIBRARIES} rt)
+  else()
+    message(STATUS "  CUDA_CUDA_LIBRARY=${CUDA_CUDA_LIBRARY}")
+    set(UMEM_LIBRARIES ${UMEM_LIBRARIES} ${CUDA_CUDA_LIBRARY})
+  endif()
   include_directories(${UMEM_INCLUDE_DIRS})
   cuda_add_library(umem SHARED ${UMEM_SOURCES})
   cuda_add_library(umem_static STATIC ${UMEM_SOURCES})
