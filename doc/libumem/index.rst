@@ -26,7 +26,7 @@ devices.  In addition, methods are provided for keeping the memory
 areas of different storage devices in sync.
 
 *libumem* provides also a C++ API that usage is highly recommended for
- its simplicity and robustness in managing memory resources.
+its simplicity and robustness in managing memory resources.
 
 .. toctree::
 
