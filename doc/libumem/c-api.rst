@@ -6,13 +6,13 @@
 
 .. default-domain:: c
 
-libumem public C API
-====================
+*libumem* public C API
+======================
 
 Memory location
 ---------------
 
-Within libumem C API, the data location address is a :type:`uintptr_t`
+Within *libumem* C API, the data location address is a :type:`uintptr_t`
 value. In the case of host RAM, the address value is equal to data
 pointer value. For other storage devices, the address value may have
 various interpretations that depends on the storage device as well as
@@ -23,7 +23,7 @@ whole data content stored in the device.
 Examples
 --------
 
-The following program illustrates the usage of libumem as a
+The following program illustrates the usage of *libumem* as a
 replacement of :file:`stdlib.h` malloc/free functionality.
 
 .. code-block:: c
@@ -104,7 +104,7 @@ swapping the :data:`host` and :data:`cuda` variables.
 Supported storage devices
 -------------------------
 
-The libumem C-API provides the following device memory context
+The *libumem* C-API provides the following device memory context
 objects (C :type:`struct` instances):
 
 * :type:`umemHost` - `stdlib.h` based interface to host RAM,
@@ -171,8 +171,8 @@ objects after it is not needed anymore.
 Universal API methods
 ---------------------
 
-Desctructor
-'''''''''''
+Destructor
+''''''''''
 
 .. code-block:: c
 
@@ -341,7 +341,7 @@ synchronizing memory areas. Same rules apply as in
 Status message handling
 -----------------------
 
-The success or failure of calling libumem C-API methods described
+The success or failure of calling *libumem* C-API methods described
 above can be determined by checking the status of memory context
 objects that participated in the call.
 
@@ -372,7 +372,7 @@ empty string ``""`` when no message has been set (e.g. when
 
 Sets the status :data:`type` and status :data:`message` to given
 memory context object. Use this function when you want to propagate
-the exceptions raised by libumem C-API methods with extra messages to
+the exceptions raised by *libumem* C-API methods with extra messages to
 a caller function that will handle the exceptions.
 
 Note that :func:`umem_set_status` overwrites the previouly set status
@@ -386,13 +386,13 @@ status message as well.
 
 Clears memory context object status content: sets the status to "OK"
 and clears status messages. One should call :func:`umem_clear_status`
-after handling any exceptions raised by the libumem C-API methods.
+after handling any exceptions raised by the *libumem* C-API methods.
 
 
 Utility functions
 -----------------
 
-The following utility functions are used internally in libumem but
+The following utility functions are used internally in *libumem* but
 might be useful for application programs as well.
 
 .. code-block:: c
@@ -423,17 +423,17 @@ Return the original memory address that was obtained when allocating
 device memory with :func:`umem_aligned_alloc`.
 
 
-libumem internal C API
-======================
+*libumem* internal C API
+========================
 
-This section is for developers who want to extend libumem with other
-memory storage devices or want to understand libumem sources.
+This section is for developers who want to extend *libumem* with other
+memory storage devices or want to understand *libumem* sources.
 
-libumem design
---------------
+*libumem* design
+----------------
 
-While libumem is implemented in C, it uses OOP design. This design
-choice simplifies exposing libumem to other programming languages that
+While *libumem* is implemented in C, it uses OOP design. This design
+choice simplifies exposing *libumem* to other programming languages that
 support OOP, such as C++, Python, etc, not to mention the advantages
 of using OOP to implement abstract view of variety of data storage
 devices in an unified way.
@@ -532,8 +532,8 @@ object that is used to allocate/deallocate intermediate memory buffers
 that the storage device specific methods might need.
 
    
-Adding a new data storage device support to libumem
----------------------------------------------------
+Adding a new data storage device support to *libumem*
+-----------------------------------------------------
 
 In the following, the required steps of addning new data storage
 device support are described. To be specific, let's assume that we

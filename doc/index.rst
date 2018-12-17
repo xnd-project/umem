@@ -16,7 +16,7 @@ storage devices in an unified manner.
 libumem
 -------
 
-C library.
+A C library with C and C++ API.
 
 .. toctree::
    :maxdepth: 1
