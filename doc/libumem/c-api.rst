@@ -111,8 +111,12 @@ objects (C :type:`struct` instances):
 
 * :type:`umemFile` - `stdio.h` based interface to files,
 
-* :type:`umemCuda` - CUDA based interface to GPU device memory.
+* :type:`umemCuda` - CUDA RT based interface to GPU device memory.
 
+* :type:`umemRMM` - `RAPIDSAI CUDF RMM`__ based interface to GPU device memory.
+
+__ https://github.com/rapidsai/cudf/blob/master/cpp/src/rmm/RAPIDS_Memory_Manager.md
+  
 Each device memory context has specific initializer (a
 constructor). However, all other memory management methods such as
 destructors and copying tools are universal among the all memory
@@ -153,7 +157,7 @@ The destructor function :func:`umem_dtor` closes the file.
 :type:`memCuda` context
 '''''''''''''''''''''''
 
-The :type:`umemCuda` type defines a CUDA based GPU device memory
+The :type:`umemCuda` type defines a CUDA RT based GPU device memory
 context that must be initialized with the following constructor
 function:
 
@@ -167,6 +171,21 @@ the corresponding GPU device.
 While the destructor function :func:`umem_dtor` does not call any CUDA
 API functions, it is recommended to use it to destruct :type:`umemCuda`
 objects after it is not needed anymore.
+
+:type:`memRMM` context
+'''''''''''''''''''''''
+
+The :type:`umemRMM` type defines a RAPIDSAI CUDF RMM based GPU device
+memory context that must be initialized with the following constructor
+function:
+
+.. code-block:: c
+
+   void umemRMM_ctor(umemRMM * const ctx, uintptr_t stream);
+
+Here :data:`stream` is a CUDA stream handler (0 corresponds to default stream).
+
+Use :func:`umem_dtor` function to destruct :type:`umemRMM` object.
 
 Universal API methods
 ---------------------
