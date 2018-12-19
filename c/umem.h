@@ -147,6 +147,23 @@ UMEM_EXTERN void umemCuda_ctor(umemCuda * const ctx, int device);
 
 #endif
 
+#ifdef HAVE_RMM_CONTEXT
+/**
+   umemRMM represents GPU device memory using rmm from rapidsay/cudf. 
+
+   To construct/destruct the umemRMM object, use
+   umemRMM_ctor/umem_dtor.
+*/
+typedef struct {
+  umemVirtual super;
+  umemHost host;
+  uintptr_t stream;
+} umemRMM;
+
+UMEM_EXTERN void umemRMM_ctor(umemCuda * const ctx, uintptr_t stream);
+
+#endif
+
 #ifdef HAVE_FILE_CONTEXT
 /**
   umemFile represents a stdio.h based file in binary format.

@@ -4,7 +4,7 @@
 #include <errno.h>
 #include "umem.h"
 
-#define CUDA_CALL(CTX, CALL, ERROR, ERRRETURN, FMT, ...)			\
+#define CUDA_CALL(CTX, CALL, ERROR, ERRRETURN, FMT, ...)                \
   do {									\
     int old_errno = errno;						\
     cudaError_t error = CALL;						\
@@ -156,3 +156,4 @@ void umemCuda_ctor(umemCuda * const ctx, int device) {
   CUDA_CALL(&ctx->super, cudaSetDevice(device), umemRuntimeError, return,
 	    "umemCuda_ctor: cudaSetDevice(%d)", device);
 }
+

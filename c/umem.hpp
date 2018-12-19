@@ -11,6 +11,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
+#include <assert.h>
 
 namespace umem {
 
