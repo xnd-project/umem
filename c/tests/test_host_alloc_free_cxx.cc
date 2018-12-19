@@ -5,9 +5,9 @@ int main() {
     umem::Host host;
     {
       umem::Address adr = host.alloc(10);
-      assert_eq(host.is_ok(), true);
+      assert_is_ok(host);
     }
-    assert_eq(host.is_ok(), true);
+    assert_is_ok(host);
   }
   RETURN_STATUS;
 }

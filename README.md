@@ -165,8 +165,8 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Debug ../umem/c
 make
-make test                                     # runs unittests
-ctest -D ExperimentalMemCheck -E test_cuda    # runs valgrind
+make test                                                           # runs unittests
+ctest -D ExperimentalMemCheck -E 'test_(cuda|rmm)'                  # runs valgrind
 ```
 
 ## Generating documentation

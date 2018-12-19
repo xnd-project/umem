@@ -3,12 +3,12 @@
 int main() {
   {
     umem::RMM ctx(0);
-    assert_eq(ctx.is_ok(), true);
+    assert_is_ok(ctx);
     {
       umem::Address addr = ctx.alloc(10);
-      assert_eq(ctx.is_ok(), true);
+      assert_is_ok(ctx);
     }
-    assert_eq(ctx.is_ok(), true);
+    assert_is_ok(ctx);
   }
   RETURN_STATUS;
 }

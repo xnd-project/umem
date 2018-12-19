@@ -3,9 +3,9 @@
 int main() {
   {
     umem::File file(TMPDIR "test_file_calloc_cxx.txt", "w+b");
-    assert_eq(file.is_ok(), true);
+    assert_is_ok(file);
     umem::Address addr = file.calloc(16, 10);
-    assert_eq(file.is_ok(), true);
+    assert_is_ok(file);
   }
   RETURN_STATUS;
 }

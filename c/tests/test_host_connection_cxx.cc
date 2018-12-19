@@ -11,25 +11,25 @@ int main() {
       adr1.set('A', n/2);
       (adr1+n/2).set('B', n/2);
       assert_str_eq((char*)adr1, "AAAAABBBBB");
-      assert_eq(host1.is_ok(), true);
-      assert_eq(host2.is_ok(), true);
+      assert_is_ok(host1);
+      assert_is_ok(host2);
       
       /* Same memory */
       {
         umem::Address adr2 = adr1.connect(host2, n+1);
-        assert_eq(host1.is_ok(), true);
-        assert_eq(host2.is_ok(), true);
+        assert_is_ok(host1);
+        assert_is_ok(host2);
         adr1.sync_to(adr2, n);
-        assert_eq(host1.is_ok(), true);
-        assert_eq(host2.is_ok(), true);
+        assert_is_ok(host1);
+        assert_is_ok(host2);
         assert_str_eq((char*)adr2, "AAAAABBBBB");
         (adr2+n/4).set('C', n/2);
         assert_str_eq((char*)adr2, "AACCCCCBBB");
         assert_str_eq((char*)adr1, "AACCCCCBBB"); // so, sync not necessary
         //adr1.sync_from(adr2, n);                  // but doing it anyway for testing
         adr2.sync(n);
-        assert_eq(host1.is_ok(), true);
-        assert_eq(host2.is_ok(), true);
+        assert_is_ok(host1);
+        assert_is_ok(host2);
         //adr1.disconnect(adr2); // Why ? This frees adr2.
         assert_str_eq((char*)adr1, "AACCCCCBBB");
       }
@@ -49,8 +49,8 @@ int main() {
         assert_str_eq((char*)adr1, "AACCCCCBBB"); // so, need to sync
         adr1.sync_from(adr2, n);
         assert_str_eq((char*)adr1, "EEEEECCBBB");
-        assert_eq(host1.is_ok(), true);
-        assert_eq(host2.is_ok(), true);
+        assert_is_ok(host1);
+        assert_is_ok(host2);
       }
     }
     /* Aligned memory - different alignment */
@@ -62,8 +62,8 @@ int main() {
       size_t alignment = 1;
       while ((adr1 % alignment) == 0) alignment <<= 1;
       umem::Address adr2 = adr1.connect(host2, n, alignment);
-      assert_eq(host1.is_ok(), true);
-      assert_eq(host2.is_ok(), true);
+      assert_is_ok(host1);
+      assert_is_ok(host2);
       assert_eq(adr1 == adr2, false);
       assert_nstr_eq(10, (char*)adr2, "AAAAAAAAAA");
       
@@ -77,8 +77,8 @@ int main() {
       assert_nstr_eq(10, (char*)adr2, "AACCCCAAAA");
       adr2.update(n);
       assert_nstr_eq(10, (char*)adr2, "AACDDCAAAA");
-      assert_eq(host1.is_ok(), true);
-      assert_eq(host2.is_ok(), true);
+      assert_is_ok(host1);
+      assert_is_ok(host2);
       //adr1.disconnect(adr2); // Why ?
     }
     
@@ -87,17 +87,17 @@ int main() {
       size_t n = 1024;
       size_t alignment = 128;
       umem::Address adr1 = host1.aligned_alloc(alignment, n);
-      assert_eq(host1.is_ok(), true);
-      assert_eq(host2.is_ok(), true);
+      assert_is_ok(host1);
+      assert_is_ok(host2);
       adr1.set('A', n);
-      assert_eq(host1.is_ok(), true);
-      assert_eq(host2.is_ok(), true);
+      assert_is_ok(host1);
+      assert_is_ok(host2);
       assert_nstr_eq(10, (char*)adr1, "AAAAAAAAAA");
-      assert_eq(host1.is_ok(), true);
-      assert_eq(host2.is_ok(), true);
+      assert_is_ok(host1);
+      assert_is_ok(host2);
       umem::Address adr2 = adr1.connect(host2, n, alignment);
-      assert_eq(host1.is_ok(), true);
-      assert_eq(host2.is_ok(), true);
+      assert_is_ok(host1);
+      assert_is_ok(host2);
       assert_eq(adr1 == adr2, true);
 
       assert_nstr_eq(10, (char*)adr2, "AAAAAAAAAA");

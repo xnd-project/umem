@@ -3,21 +3,21 @@
 #define CHECK_ALIGNED(ALIGNMENT, SIZE)                         \
   do {                                                         \
     umem::Address adr = file.aligned_alloc(ALIGNMENT, SIZE);   \
-    assert_eq(file.is_ok(), true);                             \
+    assert_is_ok(file);                                        \
     assert_eq((uintptr_t)adr>0, true);                         \
     int rem =  adr % ALIGNMENT;                                \
     assert_int_eq(rem, 0);                                     \
     adr.set(255, SIZE);                                        \
-    assert_eq(file.is_ok(), true);                             \
+    assert_is_ok(file);                                        \
   } while(0)
 
 #define CHECK_ALIGNED_FAIL(ALIGNMENT, SIZE, MESSAGE)                    \
   do {                                                                  \
     umem::Address adr = file.aligned_alloc(ALIGNMENT, SIZE);            \
-    assert_eq(file.is_ok(), false);                                     \
+    assert_is_not_ok(file);                                             \
     assert_str_eq(file.get_message().c_str(), MESSAGE);                 \
     file.clear_status();                                                \
-    assert_eq(file.is_ok(), true);                                      \
+    assert_is_ok(file);                                                 \
   } while(0)
 
 int main() {

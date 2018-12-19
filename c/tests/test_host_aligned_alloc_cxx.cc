@@ -4,13 +4,13 @@
   do {                                                               \
     umem::Address adr = host.aligned_alloc(ALIGNMENT, SIZE);         \
     assert_int_eq(adr==0, false);                                    \
-    assert_eq(host.is_ok(), true);                                   \
+    assert_is_ok(host);                                              \
     int rem =  (uintptr_t)adr % ALIGNMENT;                           \
     assert_int_eq(rem, 0);                                           \
     adr.set(255, SIZE);                                              \
-    assert_eq(host.is_ok(), true);                                   \
+    assert_is_ok(host);                                              \
     uintptr_t oadr = adr.origin();                                   \
-    assert_eq(host.is_ok(), true);                                   \
+    assert_is_ok(host);                                              \
     assert_int_eq(oadr==0, false);                                   \
     /*binDump("adr", (void*)oadr, (SIZE+adr-oadr));*/                \
   } while(0)
@@ -19,7 +19,7 @@
   do {                                                             \
     umem::Address adr = host.aligned_alloc(ALIGNMENT, SIZE);       \
     assert_int_eq(adr==0, true);                                   \
-    assert_eq(host.is_ok(), false);                                \
+    assert_is_not_ok(host);                                        \
     assert_str_eq(host.get_message().c_str(), MESSAGE);            \
     host.clear_status();                                           \
   } while(0)
@@ -39,7 +39,7 @@ int main() {
     CHECK_ALIGNED(64, 512);
     CHECK_ALIGNED_FAIL(64, 1000, "umem_aligned_alloc: size 1000 must be multiple of alignment 64");
 
-    assert_eq(host.is_ok(), true);
+    assert_is_ok(host);
   }
   RETURN_STATUS;
 }
