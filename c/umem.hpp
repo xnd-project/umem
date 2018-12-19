@@ -118,6 +118,7 @@ namespace umem {
     umemHost ctx;
   };
 
+#ifdef HAVE_FILE_CONTEXT
   /**
      File memory context represents a file storage.
 
@@ -129,7 +130,7 @@ namespace umem {
 
   public:
     /**
-       Constructor of a file memory.
+       Constructor of a file memory context.
  
        @param[in]    filename - specify file name
        @param[in]    mode - specify mode for opening the file
@@ -142,6 +143,75 @@ namespace umem {
   private:
     umemFile ctx;
   };
+#endif
+
+#ifdef HAVE_MMAP_CONTEXT
+  /**
+     MMap memory context represents a memory mapped file storage.
+
+   */
+  class MMap : public Context {
+
+  public:
+    /**
+       Constructor of a mmap memory context.
+ 
+       @param[in]    filename - specify file name
+       @param[in]    mode - specify mode for opening the file
+     */
+    MMap(std::string filename, std::string mode="wb");
+
+    /// Internal methods and members
+    ~MMap();
+    void * const get_raw_context();
+  private:
+    umemMMap ctx;
+  };
+#endif
+  
+#ifdef HAVE_CUDA_CONTEXT
+  /**
+     Cuda memory context represents a GPU device memory using CUDA RT.
+   */
+  class Cuda : public Context {
+
+  public:
+    /**
+       Constructor of a GPU device memory.
+ 
+       @param[in]    device - specify GPU device
+     */
+    Cuda(int device);
+
+    /// Internal methods and members
+    ~Cuda();
+    void * const get_raw_context();
+  private:
+    umemCuda ctx;
+  };
+#endif
+
+#ifdef HAVE_RMM_CONTEXT
+  /**
+     RMM memory context represents a GPU device memory using RAPIDS RMM (see cudf).
+   */
+  class RMM : public Context {
+
+  public:
+    /**
+       Constructor of a GPU device memory.
+ 
+       @param[in]    stream - specify GPU strean
+     */
+    RMM(uintptr_t device);
+
+    /// Internal methods and members
+    ~RMM();
+    void * const get_raw_context();
+  private:
+    umemRMM ctx;
+  };
+#endif
 
   /**
      Address represents a memory address in an arbitrary storage
@@ -355,14 +425,40 @@ namespace umem {
   inline void * const Host::get_raw_context() { return &(this->ctx); }
   
   // File implementations:
-
+#ifdef HAVE_FILE_CONTEXT
   File::File(std::string filename, std::string mode) {
     umemFile_ctor(&ctx, filename.c_str(), mode.c_str());
   }
   File::~File() { umem_dtor(&ctx); }
   inline void * const File::get_raw_context() { return &(this->ctx); }
+#endif
+
+  // MMap implementations:
+#ifdef HAVE_MMAP_CONTEXT
+  MMap::MMap(std::string filename, std::string mode) {
+    umemMMap_ctor(&ctx, filename.c_str(), mode.c_str());
+  }
+  MMap::~MMap() { umem_dtor(&ctx); }
+  inline void * const MMap::get_raw_context() { return &(this->ctx); }
+#endif
   
   // Cuda implementations:
+#ifdef HAVE_CUDA_CONTEXT
+  Cuda::Cuda(int device) {
+    umemCuda_ctor(&ctx, device);
+  }
+  Cuda::~Cuda() { umem_dtor(&ctx); }
+  inline void * const Cuda::get_raw_context() { return &(this->ctx); }
+#endif
+
+  // RMM implementations:
+#ifdef HAVE_RMM_CONTEXT
+  RMM::RMM(uintptr_t stream) {
+    umemRMM_ctor(&ctx, stream);
+  }
+  RMM::~RMM() { umem_dtor(&ctx); }
+  inline void * const RMM::get_raw_context() { return &(this->ctx); }
+#endif
 
   // Address implementations
 

@@ -1,9 +1,9 @@
 
 #include <cstdint>
-
-#include "umem.h"
 #include "rmm.h"
 
+#include "umem.h"
+#include "umem_cuda_utils.h"
 
 #define RMM_CALL(CTX, CALL, ERROR, ERRRETURN, FMT, ...)                 \
   do {									\
@@ -50,7 +50,9 @@ static void umemRMM_free_(umemVirtual * const ctx, uintptr_t adr) {
 }
 
 static void umemRMM_set_(umemVirtual * const ctx, uintptr_t adr, int c, size_t nbytes) {
-  assert(ctx->type == umemRMMDevice);
+  //assert(ctx->type == umemRMMDevice);
+  CUDA_CALL(ctx, cudaMemset((void*)adr, c, nbytes), umemMemoryError,return,
+	    "umemRMM_set_: cudaMemset(&%xu, %d, %zu)", adr, c, nbytes);
 }
 
 static void umemRMM_copy_to_(umemVirtual * const src_ctx, uintptr_t src_adr,
@@ -58,13 +60,39 @@ static void umemRMM_copy_to_(umemVirtual * const src_ctx, uintptr_t src_adr,
 			      size_t nbytes) {
   assert(src_ctx->type == umemRMMDevice);
   umemRMM * const src_ctx_ = (umemRMM * const)src_ctx;
+  switch(dest_ctx->type) {
+  case umemHostDevice:
+    {
+      //umemHost * const dest_ctx_ = (umemHost * const)dest_ctx;
+      CUDA_CALL(src_ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
+                                    nbytes, cudaMemcpyDeviceToHost), umemMemoryError, return,
+		"umemRMM_copy_to_: cudaMemcpy(%xu, %xu, %zu, cudaMemcpyDeviceToHost)",
+		dest_adr, src_adr, nbytes);
+    }
+    break;
+  default:
+    umem_copy_to_via_host(src_ctx, src_adr, dest_ctx, dest_adr, nbytes);
+  }
 }
 
 static void umemRMM_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr,
 				umemVirtual * const src_ctx, uintptr_t src_adr,
 				size_t nbytes) {
   assert(dest_ctx->type == umemRMMDevice);
-  umemRMM * const dest_ctx_ = (umemRMM * const)dest_ctx;
+  switch(src_ctx->type) {
+  case umemHostDevice:
+    {
+      //umemHost * const src_ctx_ = (umemHost * const)src_ctx;
+      CUDA_CALL(dest_ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
+			       nbytes, cudaMemcpyHostToDevice),
+		umemMemoryError, return,
+		"umemRMM_copy_from_: cudaMemcpy(%xu, %xu, %zu, cudaMemcpyHostToDevice)",
+		dest_adr, src_adr, nbytes);
+    }
+    break;
+  default:
+    umem_copy_from_via_host(dest_ctx, dest_adr, src_ctx, src_adr, nbytes);
+  }
 }
 
 void umemRMM_ctor(umemRMM * const ctx, uintptr_t stream) {

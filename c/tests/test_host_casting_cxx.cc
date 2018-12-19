@@ -9,7 +9,7 @@ int main() {
     double d = ((double*)ptr)[0] = 3.7;
     assert_eq(((double*)adr)[0], d);
     ptr += sizeof(double);
-    float f = ((float*)ptr)[0] = 3.7;
+    float f = ((float*)ptr)[0] = 3.7f;
     assert_eq(((float*)(adr+sizeof(double)))[0], f);
     ptr += sizeof(float);
     int i = ((int*)ptr)[0] = 1234;

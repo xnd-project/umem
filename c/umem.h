@@ -160,7 +160,7 @@ typedef struct {
   uintptr_t stream;
 } umemRMM;
 
-UMEM_EXTERN void umemRMM_ctor(umemCuda * const ctx, uintptr_t stream);
+UMEM_EXTERN void umemRMM_ctor(umemRMM * const ctx, uintptr_t stream);
 
 #endif
 
@@ -180,6 +180,26 @@ typedef struct {
 } umemFile;
 
 UMEM_EXTERN void umemFile_ctor(umemFile * const ctx,
+                               const char* filename, const char* mode);
+
+#endif
+
+#ifdef HAVE_MMAP_CONTEXT
+/**
+  umemMMap represents a sys/mman.h based memory mapped file.
+
+   To construct/destruct the umemMMap object, use
+   umemMMap_ctor/umem_dtor.
+*/
+typedef struct {
+  umemVirtual super;
+  umemHost host;
+  uintptr_t fp;
+  const char * filename;
+  const char * mode;
+} umemMMap;
+
+UMEM_EXTERN void umemMMap_ctor(umemMMap * const ctx,
                                const char* filename, const char* mode);
 
 #endif
