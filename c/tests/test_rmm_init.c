@@ -3,7 +3,7 @@
 int main() {
   umemRMM dev;
   umemHost host;
-  umemRMM_ctor(&dev, 0);
+  umemRMM_ctor(&dev, 0, 0, false);
   umemHost_ctor(&host);
   assert_is_ok(dev);
   static char text[] = "abcdefghij";

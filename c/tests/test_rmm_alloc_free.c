@@ -3,7 +3,7 @@
 int main() {
   umemRMM rmm;
   umemRMM* ctx = &rmm;
-  umemRMM_ctor(ctx, 0);
+  umemRMM_ctor(ctx, 0, 0, false);
   assert_is_ok(rmm);
   uintptr_t addr = umem_alloc(ctx, 10);
   assert_is_ok(rmm);

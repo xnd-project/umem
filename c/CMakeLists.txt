@@ -140,6 +140,10 @@ endif(ENABLE_MMAP)
 #
 # UMEM Cuda context type support
 #
+if (ENABLE_CUDA OR ENABLE_RMM)
+  set(UMEM_SOURCES ${UMEM_SOURCES} umem_cuda_utils.c)
+endif()
+
 if (ENABLE_CUDA)
   set(UMEM_ENABLED_CONTEXTS ${UMEM_ENABLED_CONTEXTS} Cuda)
   add_definitions("-DHAVE_CUDA_CONTEXT")
@@ -168,7 +172,7 @@ if (ENABLE_RMM)
     ${UMEM_THIRDPARTY_DIR}/cudf/cpp/src/rmm/memory.cpp
     ${UMEM_THIRDPARTY_DIR}/cudf/cpp/src/rmm/memory_manager.cpp
     ${UMEM_THIRDPARTY_DIR}/cudf/cpp/thirdparty/cnmem/src/cnmem.cpp
-  )
+    )
   add_definitions("-DHAVE_RMM_CONTEXT")
 endif(ENABLE_RMM)
 

@@ -127,7 +127,6 @@ namespace umem {
      [NOT IMPLEMENTED].
    */
   class File : public Context {
-
   public:
     /**
        Constructor of a file memory context.
@@ -148,10 +147,9 @@ namespace umem {
 #ifdef HAVE_MMAP_CONTEXT
   /**
      MMap memory context represents a memory mapped file storage.
-
+     
    */
   class MMap : public Context {
-
   public:
     /**
        Constructor of a mmap memory context.
@@ -174,13 +172,13 @@ namespace umem {
      Cuda memory context represents a GPU device memory using CUDA RT.
    */
   class Cuda : public Context {
-
+    
   public:
     /**
        Constructor of a GPU device memory.
  
        @param[in]    device - specify GPU device
-     */
+    */
     Cuda(int device);
 
     /// Internal methods and members
@@ -197,14 +195,17 @@ namespace umem {
    */
   class RMM : public Context {
 
-  public:
+    public:
     /**
        Constructor of a GPU device memory.
- 
-       @param[in]    stream - specify GPU strean
-     */
-    RMM(uintptr_t device);
-
+       
+       @param[in]    device - specify GPU device     
+       @param[in]    stream - specify GPU stream id
+       @param[in]    async - when true, use asynchronous copy methods. Host memory
+                     must be page-locked for asynchronous copy.
+    */
+    RMM(int device=0, uintptr_t stream=0, bool async=false);
+  
     /// Internal methods and members
     ~RMM();
     void * const get_raw_context();
@@ -453,8 +454,8 @@ namespace umem {
 
   // RMM implementations:
 #ifdef HAVE_RMM_CONTEXT
-  RMM::RMM(uintptr_t stream) {
-    umemRMM_ctor(&ctx, stream);
+  RMM::RMM(int device, uintptr_t stream, bool async) {
+    umemRMM_ctor(&ctx, device, stream, async);
   }
   RMM::~RMM() { umem_dtor(&ctx); }
   inline void * const RMM::get_raw_context() { return &(this->ctx); }

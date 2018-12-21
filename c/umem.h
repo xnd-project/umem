@@ -15,14 +15,14 @@
 #define UMEM_H
 
 #ifdef __cplusplus
-#define START_EXTERN_C extern "C" {
-#define CLOSE_EXTERN_C }
+#define UMEM_START_EXTERN_C extern "C" {
+#define UMEM_CLOSE_EXTERN_C }
 #else
-#define START_EXTERN_C
-#define CLOSE_EXTERN_C
+#define UMEM_START_EXTERN_C
+#define UMEM_CLOSE_EXTERN_C
 #endif
 
-START_EXTERN_C
+UMEM_START_EXTERN_C
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -31,7 +31,6 @@ START_EXTERN_C
 
 #include "umem_config.h"
 #include "umem_utils.h"
-
 
 /**
    umemDeviceType defines the flags of supported device memory
@@ -157,10 +156,12 @@ UMEM_EXTERN void umemCuda_ctor(umemCuda * const ctx, int device);
 typedef struct {
   umemVirtual super;
   umemHost host;
-  uintptr_t stream;
+  int device;        //< device
+  uintptr_t stream;  //< stream id
+  bool async;        //< when true, use CUDA asynchronous copy methods
 } umemRMM;
 
-UMEM_EXTERN void umemRMM_ctor(umemRMM * const ctx, uintptr_t stream);
+UMEM_EXTERN void umemRMM_ctor(umemRMM * const ctx, int device, uintptr_t stream, bool async);
 
 #endif
 
@@ -221,13 +222,18 @@ static inline uintptr_t umem_calloc(void * const ctx, size_t nmemb, size_t size)
 static inline
 uintptr_t umem_aligned_alloc(void * const ctx, size_t alignment, size_t size);
 /**
-  umem_aligned_origin returns starting address of memory containing
-  the aligned memory area. This starting address can be used to free
-  the aligned memory.
+   umem_aligned_origin returns starting address of memory containing
+   the aligned memory area. This starting address can be used to free
+   the aligned memory.
 */
 static inline
 uintptr_t umem_aligned_origin(void * const ctx,
                               uintptr_t aligned_adr);
+/**
+   umem_is_same_context returns true if the two memory contexts are the
+   equivalent, that is, the physical memory address spaces that the
+   context objects represent, are the same.
+*/
 static inline 
 bool umem_is_same_context(void * const one_ctx, void * const other_ctx);
 static inline
@@ -297,10 +303,6 @@ void umem_sync_from_safe(void * const dest_ctx, uintptr_t dest_adr, size_t dest_
 */
 UMEM_EXTERN
 void umemVirtual_dtor(umemVirtual * const ctx);
-/**
-  umem_is_same_context returns true if the devices are the same in the
-  sense of memory address spaces.
- */
 UMEM_EXTERN
 bool umemVirtual_is_same_context(umemVirtual * const one_ctx,
                                 umemVirtual * const other_ctx);
@@ -481,9 +483,12 @@ static inline void umem_set_safe(void * const ctx, uintptr_t adr, size_t size, i
 }
 
 
-CLOSE_EXTERN_C
+UMEM_CLOSE_EXTERN_C
 
 #ifdef __cplusplus
+/*
+  Include C++ API of umem.
+*/
 #include "umem.hpp"
 #endif
 

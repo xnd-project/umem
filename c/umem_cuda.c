@@ -3,7 +3,6 @@
 #include <cuda_runtime.h>
 #include <errno.h>
 #include "umem.h"
-
 #include "umem_cuda_utils.h"
 
 /*
@@ -41,35 +40,18 @@ static void umemCuda_copy_to_(umemVirtual * const src_ctx, uintptr_t src_adr,
 			      umemVirtual * const dest_ctx, uintptr_t dest_adr,
 			      size_t nbytes) {
   assert(src_ctx->type == umemCudaDevice);
-  umemCuda * const src_ctx_ = (umemCuda * const)src_ctx;
   switch(dest_ctx->type) {
   case umemHostDevice:
-    {
-      //umemHost * const dest_ctx_ = (umemHost * const)dest_ctx;
-      CUDA_CALL(src_ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-			       nbytes, cudaMemcpyDeviceToHost), umemMemoryError, return,
-		"umemCuda_copy_to_: cudaMemcpy(%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost)",
-		dest_adr, src_adr, nbytes);
-    }
+    umemCuda_copy_to_Host(src_ctx, (umemCuda * const)src_ctx, src_adr,  (umemHost * const)dest_ctx, dest_adr, nbytes);
     break;
   case umemCudaDevice:
-    {
-      umemCuda * const dest_ctx_ = (umemCuda * const)dest_ctx;
-      if (src_ctx_->device == dest_ctx_->device) {
-	CUDA_CALL(src_ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-				 nbytes, cudaMemcpyDeviceToDevice),
-		  umemMemoryError, return,
-		  "umemCuda_copy_to_: cudaMemcpy(%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice)",
-		  dest_adr, src_adr, nbytes);
-      } else {
-	CUDA_CALL(src_ctx, cudaMemcpyPeer((void*)dest_adr, dest_ctx_->device,
-				     (const void*)src_adr, src_ctx_->device,
-				     nbytes), umemMemoryError, return,
-		  "umemCuda_copy_to_: cudaMemcpyPeer(%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu)",
-		  dest_adr, dest_ctx_->device, src_adr, src_ctx_->device, nbytes);	
-      }
-    }
+    umemCuda_copy_to_Cuda(src_ctx, (umemCuda * const)src_ctx, src_adr, (umemCuda * const)dest_ctx, dest_adr, nbytes);
     break;
+#ifdef HAVE_RMM_CONTEXT
+  case umemRMMDevice:
+    umemRMM_copy_from_Cuda(src_ctx, (umemRMM * const)dest_ctx, dest_adr, (umemCuda * const)src_ctx, src_adr, nbytes, false);
+    break;
+#endif
   default:
     umem_copy_to_via_host(src_ctx, src_adr, dest_ctx, dest_adr, nbytes);
   }
@@ -79,21 +61,18 @@ static void umemCuda_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr
 				umemVirtual * const src_ctx, uintptr_t src_adr,
 				size_t nbytes) {
   assert(dest_ctx->type == umemCudaDevice);
-  //umemCuda * const dest_ctx_ = (umemCuda * const)dest_ctx;
   switch(src_ctx->type) {
   case umemHostDevice:
-    {
-      //umemHost * const src_ctx_ = (umemHost * const)src_ctx;
-      CUDA_CALL(dest_ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-			       nbytes, cudaMemcpyHostToDevice),
-		umemMemoryError, return,
-		"umemCuda_copy_from_: cudaMemcpy(%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToDevice)",
-		dest_adr, src_adr, nbytes);
-    }
+    umemCuda_copy_from_Host(dest_ctx, (umemCuda * const)dest_ctx, dest_adr,  (umemHost * const)src_ctx, src_adr, nbytes);
     break;
   case umemCudaDevice:
-    umemCuda_copy_to_(src_ctx, dest_adr, dest_ctx, src_adr, nbytes);
+    umemCuda_copy_to_Cuda(dest_ctx, (umemCuda * const)dest_ctx, dest_adr, (umemCuda * const)src_ctx, src_adr, nbytes);
     break;
+#ifdef HAVE_RMM_CONTEXT
+  case umemRMMDevice:
+    umemRMM_copy_to_Cuda(dest_ctx, (umemRMM * const)src_ctx, src_adr, (umemCuda * const)dest_ctx, dest_adr, nbytes, false);
+    break;
+#endif
   default:
     umem_copy_from_via_host(dest_ctx, dest_adr, src_ctx, src_adr, nbytes);
   }
