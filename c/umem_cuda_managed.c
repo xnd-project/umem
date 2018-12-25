@@ -80,10 +80,15 @@ static void umemCudaManaged_copy_from_(umemVirtual * const dest_ctx, uintptr_t d
   }
 }
 
-static bool umemCudaManaged_is_same_context_(umemVirtual * const one_ctx, umemVirtual * const other_ctx) {
-  umemCudaManaged * const one_ctx_ = (umemCudaManaged * const)one_ctx;
-  umemCudaManaged * const other_ctx_ = (umemCudaManaged * const)other_ctx;
-  return ( (one_ctx_->stream == other_ctx_->stream) ? true : false ); // TODO: does this make sense?
+bool umemCudaManaged_is_accessible_from_(umemVirtual * const src_ctx, umemVirtual * const dest_ctx) {
+  assert(src_ctx->type == umemCudaManagedDevice);
+  switch (dest_ctx->type) {
+  case umemHostDevice:
+  case umemCudaManagedDevice:
+    return true;
+  default: ;
+  }
+  return false;
 }
 
 /*
@@ -92,7 +97,7 @@ static bool umemCudaManaged_is_same_context_(umemVirtual * const one_ctx, umemVi
 void umemCudaManaged_ctor(umemCudaManaged * const ctx, unsigned int flags, bool async, uintptr_t stream) {
   static struct umemVtbl const vtbl = {
     &umemCudaManaged_dtor_,
-    &umemCudaManaged_is_same_context_,
+    &umemCudaManaged_is_accessible_from_,
     &umemCudaManaged_alloc_,
     &umemVirtual_calloc,
     &umemCudaManaged_free_,

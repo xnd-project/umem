@@ -90,8 +90,8 @@ typedef struct {
 struct umemVtbl {
   /** @brief Holds pointer to object destructor. */
   void (*dtor)(umemVirtual * const ctx);
-  /** @brief Holds pointer to object is_same_context method. */
-  bool (*is_same_context)(umemVirtual * const one_ctx, umemVirtual * const other_ctx);
+  /** @brief Holds pointer to object is_accessible_from method. */
+  bool (*is_accessible_from)(umemVirtual * const src_ctx, umemVirtual * const dest_ctx);
   /** @brief Holds pointer to object alloc method. */
   uintptr_t (*alloc)(umemVirtual * const ctx, size_t nbytes);
   /** @brief Holds pointer to object calloc method. */
@@ -264,6 +264,7 @@ static inline uintptr_t umem_alloc(void * const ctx, size_t nbytes);
 static inline uintptr_t umem_calloc(void * const ctx, size_t nmemb, size_t size);
 static inline
 uintptr_t umem_aligned_alloc(void * const ctx, size_t alignment, size_t size);
+
 /**
    umem_aligned_origin returns starting address of memory containing
    the aligned memory area. This starting address can be used to free
@@ -272,13 +273,18 @@ uintptr_t umem_aligned_alloc(void * const ctx, size_t alignment, size_t size);
 static inline
 uintptr_t umem_aligned_origin(void * const ctx,
                               uintptr_t aligned_adr);
+
 /**
-   umem_is_same_context returns true if the two memory contexts are the
-   equivalent, that is, the physical memory address spaces that the
-   context objects represent, are the same.
+   umem_is_accessible_from returns true if a memory address of src memory
+   context is accessible (or pointers can be dereferenced) from
+   dest memory context.
 */
 static inline 
-bool umem_is_same_context(void * const one_ctx, void * const other_ctx);
+bool umem_is_accessible_from(void * const src_ctx, void * const dest_ctx);
+
+/**
+   umem_fundamental_align returns the default alignment of a context.
+*/
 static inline
 size_t umem_fundamental_align(void * const ctx);
 
@@ -290,6 +296,7 @@ static inline
 void umem_free(void * const ctx, uintptr_t adr);
 static inline
 void umem_aligned_free(void * const ctx, uintptr_t aligned_adr);
+
 /**
   umem_set fills memory with constant byte
 */
@@ -347,8 +354,8 @@ void umem_sync_from_safe(void * const dest_ctx, uintptr_t dest_adr, size_t dest_
 UMEM_EXTERN
 void umemVirtual_dtor(umemVirtual * const ctx);
 UMEM_EXTERN
-bool umemVirtual_is_same_context(umemVirtual * const one_ctx,
-                                umemVirtual * const other_ctx);
+bool umemVirtual_is_accessible_from(umemVirtual * const src_ctx,
+                                    umemVirtual * const dest_ctx);
 UMEM_EXTERN
 uintptr_t umemVirtual_calloc(umemVirtual * const ctx,
                              size_t nmemb, size_t size);
@@ -418,20 +425,22 @@ static inline uintptr_t umem_calloc(void * const ctx, size_t nmemb, size_t size)
 static inline size_t umem_fundamental_align(void * const ctx) {
   switch (((umemVirtual * const)ctx)->type) {
   case umemFileDevice: return UMEM_FUNDAMENTAL_FILE_ALIGN;
-  case umemCudaDevice: return UMEM_FUNDAMENTAL_CUDA_ALIGN;
+  case umemCudaDevice:
+  case umemCudaManagedDevice:
+  case umemRMMDevice:
+    return UMEM_FUNDAMENTAL_CUDA_ALIGN;
   case umemHostDevice: return UMEM_FUNDAMENTAL_HOST_ALIGN;
   default: ;
   }
   return 1;
 }
 
-static inline bool umem_is_same_context(void * const one_ctx, void * const other_ctx) {
-  return (one_ctx == other_ctx ? true :
-          ((((umemVirtual * const)one_ctx)->type == ((umemVirtual * const)other_ctx)->type
-            ? (*((umemVirtual * const)one_ctx)->vptr->is_same_context)((umemVirtual * const)one_ctx,
-                                                                       (umemVirtual * const)other_ctx)
-            : false)));
+static inline bool umem_is_accessible_from(void * const src_ctx, void * const dest_ctx) {
+  return (src_ctx == dest_ctx ? true :
+          (*((umemVirtual * const)src_ctx)->vptr->is_accessible_from)((umemVirtual * const)src_ctx,
+                                                                      (umemVirtual * const)dest_ctx));
 }
+
 
 static inline umemStatusType umem_get_status(void * const ctx) {
   return ((umemVirtual * const)ctx)->status.type;

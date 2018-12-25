@@ -5,6 +5,15 @@
 
 #if defined(HAVE_CUDA_CONTEXT) || defined(HAVE_RMM_CONTEXT)
 
+bool umemCudaPeerAccessEnabled(umemVirtual * const ctx, int src_device, int dest_device) {
+  int value = 0;
+  CU_CALL(ctx, cuDeviceGetP2PAttribute(&value, CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED, (CUdevice)src_device, (CUdevice)dest_device),
+          umemRuntimeError, return false,
+          "umemCudaPeerAccessEnabled: cuDeviceGetP2PAttribute(&value, CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED, %d, %d)",
+          src_device, dest_device);
+  return (value ? true : false);
+}
+
 inline static bool umemCudaIsPageLocked(uintptr_t adr) {
   struct cudaPointerAttributes my_attr;
   if (cudaPointerGetAttributes(&my_attr, (void*)adr) == cudaErrorInvalidValue) {

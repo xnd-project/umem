@@ -16,7 +16,7 @@ static uintptr_t umem_alloc_(umemVirtual  * const ctx, size_t nbytes) {
   return 0;
 }
 
-static bool umem_is_same_context_(umemVirtual  * const ctx, umemVirtual  * const she) {
+static bool umem_is_accessible_from_(umemVirtual  * const ctx, umemVirtual  * const she) {
   assert(0); /* purely-virtual function should never be called */
   return false;
 }
@@ -74,7 +74,7 @@ static void umem_copy_from_(umemVirtual  * const dest_ctx, uintptr_t dest_adr,
 void umemVirtual_ctor(umemVirtual * const ctx, umemHost * host_ctx) {
   static struct umemVtbl const vtbl = {
     &umem_dtor_,
-    &umem_is_same_context_,
+    &umem_is_accessible_from_,
     &umem_alloc_,
     &umem_calloc_,
     &umem_free_,
@@ -109,8 +109,8 @@ void umemVirtual_dtor(umemVirtual * const ctx) {
   }
 }
 
-bool umemVirtual_is_same_context(umemVirtual * const one_ctx, umemVirtual * const other_ctx) {
-  return one_ctx == other_ctx;
+bool umemVirtual_is_accessible_from(umemVirtual * const src_ctx, umemVirtual * const dest_ctx) {
+  return false; // note that umem_is_accessible_from(ctx, ctx) returns true
 }
 
 uintptr_t umemVirtual_calloc(umemVirtual * const ctx, size_t nmemb, size_t size) {
@@ -216,9 +216,9 @@ const char* umem_get_device_name_from_type(umemDeviceType type) {
   static const char file_device_name[] = "File";
   static const char cuda_device_name[] = "Cuda";
   static const char cuda_managed_device_name[] = "CudaManaged";
-  static const char cuda_host_device_name[] = "CudaHost";
+  static const char cuda_host_device_name[] = "CudaHost";  // NOT IMPLEMENTED
   static const char mmap_device_name[] = "MMAP"; // NOT IMPLEMENTED
-  static const char rmm_device_name[] = "RMM"; // NOT IMPLEMENTED
+  static const char rmm_device_name[] = "RMM";
   switch(type) {
   case umemVirtualDevice: return virtual_device_name;
   case umemHostDevice: return host_device_name;

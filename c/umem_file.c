@@ -164,11 +164,11 @@ static void umemFile_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr
   }
 }
 
-
-bool umemFile_is_same_context_(umemVirtual * const one_ctx, umemVirtual * const other_ctx) {
-  umemFile * const one_ctx_ = (umemFile * const)one_ctx;
-  umemFile * const other_ctx_ = (umemFile * const)other_ctx;
-  return (strcmp(one_ctx_->filename, other_ctx_->filename) == 0 ? true : false);
+bool umemFile_is_accessible_from_(umemVirtual * const one_ctx, umemVirtual * const other_ctx) {
+  assert(one_ctx->type == umemFileDevice);
+  if (other_ctx->type == umemFileDevice)
+    return (strcmp(((umemFile * const)one_ctx)->filename, ((umemFile * const)other_ctx)->filename) == 0 ? true : false);
+  return false;
 }
 
 /*
@@ -178,7 +178,7 @@ void umemFile_ctor(umemFile * const ctx,
 		   const char * filename, const char * mode) {
   static struct umemVtbl const vtbl = {
     &umemFile_dtor_,
-    &umemFile_is_same_context_,
+    &umemFile_is_accessible_from_,
     &umemFile_alloc_,
     &umemVirtual_calloc,
     &umemFile_free_,

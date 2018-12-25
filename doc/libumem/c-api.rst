@@ -428,11 +428,11 @@ Returns the name of memory context as a string.
 
 .. code-block:: c
 
-   bool umem_is_same_device(void * const one_ctx, void * const other_ctx);
+   bool umem_is_accessible_from(void * const src_ctx, void * const dest_ctx);
 
-Returns :data:`true` when the memory context objects represent the
-same memory storage device, that is, the addresses of both devices
-will be comparable.
+Returns :data:`true` when a address created within source memory
+context is accessible from the destination memory context. In general,
+the accessibility relation is non-commutative.
 
 .. code-block:: c
 
@@ -480,7 +480,7 @@ constructors of the correspondig derived types:
 
    struct umemVtbl {
      void (*dtor)(umemVirtual * const ctx);
-     bool (*is_same_device)(umemVirtual * const ctx, umemVirtual * const other_ctx);
+     bool (*is_accessible_from)(umemVirtual * const src_ctx, umemVirtual * const dest_ctx);
      uintptr_t (*alloc)(umemVirtual * const ctx, size_t nbytes);
      uintptr_t (*calloc)(umemVirtual * const ctx, size_t nmemb, size_t size);
      void (*free)(umemVirtual * const ctx, uintptr_t adr);
@@ -502,11 +502,10 @@ The descriptions of members methods are as follows:
       A destructor of memory context. It should clean-up any resources
       that are allocted in the memory constructor.
 
-:func:`is_same_device`
-      A predicate function that should return :data:`true` when the
-      memory context objects referenced by :type:`ctx` and
-      :type:`other_ctx` are the same, that is, the memory context
-      objects would allocate memory in the same data address space.
+:func:`is_accessible_from`
+      A predicate function that should return :data:`true` when the a
+      address created by :type:`src_ctx` memory context is accessible
+      from the memory context :type:`dest_ctx`.
 
 :func:`alloc`, :func:`calloc`, :func:`free`
       Device memory allocator and deallocation functions. The
@@ -594,7 +593,7 @@ for the constructor function is
    {
      static struct umemVtbl const vtbl = {
        &umemMyMem_dtor_,
-       &umemMyMem_is_same_device_,
+       &umemMyMem_is_accessibl_from_,
        &umemMyMem_alloc_,
        &umemVirtual_calloc,
        &umemMyMem_free_,

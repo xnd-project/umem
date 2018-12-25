@@ -16,11 +16,29 @@
     } else errno = old_errno;						\
   } while (0)
 
-
+#define CU_CALL(CTX, CALL, ERROR, ERRRETURN, FMT, ...)                  \
+  do {									\
+    int old_errno = errno;						\
+    CUresult error = CALL;						\
+    if (error != CUDA_SUCCESS) {                                        \
+      char buf[256];                                                    \
+      const char* errname = NULL;                                             \
+      const char* errstr = NULL;                                              \
+      cuGetErrorName(error, &errname);                                  \
+      cuGetErrorString(error, &errstr);                                 \
+      snprintf(buf, sizeof(buf), FMT " -> %s: %s", __VA_ARGS__,		\
+	       errname, errstr);                                        \
+      umem_set_status(CTX, ERROR, buf);					\
+      ERRRETURN;							\
+    } else errno = old_errno;						\
+  } while (0)
 
 UMEM_START_EXTERN_C
 
 #if defined(HAVE_CUDA_CONTEXT) || defined(HAVE_RMM_CONTEXT)
+
+UMEM_EXPORT bool umemCudaPeerAccessEnabled(umemVirtual * const ctx, int src_device, int dest_device);
+
 
 UMEM_EXPORT void umemCudaSet(umemVirtual * const ctx,
                              uintptr_t adr, int c, size_t nbytes,

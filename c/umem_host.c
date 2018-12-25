@@ -99,8 +99,14 @@ static void umemHost_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr
     umem_copy_to(src_ctx, src_adr, dest_ctx, dest_adr, nbytes);
 }
 
-bool umemHost_is_same_context_(umemVirtual * const one_ctx, umemVirtual * const other_ctx) {
-  return true;
+static bool umemHost_is_accessible_from_(umemVirtual * const src_ctx, umemVirtual * const dest_ctx) {
+  assert(src_ctx->type == umemHostDevice);
+  switch (dest_ctx->type) {
+  case umemHostDevice:
+    return true;
+  default: ;
+  }
+  return false;
 }
 
 /*
@@ -110,7 +116,7 @@ bool umemHost_is_same_context_(umemVirtual * const one_ctx, umemVirtual * const 
 void umemHost_ctor(umemHost * const ctx) {
   static struct umemVtbl const vtbl = {
     &umemHost_dtor_,
-    &umemHost_is_same_context_,
+    &umemHost_is_accessible_from_,
     &umemHost_alloc_,
     &umemHost_calloc_,
     &umemHost_free_,

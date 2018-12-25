@@ -14,11 +14,14 @@ static void umemCuda_dtor_(umemVirtual * const ctx) {
 
 static uintptr_t umemCuda_alloc_(umemVirtual * const ctx, size_t nbytes) {
   assert(ctx->type == umemCudaDevice);
-  //umemCuda * const ctx_ = (umemCuda * const)ctx;
+  umemCuda * const ctx_ = (umemCuda * const)ctx;
+  CUDA_CALL(ctx, cudaSetDevice(ctx_->device), umemRuntimeError, return 0,
+	    "umemCuda_alloc_: cudaSetDevice(%d)", ctx_->device);
   uintptr_t adr;
   CUDA_CALL(ctx, cudaMalloc((void**)&adr, nbytes), umemMemoryError, return 0,
 	    "umemCuda_alloc_: cudaMalloc(&%" PRIxPTR ", %zu)",
 	    adr, nbytes);
+  // TODO: do we need to reset to old device?
   return adr;
 }
 
@@ -31,6 +34,7 @@ static void umemCuda_free_(umemVirtual * const ctx, uintptr_t adr) {
 
 static void umemCuda_set_(umemVirtual * const ctx, uintptr_t adr, int c, size_t nbytes) {
   assert(ctx->type == umemCudaDevice);
+  // TODO: does set require current device to be ctx_->device??
   umemCudaSet(ctx, adr, c, nbytes, false, 0);
 }
 
@@ -87,10 +91,32 @@ static void umemCuda_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr
   }
 }
 
-static bool umemCuda_is_same_context_(umemVirtual * const one_ctx, umemVirtual * const other_ctx) {
-  umemCuda * const one_ctx_ = (umemCuda * const)one_ctx;
-  umemCuda * const other_ctx_ = (umemCuda * const)other_ctx;
-  return (one_ctx_->device == other_ctx_->device ? true : false);
+bool umemCuda_is_accessible_from_(umemVirtual * const src_ctx, umemVirtual * const dest_ctx) {
+  assert(src_ctx->type == umemCudaDevice);
+  switch(dest_ctx->type) {
+  case umemHostDevice:
+    return false;
+  case umemCudaDevice: {
+    umemCuda * const src_ctx_ = (umemCuda * const)src_ctx;
+    umemCuda * const dest_ctx_ = (umemCuda * const)dest_ctx;
+    if (src_ctx_->device == dest_ctx_->device)
+      return true;
+    int accessible = 0;
+    CUDA_CALL(src_ctx, cudaDeviceCanAccessPeer( &accessible, src_ctx_->device, dest_ctx_->device ),
+              umemRuntimeError, return false,
+              "umemCuda_are_accessible_: cudaDeviceCanAccessPeer( &accessible, %d, %d )",
+              src_ctx_->device, dest_ctx_->device);
+    return umemCudaPeerAccessEnabled(src_ctx, src_ctx_->device, dest_ctx_->device);
+  }
+#ifdef HAVE_CUDA_MANAGED_CONTEXT
+  case umemCudaManagedDevice:
+    return true;
+#endif
+  default:
+    ;
+  }
+
+  return false;
 }
 
 /*
@@ -99,7 +125,7 @@ static bool umemCuda_is_same_context_(umemVirtual * const one_ctx, umemVirtual *
 void umemCuda_ctor(umemCuda * const ctx, int device) {
   static struct umemVtbl const vtbl = {
     &umemCuda_dtor_,
-    &umemCuda_is_same_context_,
+    &umemCuda_is_accessible_from_,
     &umemCuda_alloc_,
     &umemVirtual_calloc,
     &umemCuda_free_,
@@ -130,6 +156,7 @@ void umemCuda_ctor(umemCuda * const ctx, int device) {
     umem_set_status(&ctx->super, umemValueError, buf);
     return;
   }
+  // might be superfluous as alloc sets the device
   CUDA_CALL(&ctx->super, cudaSetDevice(device), umemRuntimeError, return,
 	    "umemCuda_ctor: cudaSetDevice(%d)", device);
 }

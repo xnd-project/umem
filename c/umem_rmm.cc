@@ -17,19 +17,22 @@
     } else errno = old_errno;						\
   } while (0)
 
-extern "C" {
 
-  static bool umemRMM_is_same_context_(umemVirtual * const one_ctx, umemVirtual * const other_ctx);
-  static uintptr_t umemRMM_alloc_(umemVirtual * const ctx, size_t nbytes);
-
+static bool umemRMM_is_accessible_from_(umemVirtual * const src_ctx, umemVirtual * const dest_ctx) {
+  assert(src_ctx->type == umemRMMDevice);
+  switch (dest_ctx->type) {
+  case umemRMMDevice:
+    {
+      umemRMM * const src_ctx_ = (umemRMM * const)src_ctx;
+      umemRMM * const dest_ctx_ = (umemRMM * const)dest_ctx;
+      return (src_ctx_->device == dest_ctx_->device && src_ctx_->stream == dest_ctx_->stream); // TODO: is stream equality required??
+    }
+      // TODO: RMM addresses are most probably accessible from certain Cuda memory contexts as well
+  default:
+    break;
+  }
+  return false;
 }
-
-static bool umemRMM_is_same_context_(umemVirtual * const one_ctx, umemVirtual * const other_ctx) {
-  umemRMM * const one_ctx_ = (umemRMM * const)one_ctx;
-  umemRMM * const other_ctx_ = (umemRMM * const)other_ctx;
-  return (one_ctx_->device == other_ctx_->device && one_ctx_->stream == other_ctx_->stream);
-}
-
 
 static uintptr_t umemRMM_alloc_(umemVirtual * const ctx, size_t nbytes) {
   assert(ctx->type == umemRMMDevice);
@@ -116,7 +119,7 @@ static void umemRMM_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr,
 void umemRMM_ctor(umemRMM * const ctx, int device, bool async, uintptr_t stream) {
   static struct umemVtbl const vtbl = {
     &umemVirtual_dtor,
-    &umemRMM_is_same_context_,
+    &umemRMM_is_accessible_from_,
     &umemRMM_alloc_,
     &umemVirtual_calloc,
     &umemRMM_free_,

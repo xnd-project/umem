@@ -46,10 +46,9 @@ namespace umem {
     Address aligned_alloc(size_t alignment, size_t size);
 
     /**
-       Test device context equality.
+       Test accessibility relation
      */
-    bool operator == (Context &other);
-    bool operator != (Context &other);
+    bool is_accessible_from(Context &dest);
 
     /**
        Test the status of the device context.
@@ -410,8 +409,7 @@ namespace umem {
     return Address(umem_calloc(get_raw_context(), nmemb, size), 0, nmemb * size, get_raw_context(), true); } // TODO: check overflow
   inline Address Context::aligned_alloc(size_t alignment, size_t size) {
     return Address(umem_aligned_alloc(get_raw_context(), alignment, size), alignment, size, get_raw_context(), true); }
-  inline bool Context::operator == (Context &other) { return umem_is_same_context(get_raw_context(), other.get_raw_context()); }
-  inline bool Context::operator != (Context &other) { return !(*this == other); }
+  inline bool Context::is_accessible_from(Context &other) { return umem_is_accessible_from(get_raw_context(), other.get_raw_context()); }
   inline bool Context::is_ok() { return umem_is_ok(get_raw_context()); }
   inline std::string Context::get_message() { return umem_get_message(get_raw_context()); }
   inline umemStatusType Context::get_status() { return umem_get_status(get_raw_context()); }
