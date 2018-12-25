@@ -26,10 +26,11 @@ set(UMEM_THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty)
 #
 # CMake configuration options
 #
-
 option(ENABLE_FILE "Enable File memory context" ON)
 option(ENABLE_MMAP "Enable MMap memory context [NOT IMPLEMENTED]" OFF)
-option(ENABLE_CUDA "Enable Cuda memory context using CUDA RT" ON)
+option(ENABLE_CUDA "Enable Cuda memory context (CUDA RT)" ON)
+option(ENABLE_CUDA_HOST "Enable Cuda Host memory context" OFF)
+option(ENABLE_CUDA_MANAGED "Enable Cuda Managed memory context" ON)
 option(ENABLE_RMM "Enable Rapidsai cudf RMM memory context" ON)
 option(BUILD_SHARED "Build shared umem library" ON)
 option(BUILD_STATIC "Build static umem library [NOT IMPLEMENTED]" OFF)
@@ -78,7 +79,7 @@ set(UMEM_ENABLED_CONTEXTS)
 # Check CUDA availability.
 #
 set(NEED_CUDA FALSE)
-if (ENABLE_CUDA OR ENABLE_RMM)
+if (ENABLE_CUDA OR ENABLE_RMM OR ENABLE_CUDA_HOST OR ENABLE_CUDA_MANAGED)
   set(NEED_CUDA TRUE)
 endif()
 
@@ -94,7 +95,7 @@ if (NEED_CUDA)
       set(UMEM_LIBRARY_DIRS ${UMEM_LIBRARY_DIRS} ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
       find_library(CUDART_LIBRARY cudart ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
       message(STATUS "  CUDART_LIBRARY=${CUDART_LIBRARY}")
-      if (ENABLE_CUDA)
+      if (ENABLE_CUDA OR ENABLE_CUDA_HOST OR ENABLE_CUDA_MANAGED)
         set(UMEM_LIBRARIES ${UMEM_LIBRARIES} cudart)
       endif()
       if (ENABLE_RMM)
@@ -102,9 +103,11 @@ if (NEED_CUDA)
       endif()
       set(UMEM_LIBRARIES ${UMEM_LIBRARIES} pthread rt)
     else()
-      message(STATUS "No CUDA support, disabling memory context types: CUDA, RMM")
+      message(STATUS "No CUDA support, disabling memory context types: Cuda, CudaHost, CudaManaged, RMM.")
       set(ENABLE_CUDA OFF)
       set(ENABLE_RMM OFF)
+      set(ENABLE_CUDA_HOST OFF)
+      set(ENABLE_CUDA_MANAGED OFF)
     endif()
   else()
     find_package(CUDA 9.0)    
@@ -140,7 +143,7 @@ endif(ENABLE_MMAP)
 #
 # UMEM Cuda context type support
 #
-if (ENABLE_CUDA OR ENABLE_RMM)
+if (ENABLE_CUDA OR ENABLE_RMM OR ENABLE_CUDA_HOST OR ENABLE_CUDA_MANAGED)
   set(UMEM_SOURCES ${UMEM_SOURCES} umem_cuda_utils.c)
 endif()
 
@@ -149,6 +152,24 @@ if (ENABLE_CUDA)
   add_definitions("-DHAVE_CUDA_CONTEXT")
   set(UMEM_SOURCES ${UMEM_SOURCES} umem_cuda.c)
 endif(ENABLE_CUDA)
+
+#
+# UMEM CudaHost context type support
+#
+if (ENABLE_CUDA_HOST)
+  set(UMEM_ENABLED_CONTEXTS ${UMEM_ENABLED_CONTEXTS} CudaHost)
+  add_definitions("-DHAVE_CUDA_HOST_CONTEXT")
+  set(UMEM_SOURCES ${UMEM_SOURCES} umem_cuda_host.c)
+endif(ENABLE_CUDA_HOST)
+
+#
+# UMEM CudaHost context type support
+#
+if (ENABLE_CUDA_MANAGED)
+  set(UMEM_ENABLED_CONTEXTS ${UMEM_ENABLED_CONTEXTS} CudaManaged)
+  add_definitions("-DHAVE_CUDA_MANAGED_CONTEXT")
+  set(UMEM_SOURCES ${UMEM_SOURCES} umem_cuda_managed.c)
+endif(ENABLE_CUDA_MANAGED)
 
 #
 # UMEM RMM context type support

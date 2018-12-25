@@ -3,189 +3,160 @@
 #include <errno.h>
 #include "umem_cuda_utils.h"
 
-#ifdef HAVE_CUDA_CONTEXT
-void umemCuda_copy_to_Host(umemVirtual * const ctx,
-                           umemCuda * const src_ctx, uintptr_t src_adr,
-                           umemHost * const dest_ctx, uintptr_t dest_adr,
-                           size_t nbytes) {
-  CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-                            nbytes, cudaMemcpyDeviceToHost), umemMemoryError, return,
-            "umemCuda_copy_to_Host: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost)",
-            dest_adr, src_adr, nbytes);
+#if defined(HAVE_CUDA_CONTEXT) || defined(HAVE_RMM_CONTEXT)
+
+inline static bool umemCudaIsPageLocked(uintptr_t adr) {
+  struct cudaPointerAttributes my_attr;
+  if (cudaPointerGetAttributes(&my_attr, (void*)adr) == cudaErrorInvalidValue) {
+    cudaGetLastError(); // clear out the previous API error
+    return false;
+    }
+  return true;
 }
 
-void umemCuda_copy_from_Host(umemVirtual * const ctx,
-                             umemCuda * const dest_ctx, uintptr_t dest_adr,
-                             umemHost * const src_ctx, uintptr_t src_adr,
-                             size_t nbytes) {
-  CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-                            nbytes, cudaMemcpyHostToDevice),
-            umemMemoryError, return,
-            "umemCuda_copy_from_Host: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToDevice)",
-            dest_adr, src_adr, nbytes);
+inline static bool umemCudaEnsurePageLocked(umemVirtual * const ctx, uintptr_t adr, size_t nbytes) {
+  if (umemCudaIsPageLocked(adr))
+    return false;
+  else
+    CUDA_CALL(ctx, cudaHostRegister((void*)adr, nbytes, cudaHostRegisterPortable), umemMemoryError, return false,
+              "umemCudaEnsurePageLocked: cudaHostRegister(%" PRIxPTR ", %zu, cudaHostRegisterPortable)",
+              adr, nbytes
+              );
+  return true;
 }
 
-void umemCuda_copy_to_Cuda(umemVirtual * const ctx,
-                           umemCuda * const src_ctx, uintptr_t src_adr,
-                           umemCuda * const dest_ctx, uintptr_t dest_adr,
-                           size_t nbytes) {
-  if (src_ctx->device == dest_ctx->device) {
+inline static void umemCudaReleasePageLock(umemVirtual * const ctx, uintptr_t adr, bool lock) {
+  if (lock)
+    CUDA_CALL(ctx, cudaHostUnregister((void*)adr), umemMemoryError, return,
+              "umemCudaReleasePageLock: cudaHostUnregister(%" PRIxPTR ")", adr
+              );
+}
+
+void umemCudaHostCopyToHost(umemVirtual * const ctx,
+                            uintptr_t src_adr, uintptr_t dest_adr,
+                            size_t nbytes,
+                            bool async, uintptr_t stream) {
+  if (async) {
+    bool lock = umemCudaEnsurePageLocked(ctx, dest_adr, nbytes);
+    CUDA_CALL(ctx, cudaMemcpyAsync((void*)dest_adr, (const void*)src_adr,
+                                   nbytes, cudaMemcpyHostToHost,
+                                   (cudaStream_t)stream), umemMemoryError, goto cleanup_lock,
+              "umemCudaHostCopyToHost: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToHost, %" PRIxPTR ")",
+              dest_adr, src_adr, nbytes, stream);
+  cleanup_lock:
+    umemCudaReleasePageLock(ctx, dest_adr, lock);
+  } else
     CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-                              nbytes, cudaMemcpyDeviceToDevice),
-              umemMemoryError, return,
-              "umemCuda_copy_to_Cuda: cudaMemcpy(%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice)",
+                              nbytes, cudaMemcpyHostToHost), umemMemoryError, return,
+              "umemCudaHostCopyToHost: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToHost)",
               dest_adr, src_adr, nbytes);
-  } else {
-    CUDA_CALL(ctx, cudaMemcpyPeer((void*)dest_adr, dest_ctx->device,
-                                  (const void*)src_adr, src_ctx->device,
-                                  nbytes), umemMemoryError, return,
-              "umemCuda_copy_to_Cuda: cudaMemcpyPeer(%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu)",
-              dest_adr, dest_ctx->device, src_adr, src_ctx->device, nbytes);	
-  }
 }
-#endif
 
-#ifdef HAVE_RMM_CONTEXT
+void umemCudaHostCopyFromHost(umemVirtual * const ctx,
+                              uintptr_t dest_adr, uintptr_t src_adr,
+                              size_t nbytes,
+                              bool async, uintptr_t stream) {
+  if (async) {
+    bool lock = umemCudaEnsurePageLocked(ctx, src_adr, nbytes);
+    CUDA_CALL(ctx, cudaMemcpyAsync((void*)dest_adr, (const void*)src_adr,
+                                   nbytes, cudaMemcpyHostToHost,
+                                   (cudaStream_t)stream), umemMemoryError, goto cleanup_lock,
+              "umemCudaHostCopyFromHost: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToHost, %" PRIxPTR ")",
+              dest_adr, src_adr, nbytes, stream);
+  cleanup_lock:
+    umemCudaReleasePageLock(ctx, src_adr, lock);
+  } else
+    CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
+                              nbytes, cudaMemcpyHostToHost), umemMemoryError, return,
+              "umemCudaHostCopyFromHost: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToHost)",
+              dest_adr, src_adr, nbytes);
+}
 
-void umemRMM_copy_to_Host(umemVirtual * const ctx,
-                          umemRMM * const src_ctx, uintptr_t src_adr,
-                          umemHost * const dest_ctx, uintptr_t dest_adr,
-                          size_t nbytes, bool async) {
+void umemCudaSet(umemVirtual * const ctx, uintptr_t adr, int c, size_t nbytes, bool async, uintptr_t stream) {
   if (async)
-    /* Host memory must be page-locked. The caller is responsible for
-       ensuring this requirement. Note that generally, host memory is
-       not page-locked. */
+    CUDA_CALL(ctx, cudaMemsetAsync((void*)adr, c, nbytes, (cudaStream_t)stream), umemMemoryError,return,
+              "umemCudaSet: cudaMemsetAsync(&%lxu, %d, %zu, %zu)", adr, c, nbytes, stream);
+  else
+    CUDA_CALL(ctx, cudaMemset((void*)adr, c, nbytes), umemMemoryError,return,
+              "umemCudaSet: cudaMemset(&%lxu, %d, %zu)", adr, c, nbytes);
+}
+
+void umemCudaCopyToHost(umemVirtual * const ctx,
+                        uintptr_t src_adr, uintptr_t dest_adr,
+                        size_t nbytes,
+                        bool async, uintptr_t stream) {
+  if (async) {
+    bool lock = umemCudaEnsurePageLocked(ctx, dest_adr, nbytes);
     CUDA_CALL(ctx, cudaMemcpyAsync((void*)dest_adr, (const void*)src_adr,
                                    nbytes, cudaMemcpyDeviceToHost,
-                                   (cudaStream_t)src_ctx->stream), umemMemoryError, return,
-              "umemRMM_copy_to_Host: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost, %" PRIxPTR ")",
-              dest_adr, src_adr, nbytes, src_ctx->stream);
-  else
+                                   (cudaStream_t)stream), umemMemoryError, goto cleanup_lock,
+              "umemCudaCopyToHost: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost, %" PRIxPTR ")",
+              dest_adr, src_adr, nbytes, stream);
+  cleanup_lock:
+    umemCudaReleasePageLock(ctx, dest_adr, lock);
+  } else
     CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
                               nbytes, cudaMemcpyDeviceToHost), umemMemoryError, return,
-              "umemRMM_copy_to_Host: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost)",
+              "umemCudaCopyToHost: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost)",
               dest_adr, src_adr, nbytes);
 }
 
-void umemRMM_copy_from_Host(umemVirtual * const ctx,
-                            umemRMM * const dest_ctx, uintptr_t dest_adr,
-                            umemHost * const src_ctx, uintptr_t src_adr,
-                            size_t nbytes, bool async) {
-  if (async)
-    /* Host memory must be page-locked. The caller is responsible for
-       ensuring this requirement. Note that generally, host memory is
-       not page-locked. */
+void umemCudaCopyFromHost(umemVirtual * const ctx,
+                          uintptr_t dest_adr, uintptr_t src_adr,
+                          size_t nbytes,
+                          bool async, uintptr_t stream) {
+  if (async) {
+    bool lock = umemCudaEnsurePageLocked(ctx, src_adr, nbytes);
     CUDA_CALL(ctx, cudaMemcpyAsync((void*)dest_adr, (const void*)src_adr,
                                    nbytes, cudaMemcpyHostToDevice,
-                                   (cudaStream_t)dest_ctx->stream), umemMemoryError, return,
-              "umemRMM_copy_from_Host: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToDevice, %" PRIxPTR ")",
-              dest_adr, src_adr, nbytes, dest_ctx->stream);
-  else
+                                   (cudaStream_t)stream), umemMemoryError, goto cleanup_lock,
+              "umemCudaCopyFromHost: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToDevice, %" PRIxPTR ")",
+              dest_adr, src_adr, nbytes, stream);
+  cleanup_lock:
+    umemCudaReleasePageLock(ctx, src_adr, lock);
+  } else
     CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-                              nbytes, cudaMemcpyHostToDevice),
-              umemMemoryError, return,
-              "umemRMM_copy_from_Host: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToDevice)",
-              dest_adr, src_adr, nbytes);
+                            nbytes, cudaMemcpyHostToDevice),
+            umemMemoryError, return,
+            "umemCudaCopyFromHost: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyHostToDevice)",
+            dest_adr, src_adr, nbytes);
+  
 }
 
-#ifdef HAVE_CUDA_CONTEXT
-void umemRMM_copy_to_Cuda(umemVirtual * const ctx,
-                          umemRMM * const src_ctx, uintptr_t src_adr,
-                          umemCuda * const dest_ctx, uintptr_t dest_adr,
-                          size_t nbytes, bool async) {
-  if (src_ctx->device == dest_ctx->device) {
-    if (async)
+void umemCudaCopyToCuda(umemVirtual * const ctx,
+                        int src_device, uintptr_t src_adr,
+                        int dest_device, uintptr_t dest_adr,
+                        size_t nbytes,
+                        bool async, uintptr_t stream) {
+  if (async) {
+    if (src_device == dest_device) {
       CUDA_CALL(ctx, cudaMemcpyAsync((void*)dest_adr, (const void*)src_adr,
                                      nbytes, cudaMemcpyDeviceToDevice,
-                                     (cudaStream_t)src_ctx->stream), umemMemoryError, return,
-                "umemRMM_copy_to_Cuda: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice, %" PRIxPTR ")",
-                dest_adr, src_adr, nbytes, src_ctx->stream);
-    else
-      CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-                                nbytes, cudaMemcpyDeviceToDevice), umemMemoryError, return,
-                "umemRMM_copy_to_Cuda: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice)",
-                dest_adr, src_adr, nbytes);
-  } else {
-    if (async)
-      CUDA_CALL(ctx, cudaMemcpyPeerAsync((void*)dest_adr, dest_ctx->device,
-                                         (const void*)src_adr, src_ctx->device,
+                                     (cudaStream_t)stream), umemMemoryError, return,
+                "umemCudaCopyToCuda: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice, %" PRIxPTR ")",
+                dest_adr, src_adr, nbytes, stream);
+    } else {
+      CUDA_CALL(ctx, cudaMemcpyPeerAsync((void*)dest_adr, dest_device,
+                                         (const void*)src_adr, src_device,
                                          nbytes,
-                                         (cudaStream_t)src_ctx->stream), umemMemoryError, return,
-                "umemRMM_copy_to_Cuda: cudaMemcpyPeerAsync (%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu, %" PRIxPTR ")",
-                dest_adr, dest_ctx->device, src_adr, src_ctx->device, nbytes, src_ctx->stream);
-    else
-      CUDA_CALL(ctx, cudaMemcpyPeer((void*)dest_adr, dest_ctx->device,
-                                    (const void*)src_adr, src_ctx->device,
-                                    nbytes), umemMemoryError, return,
-                "umemRMM_copy_to_Cuda: cudaMemcpyPeer (%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu)",
-                dest_adr, dest_ctx->device, src_adr, src_ctx->device, nbytes);
-  }
-}
-
-void umemRMM_copy_from_Cuda(umemVirtual * const ctx,
-                            umemRMM * const dest_ctx, uintptr_t dest_adr,
-                            umemCuda * const src_ctx, uintptr_t src_adr,
-                            size_t nbytes, bool async) {
-  if (src_ctx->device == dest_ctx->device) {
-    if (async)
-      CUDA_CALL(ctx, cudaMemcpyAsync((void*)dest_adr, (const void*)src_adr,
-                                     nbytes, cudaMemcpyDeviceToDevice,
-                                     (cudaStream_t)dest_ctx->stream), umemMemoryError, return,
-                "umemRMM_copy_from_Cuda: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice, %" PRIxPTR ")",
-                dest_adr, src_adr, nbytes, dest_ctx->stream);
-    else
-      CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-                                nbytes, cudaMemcpyDeviceToDevice), umemMemoryError, return,
-                "umemRMM_copy_from_Cuda: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice)",
-                dest_adr, src_adr, nbytes);
+                                         (cudaStream_t)stream), umemMemoryError, return,
+                "umemCudaCopyToCuda: cudaMemcpyPeerAsync (%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu, %" PRIxPTR ")",
+                dest_adr, dest_device, src_adr, src_device, nbytes, stream);
+    }
   } else {
-    if (async)
-      CUDA_CALL(ctx, cudaMemcpyPeerAsync((void*)dest_adr, dest_ctx->device,
-                                         (const void*)src_adr, src_ctx->device,
-                                         nbytes,
-                                         (cudaStream_t)dest_ctx->stream), umemMemoryError, return,
-                "umemRMM_copy_from_Cuda: cudaMemcpyPeerAsync (%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu, %" PRIxPTR ")",
-                dest_adr, dest_ctx->device, src_adr, src_ctx->device, nbytes, dest_ctx->stream);
-    else
-      CUDA_CALL(ctx, cudaMemcpyPeer((void*)dest_adr, dest_ctx->device,
-                                    (const void*)src_adr, src_ctx->device,
-                                    nbytes), umemMemoryError, return,
-                "umemRMM_copy_from_Cuda: cudaMemcpyPeer (%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu)",
-                dest_adr, dest_ctx->device, src_adr, src_ctx->device, nbytes);
-  }
-}
-#endif
-
-void umemRMM_copy_to_RMM(umemVirtual * const ctx,
-                         umemRMM * const src_ctx, uintptr_t src_adr,
-                         umemRMM * const dest_ctx, uintptr_t dest_adr,
-                         size_t nbytes, bool async) {
-  if (src_ctx->device == dest_ctx->device) {
-    if (async)
-      CUDA_CALL(ctx, cudaMemcpyAsync((void*)dest_adr, (const void*)src_adr,
-                                     nbytes, cudaMemcpyDeviceToDevice,
-                                     (cudaStream_t)src_ctx->stream), umemMemoryError, return,
-                "umemRMM_copy_to_RMM: cudaMemcpyAsync (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost, %" PRIxPTR ")",
-                dest_adr, src_adr, nbytes, src_ctx->stream);
-    else
+    if (src_device == dest_device) {
       CUDA_CALL(ctx, cudaMemcpy((void*)dest_adr, (const void*)src_adr,
-                                nbytes, cudaMemcpyDeviceToDevice), umemMemoryError, return,
-                "umemRMM_copy_to_RMM: cudaMemcpy (%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToHost)",
+                                nbytes, cudaMemcpyDeviceToDevice),
+                umemMemoryError, return,
+                "umemCudaCopyToCuda: cudaMemcpy(%" PRIxPTR ", %" PRIxPTR ", %zu, cudaMemcpyDeviceToDevice)",
                 dest_adr, src_adr, nbytes);
-  } else {
-    if (async)
-      CUDA_CALL(ctx, cudaMemcpyPeerAsync((void*)dest_adr, dest_ctx->device,
-                                         (const void*)src_adr, src_ctx->device,
-                                         nbytes,
-                                         (cudaStream_t)src_ctx->stream), umemMemoryError, return,
-                "umemRMM_copy_to_RMM: cudaMemcpyPeerAsync (%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu, %" PRIxPTR ")",
-                dest_adr, dest_ctx->device, src_adr, src_ctx->device, nbytes, src_ctx->stream);
-    else
-      CUDA_CALL(ctx, cudaMemcpyPeer((void*)dest_adr, dest_ctx->device,
-                                    (const void*)src_adr, src_ctx->device,
+    } else {
+      CUDA_CALL(ctx, cudaMemcpyPeer((void*)dest_adr, dest_device,
+                                    (const void*)src_adr, src_device,
                                     nbytes), umemMemoryError, return,
-                "umemRMM_copy_to_RMM: cudaMemcpyPeer (%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu)",
-                dest_adr, dest_ctx->device, src_adr, src_ctx->device, nbytes);
+                "umemCudaCopyToCuda: cudaMemcpyPeer(%" PRIxPTR ", %d, %" PRIxPTR ", %d, %zu)",
+                dest_adr, dest_device, src_adr, src_device, nbytes);	
+    }
   }
 }
 

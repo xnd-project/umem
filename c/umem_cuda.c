@@ -31,8 +31,7 @@ static void umemCuda_free_(umemVirtual * const ctx, uintptr_t adr) {
 
 static void umemCuda_set_(umemVirtual * const ctx, uintptr_t adr, int c, size_t nbytes) {
   assert(ctx->type == umemCudaDevice);
-  CUDA_CALL(ctx, cudaMemset((void*)adr, c, nbytes), umemMemoryError,return,
-	    "umemCuda_set_: cudaMemset(&%" PRIxPTR ", %d, %zu)", adr, c, nbytes);
+  umemCudaSet(ctx, adr, c, nbytes, false, 0);
 }
 
 
@@ -42,14 +41,18 @@ static void umemCuda_copy_to_(umemVirtual * const src_ctx, uintptr_t src_adr,
   assert(src_ctx->type == umemCudaDevice);
   switch(dest_ctx->type) {
   case umemHostDevice:
-    umemCuda_copy_to_Host(src_ctx, (umemCuda * const)src_ctx, src_adr,  (umemHost * const)dest_ctx, dest_adr, nbytes);
+    umemCudaCopyToHost(src_ctx, src_adr, dest_adr, nbytes, false, 0);
     break;
   case umemCudaDevice:
-    umemCuda_copy_to_Cuda(src_ctx, (umemCuda * const)src_ctx, src_adr, (umemCuda * const)dest_ctx, dest_adr, nbytes);
+    umemCudaCopyToCuda(src_ctx, ((umemCuda * const)src_ctx)->device, src_adr,
+                       ((umemCuda * const)dest_ctx)->device, dest_adr,
+                       nbytes, false, 0);
     break;
 #ifdef HAVE_RMM_CONTEXT
   case umemRMMDevice:
-    umemRMM_copy_from_Cuda(src_ctx, (umemRMM * const)dest_ctx, dest_adr, (umemCuda * const)src_ctx, src_adr, nbytes, false);
+    umemCudaCopyToCuda(src_ctx, ((umemCuda * const)src_ctx)->device, src_adr,
+                       ((umemRMM * const)dest_ctx)->device, dest_adr,
+                       nbytes, false, 0);
     break;
 #endif
   default:
@@ -63,14 +66,20 @@ static void umemCuda_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr
   assert(dest_ctx->type == umemCudaDevice);
   switch(src_ctx->type) {
   case umemHostDevice:
-    umemCuda_copy_from_Host(dest_ctx, (umemCuda * const)dest_ctx, dest_adr,  (umemHost * const)src_ctx, src_adr, nbytes);
+    umemCudaCopyFromHost(dest_ctx, dest_adr, src_adr, nbytes, false, 0);
+
+
     break;
   case umemCudaDevice:
-    umemCuda_copy_to_Cuda(dest_ctx, (umemCuda * const)dest_ctx, dest_adr, (umemCuda * const)src_ctx, src_adr, nbytes);
+    umemCudaCopyToCuda(dest_ctx, ((umemCuda * const)src_ctx)->device, src_adr,
+                       ((umemCuda * const)dest_ctx)->device, dest_adr,
+                       nbytes, false, 0);
     break;
 #ifdef HAVE_RMM_CONTEXT
   case umemRMMDevice:
-    umemRMM_copy_to_Cuda(dest_ctx, (umemRMM * const)src_ctx, src_adr, (umemCuda * const)dest_ctx, dest_adr, nbytes, false);
+    umemCudaCopyToCuda(dest_ctx, ((umemRMM * const)src_ctx)->device, src_adr,
+                       ((umemCuda * const)dest_ctx)->device, dest_adr,
+                       nbytes, false, 0);
     break;
 #endif
   default:
@@ -112,7 +121,7 @@ void umemCuda_ctor(umemCuda * const ctx, int device) {
   CUDA_CALL(&ctx->super, cudaGetDeviceCount(&count),
 	    umemRuntimeError, return,
 	    "umemCuda_ctor: cudaGetDeviceCount(&%d)",
-	    count); 
+	    count);
   if (!(device >=0 && device < count)) {
     char buf[256];
     snprintf(buf, sizeof(buf),

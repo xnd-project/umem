@@ -51,12 +51,7 @@ static void umemRMM_free_(umemVirtual * const ctx, uintptr_t adr) {
 static void umemRMM_set_(umemVirtual * const ctx, uintptr_t adr, int c, size_t nbytes) {
   assert(ctx->type == umemRMMDevice);
   umemRMM * const ctx_ = (umemRMM * const)ctx;
-  if (ctx_->async)
-    CUDA_CALL(ctx, cudaMemsetAsync((void*)adr, c, nbytes, (cudaStream_t)ctx_->stream), umemMemoryError,return,
-              "umemRMM_set_: cudaMemsetAsync(&%lxu, %d, %zu, %zu)", adr, c, nbytes, ctx_->stream);
-  else
-    CUDA_CALL(ctx, cudaMemset((void*)adr, c, nbytes), umemMemoryError,return,
-              "umemRMM_set_: cudaMemset(&%lxu, %d, %zu)", adr, c, nbytes);
+  umemCudaSet(ctx, adr, c, nbytes, ctx_->async, ctx_->stream);
 }
 
 
@@ -67,15 +62,21 @@ static void umemRMM_copy_to_(umemVirtual * const src_ctx, uintptr_t src_adr,
   umemRMM * const src_ctx_ = (umemRMM * const)src_ctx;
   switch(dest_ctx->type) {
   case umemHostDevice:
-    umemRMM_copy_to_Host(src_ctx, src_ctx_, src_adr, (umemHost * const)dest_ctx, dest_adr, nbytes, false);
+    umemCudaCopyToHost(src_ctx, src_adr, dest_adr, nbytes, src_ctx_->async, src_ctx_->stream);
     break;
 #ifdef HAVE_CUDA_CONTEXT
   case umemCudaDevice:
-    umemRMM_copy_to_Cuda(src_ctx, src_ctx_, src_adr, (umemCuda * const)dest_ctx, dest_adr, nbytes, src_ctx_->async);
+    umemCudaCopyToCuda(src_ctx,
+                       src_ctx_->device, src_adr,
+                       ((umemCuda * const)dest_ctx)->device, dest_adr,
+                       nbytes, src_ctx_->async, src_ctx_->stream);
     break;
 #endif
   case umemRMMDevice:
-    umemRMM_copy_to_RMM(src_ctx, src_ctx_, src_adr, (umemRMM * const)dest_ctx, dest_adr, nbytes, src_ctx_->async);
+    umemCudaCopyToCuda(src_ctx,
+                       src_ctx_->device, src_adr,
+                       ((umemRMM * const)dest_ctx)->device, dest_adr,
+                       nbytes, src_ctx_->async, src_ctx_->stream);
     break;
   default:
     umem_copy_to_via_host(src_ctx, src_adr, dest_ctx, dest_adr, nbytes);
@@ -89,22 +90,30 @@ static void umemRMM_copy_from_(umemVirtual * const dest_ctx, uintptr_t dest_adr,
   umemRMM * const dest_ctx_ = (umemRMM * const)dest_ctx;
   switch(src_ctx->type) {
   case umemHostDevice:
-    umemRMM_copy_from_Host(dest_ctx, dest_ctx_, dest_adr, (umemHost * const)src_ctx, src_adr, nbytes, false);
+    umemCudaCopyFromHost(dest_ctx,
+                         dest_adr, src_adr, nbytes,
+                         dest_ctx_->async, dest_ctx_->stream);
     break;
 #ifdef HAVE_CUDA_CONTEXT
   case umemCudaDevice:
-    umemRMM_copy_from_Cuda(dest_ctx, dest_ctx_, dest_adr, (umemCuda * const)src_ctx, src_adr, nbytes, dest_ctx_->async);
+    umemCudaCopyToCuda(dest_ctx,
+                       ((umemCuda * const)src_ctx)->device, src_adr,
+                       ((umemRMM * const)dest_ctx)->device, dest_adr,
+                       nbytes, dest_ctx_->async, dest_ctx_->stream);
     break;
 #endif
   case umemRMMDevice:
-    umemRMM_copy_to_RMM(dest_ctx, (umemRMM * const)src_ctx, src_adr, dest_ctx_, dest_adr, nbytes, dest_ctx_->async);
+    umemCudaCopyToCuda(dest_ctx,
+                       ((umemRMM * const)src_ctx)->device, src_adr,
+                       ((umemRMM * const)dest_ctx)->device, dest_adr,
+                       nbytes, dest_ctx_->async, dest_ctx_->stream);
     break;
   default:
     umem_copy_from_via_host(dest_ctx, dest_adr, src_ctx, src_adr, nbytes);
   }
 }
 
-void umemRMM_ctor(umemRMM * const ctx, int device, uintptr_t stream, bool async) {
+void umemRMM_ctor(umemRMM * const ctx, int device, bool async, uintptr_t stream) {
   static struct umemVtbl const vtbl = {
     &umemVirtual_dtor,
     &umemRMM_is_same_context_,
@@ -124,6 +133,6 @@ void umemRMM_ctor(umemRMM * const ctx, int device, uintptr_t stream, bool async)
   ctx->super.vptr = &vtbl;
   ctx->super.type = umemRMMDevice;
   ctx->device = device;
-  ctx->stream = stream;
   ctx->async = async;
+  ctx->stream = stream;
 }

@@ -41,6 +41,8 @@ typedef enum {
   umemHostDevice,
   umemFileDevice,
   umemCudaDevice,
+  umemCudaHostDevice,
+  umemCudaManagedDevice,
   umemMMapDevice,
   umemRMMDevice,
 } umemDeviceType;
@@ -58,6 +60,7 @@ typedef enum {
   umemTypeError,
   umemIndexError,
   umemNotImplementedError,
+  umemNotSupportedError,
   umemAssertError,
 } umemStatusType;
 
@@ -146,6 +149,46 @@ UMEM_EXTERN void umemCuda_ctor(umemCuda * const ctx, int device);
 
 #endif
 
+#ifdef HAVE_CUDA_HOST_CONTEXT
+/**
+   umemCudaHost represents page-locked RAM
+
+   To construct/destruct the umemCudaHost object, use
+   umemCudaHost_ctor/umem_dtor.
+*/
+typedef struct {
+  umemVirtual super;
+  umemHost host;
+  unsigned int flags;
+} umemCudaHost;
+
+UMEM_EXTERN void umemCudaHost_ctor(umemCudaHost * const ctx, unsigned int flags);
+#endif
+
+#ifdef HAVE_CUDA_MANAGED_CONTEXT
+/**
+   umemCudaManaged represents Cuda Unified Memory.
+
+   @params[in]     flags - cudaMemAttachGlobal or cudaMemAttachHost,
+                   default value 0 corresponds to cudaMemAttachGlobal
+   @params[in]     async - when true, use asynchronous copy methods 
+   @params[in]     stream - specify stream for asynchronous calls,
+                   ignored when async is false
+
+   To construct/destruct the umemCudaManaged object, use
+   umemCudaManaged_ctor/umem_dtor.
+*/
+typedef struct {
+  umemVirtual super;
+  umemHost host;
+  unsigned int flags;
+  bool async;
+  uintptr_t stream;
+} umemCudaManaged;
+
+UMEM_EXTERN void umemCudaManaged_ctor(umemCudaManaged * const ctx, unsigned int flags, bool async, uintptr_t stream);
+#endif
+
 #ifdef HAVE_RMM_CONTEXT
 /**
    umemRMM represents GPU device memory using rmm from rapidsay/cudf. 
@@ -157,11 +200,11 @@ typedef struct {
   umemVirtual super;
   umemHost host;
   int device;        //< device
-  uintptr_t stream;  //< stream id
   bool async;        //< when true, use CUDA asynchronous copy methods
+  uintptr_t stream;  //< stream id
 } umemRMM;
 
-UMEM_EXTERN void umemRMM_ctor(umemRMM * const ctx, int device, uintptr_t stream, bool async);
+UMEM_EXTERN void umemRMM_ctor(umemRMM * const ctx, int device, bool async, uintptr_t stream);
 
 #endif
 

@@ -213,15 +213,19 @@ void umem_clear_status(void * const ctx) {
 const char* umem_get_device_name_from_type(umemDeviceType type) {
   static const char virtual_device_name[] = "Virtual";
   static const char host_device_name[] = "Host";
-  static const char file_device_name[] = "FILE";
-  static const char cuda_device_name[] = "CUDA";
+  static const char file_device_name[] = "File";
+  static const char cuda_device_name[] = "Cuda";
+  static const char cuda_managed_device_name[] = "CudaManaged";
+  static const char cuda_host_device_name[] = "CudaHost";
   static const char mmap_device_name[] = "MMAP"; // NOT IMPLEMENTED
-  static const char rmm_device_name[] = "RRM"; // NOT IMPLEMENTED
+  static const char rmm_device_name[] = "RMM"; // NOT IMPLEMENTED
   switch(type) {
   case umemVirtualDevice: return virtual_device_name;
   case umemHostDevice: return host_device_name;
   case umemFileDevice: return file_device_name;
   case umemCudaDevice: return cuda_device_name;
+  case umemCudaManagedDevice: return cuda_managed_device_name;
+  case umemCudaHostDevice: return cuda_host_device_name;
   case umemMMapDevice: return mmap_device_name;
   case umemRMMDevice: return rmm_device_name;
   }
@@ -235,6 +239,7 @@ const char* umem_get_status_name(umemStatusType type) {
   static const char runtime_error_name[] = "RuntimeError";
   static const char io_error_name[] = "IOError";
   static const char notimpl_error_name[] = "NotImplementedError";
+  static const char notsupp_error_name[] = "NotSupportedError";
   static const char assert_error_name[] = "AssertError";
   static const char value_error_name[] = "ValueError";
   static const char type_error_name[] = "TypeError";
@@ -245,6 +250,7 @@ const char* umem_get_status_name(umemStatusType type) {
   case umemRuntimeError: return runtime_error_name;
   case umemIOError: return io_error_name;
   case umemNotImplementedError: return notimpl_error_name;
+  case umemNotSupportedError: return notsupp_error_name;
   case umemAssertError: return assert_error_name;
   case umemValueError: return value_error_name;
   case umemTypeError: return type_error_name;
