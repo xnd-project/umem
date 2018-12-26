@@ -113,7 +113,9 @@ objects (C :type:`struct` instances):
 
 * :type:`umemCuda` - CUDA RT based interface to GPU device memory.
 
-* :type:`umemRMM` - `RAPIDSAI CUDF RMM`__ based interface to GPU device memory.
+* :type:`umemCudaManaged` - CUDA Unified Memory interface to GPU device memory.
+
+* :type:`umemRMM` - `RAPIDS Memory Manager`__ based interface to GPU device memory.
 
 __ https://github.com/rapidsai/cudf/blob/master/cpp/src/rmm/RAPIDS_Memory_Manager.md
   
@@ -153,7 +155,6 @@ following strings: ``"r"``, ``"r+"``, ``"w"``, ``"w+"``, ``"a"``,
 
 The destructor function :func:`umem_dtor` closes the file.
 
-
 :type:`memCuda` context
 '''''''''''''''''''''''
 
@@ -172,16 +173,34 @@ While the destructor function :func:`umem_dtor` does not call any CUDA
 API functions, it is recommended to use it to destruct :type:`umemCuda`
 objects after it is not needed anymore.
 
-:type:`memRMM` context
-'''''''''''''''''''''''
+:type:`memCudaManaged` context
+''''''''''''''''''''''''''''''
 
-The :type:`umemRMM` type defines a RAPIDSAI CUDF RMM based GPU device
-memory context that must be initialized with the following constructor
-function:
+The :type:`umemCudaManaged` type defines a CUDA Unified Memory based
+GPU device memory context that must be initialized with the following
+constructor function:
 
 .. code-block:: c
 
-   void umemRMM_ctor(umemRMM * const ctx, uintptr_t stream);
+   void umemCudaManaged_ctor(umemCuda * const ctx, unsigned int flags, bool async, uintptr_t stream);
+
+Here :data:`flags` is flags option used in :func:`cudaMallocManaged`
+call, 0 value corresponds to :data:`cudaMemAttachGlobal`. If
+:data:`async` is true then asynchronous copy methods will be used with
+the given :data:`strream`.
+
+Use :func:`umem_dtor` function to destruct :type:`umemMallocManaged` object.
+
+:type:`memRMM` context
+'''''''''''''''''''''''
+
+The :type:`umemRMM` type defines a RAPIDS Memory Manager based GPU
+device memory context that must be initialized with the following
+constructor function:
+
+.. code-block:: c
+
+   void umemRMM_ctor(umemRMM * const ctx, int device, uintptr_t stream);
 
 Here :data:`stream` is a CUDA stream handler (0 corresponds to default stream).
 
