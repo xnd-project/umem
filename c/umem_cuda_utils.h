@@ -44,6 +44,16 @@ UMEM_EXPORT void umemCudaSet(umemVirtual * const ctx,
                              uintptr_t adr, int c, size_t nbytes,
                              bool async, uintptr_t stream);
 
+UMEM_EXPORT void umemCudaHostCopyToHost(umemVirtual * const ctx,
+                                        uintptr_t src_adr, uintptr_t dest_adr,
+                                        size_t nbytes,
+                                        bool async, uintptr_t stream);
+
+UMEM_EXPORT void umemCudaHostCopyFromHost(umemVirtual * const ctx,
+                                          uintptr_t dest_adr, uintptr_t src_adr,
+                                          size_t nbytes,
+                                          bool async, uintptr_t stream);
+
 UMEM_EXPORT void umemCudaCopyToHost(umemVirtual * const ctx,
                                     uintptr_t src_adr, uintptr_t dest_adr,
                                     size_t nbytes,

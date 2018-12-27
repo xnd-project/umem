@@ -111,6 +111,8 @@ objects (C :type:`struct` instances):
 
 * :type:`umemFile` - `stdio.h` based interface to files,
 
+* :type:`umemCudaHost` - CUDA RT based interface to page-locked host RAM.
+  
 * :type:`umemCuda` - CUDA RT based interface to GPU device memory.
 
 * :type:`umemCudaManaged` - CUDA Unified Memory interface to GPU device memory.
@@ -155,6 +157,26 @@ following strings: ``"r"``, ``"r+"``, ``"w"``, ``"w+"``, ``"a"``,
 
 The destructor function :func:`umem_dtor` closes the file.
 
+:type:`memCudaHost` context
+'''''''''''''''''''''''''''
+
+The :type:`umemCudaHost` type defines a CUDA RT based page-locked host
+memory context that must be initialized with the following constructor
+function:
+
+.. code-block:: c
+
+   void umemCudaHost_ctor(umemCuda * const ctx, unsigned int flags);
+
+Here :data:`flags` is a flags argument to :func:`cudaAllocHost`__
+function: :data:`cudaHostAllocDefault` or
+:data:`cudaHostAllocPortable` or :data:`cudaHostAllocMapped` or
+:data:`cudaHostAllocWriteCombined`.
+
+__ https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1gb65da58f444e7230d3322b6126bb4902
+      
+Use :func:`umem_dtor` function to destruct :type:`umemCudaHost` object.
+
 :type:`memCuda` context
 '''''''''''''''''''''''
 
@@ -182,14 +204,15 @@ constructor function:
 
 .. code-block:: c
 
-   void umemCudaManaged_ctor(umemCuda * const ctx, unsigned int flags, bool async, uintptr_t stream);
+   void umemCudaManaged_ctor(umemCuda * const ctx, unsigned int flags,
+                             bool async, uintptr_t stream);
 
 Here :data:`flags` is flags option used in :func:`cudaMallocManaged`
 call, 0 value corresponds to :data:`cudaMemAttachGlobal`. If
 :data:`async` is true then asynchronous copy methods will be used with
 the given :data:`strream`.
 
-Use :func:`umem_dtor` function to destruct :type:`umemMallocManaged` object.
+Use :func:`umem_dtor` function to destruct :type:`umemCudaManaged` object.
 
 :type:`memRMM` context
 '''''''''''''''''''''''
@@ -353,7 +376,7 @@ and the other arguments must be the same that was used to call
    void umem_sync_to(void * const src, uintptr_t src_adr,
                      void * const dest, uintptr_t dest_adr, size_t nbytes);
    void umem_sync_from(void * const dest, uintptr_t dest_adr,
-                     void * const src, uintptr_t src_adr, size_t nbytes);
+                       void * const src, uintptr_t src_adr, size_t nbytes);
 
 Syncronize the data between the two devices. When the source and
 destination devices are the same and ``src_adr == dest_adr`` then
